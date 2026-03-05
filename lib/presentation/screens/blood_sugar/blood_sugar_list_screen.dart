@@ -403,42 +403,51 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
   Future<void> _saveRecord() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final db = ref.read(databaseProvider);
-    var value = double.parse(_valueController.text);
-    
-    // 统一转换为 mg/dL 存储
-    if (_selectedUnit == AppConstants.unitMmolL) {
-      value = AppConstants.mmolLToMgDl(value);
-    }
-    
-    final recordedAt = DateTime(
-      _selectedDate.year,
-      _selectedDate.month,
-      _selectedDate.day,
-      _selectedTime.hour,
-      _selectedTime.minute,
-    );
-
-    await db.insertBloodSugarRecord(
-      BloodSugarRecordsCompanion.insert(
-        value: value,
-        unit: const drift.Value(AppConstants.unitMgDl), // 数据库统一存储 mg/dL
-        type: _selectedType,
-        recordedAt: recordedAt,
-        hoursAfterMeal: drift.Value(_hoursAfterMeal),
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ),
-    );
-
-    // 刷新列表
-    ref.invalidate(bloodSugarRecordsProvider);
-
-    if (mounted) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('血糖记录已保存')),
+    try {
+      final db = ref.read(databaseProvider);
+      var value = double.parse(_valueController.text);
+      
+      // 统一转换为 mg/dL 存储
+      if (_selectedUnit == AppConstants.unitMmolL) {
+        value = AppConstants.mmolLToMgDl(value);
+      }
+      
+      final recordedAt = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        _selectedTime.hour,
+        _selectedTime.minute,
       );
+
+      await db.insertBloodSugarRecord(
+        BloodSugarRecordsCompanion.insert(
+          value: value,
+          unit: drift.Value(AppConstants.unitMgDl), // 数据库统一存储 mg/dL
+          type: _selectedType,
+          recordedAt: recordedAt,
+          hoursAfterMeal: drift.Value(_hoursAfterMeal),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+
+      // 刷新列表
+      ref.invalidate(bloodSugarRecordsProvider);
+
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('血糖记录已保存')),
+        );
+      }
+    } catch (e) {
+      // 显示错误信息
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('保存失败: $e')),
+        );
+      }
     }
   }
 }
