@@ -1,0 +1,289 @@
+import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// WebDAV 同步状态
+enum WebDAVSyncState {
+  idle,
+  syncing,
+  success,
+  error,
+}
+
+/// WebDAV 同步状态 Provider
+final webdavSyncStateProvider = StateProvider<WebDAVSyncState>((ref) => WebDAVSyncState.idle);
+
+/// 最后同步时间 Provider
+final lastSyncTimeProvider = StateProvider<DateTime?>((ref) => null);
+
+/// WebDAV 配置
+class WebDAVConfig {
+  final String server;
+  final String username;
+  final String password;
+  final bool enabled;
+
+  WebDAVConfig({
+    required this.server,
+    required this.username,
+    required this.password,
+    required this.enabled,
+  });
+
+  factory WebDAVConfig.fromJson(Map<String, dynamic> json) {
+    return WebDAVConfig(
+      server: json['server'] ?? '',
+      username: json['username'] ?? '',
+      password: json['password'] ?? '',
+      enabled: json['enabled'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'server': server,
+    'username': username,
+    'password': password,
+    'enabled': enabled,
+  };
+}
+
+/// WebDAV 服务
+class WebDAVService {
+  static final WebDAVService _instance = WebDAVService._internal();
+  factory WebDAVService() => _instance;
+  WebDAVService._internal();
+
+  Dio? _dio;
+  WebDAVConfig? _config;
+
+  /// 初始化 WebDAV 服务
+  void init(WebDAVConfig config) {
+    _config = config;
+    _dio = Dio(BaseOptions(
+      baseUrl: config.server,
+      headers: {
+        'Authorization': 'Basic ${base64Encode(utf8.encode('${config.username}:${config.password}'))}',
+      },
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+    ));
+  }
+
+  /// 测试连接
+  Future<bool> testConnection() async {
+    try {
+      final response = await _dio?.propfind(
+        '/',
+        options: Options(
+          headers: {
+            'Depth': '0',
+          },
+        ),
+      );
+      return response?.statusCode == 207; // 207 Multi-Status 表示成功
+    } catch (e) {
+      debugPrint('WebDAV 连接测试失败: $e');
+      return false;
+    }
+  }
+
+  /// 上传数据
+  Future<bool> uploadData(String fileName, String content) async {
+    try {
+      // 确保目录存在
+      await _ensureDirectory('/glucocontrol');
+
+      final response = await _dio?.put(
+        '/glucocontrol/$fileName',
+        data: content,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      
+      return response?.statusCode == 200 || response?.statusCode == 201;
+    } catch (e) {
+      debugPrint('WebDAV 上传失败: $e');
+      return false;
+    }
+  }
+
+  /// 下载数据
+  Future<String?> downloadData(String fileName) async {
+    try {
+      final response = await _dio?.get(
+        '/glucocontrol/$fileName',
+        options: Options(
+          responseType: ResponseType.plain,
+        ),
+      );
+      
+      if (response?.statusCode == 200) {
+        return response?.data.toString();
+      }
+      return null;
+    } catch (e) {
+      debugPrint('WebDAV 下载失败: $e');
+      return null;
+    }
+  }
+
+  /// 列出文件
+  Future<List<String>> listFiles() async {
+    try {
+      final response = await _dio?.propfind(
+        '/glucocontrol/',
+        options: Options(
+          headers: {
+            'Depth': '1',
+          },
+        ),
+      );
+      
+      if (response?.statusCode == 207) {
+        // 解析 WebDAV 响应，提取文件名
+        final content = response?.data.toString();
+        // 简单的解析，实际应该使用 webdav 库解析 XML
+        final files = <String>[];
+        final regex = RegExp(r'<d:href>([^<]+)</d:href>');
+        final matches = regex.allMatches(content ?? '');
+        for (final match in matches) {
+          final path = match.group(1) ?? '';
+          if (path.isNotEmpty && path != '/glucocontrol/') {
+            files.add(path.split('/').last);
+          }
+        }
+        return files;
+      }
+      return [];
+    } catch (e) {
+      debugPrint('WebDAV 列出文件失败: $e');
+      return [];
+    }
+  }
+
+  /// 删除文件
+  Future<bool> deleteFile(String fileName) async {
+    try {
+      final response = await _dio?.delete('/glucocontrol/$fileName');
+      return response?.statusCode == 200 || response?.statusCode == 204;
+    } catch (e) {
+      debugPrint('WebDAV 删除失败: $e');
+      return false;
+    }
+  }
+
+  /// 确保目录存在
+  Future<void> _ensureDirectory(String path) async {
+    try {
+      await _dio?.mkcol(path);
+    } catch (e) {
+      // 目录可能已存在，忽略错误
+    }
+  }
+
+  /// 获取所有数据的 JSON
+  Map<String, dynamic> exportAllData({
+    required List<Map<String, dynamic>> bloodSugarRecords,
+    required List<Map<String, dynamic>> exerciseRecords,
+    required List<Map<String, dynamic>> mealRecords,
+  }) {
+    return {
+      'version': '1.0',
+      'exportTime': DateTime.now().toIso8601String(),
+      'bloodSugarRecords': bloodSugarRecords,
+      'exerciseRecords': exerciseRecords,
+      'mealRecords': mealRecords,
+    };
+  }
+}
+
+/// WebDAV 服务 Provider
+final webdavServiceProvider = Provider<WebDAVService>((ref) {
+  return WebDAVService();
+});
+
+/// 同步管理器
+class SyncManager {
+  final WebDAVService _webDAVService;
+  final Ref _ref;
+
+  SyncManager(this._webDAVService, this._ref);
+
+  /// 执行完整同步
+  Future<bool> syncAll() async {
+    _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.syncing;
+    
+    try {
+      // TODO: 从数据库获取所有数据
+      // final bloodSugarRecords = await db.getAllBloodSugarRecords();
+      // final exerciseRecords = await db.getAllExerciseRecords();
+      // final mealRecords = await db.getAllMealRecords();
+
+      final data = _webDAVService.exportAllData(
+        bloodSugarRecords: [],
+        exerciseRecords: [],
+        mealRecords: [],
+      );
+
+      final jsonStr = jsonEncode(data);
+      final fileName = 'glucocontrol_backup_${DateTime.now().millisecondsSinceEpoch}.json';
+      
+      final success = await _webDAVService.uploadData(fileName, jsonStr);
+      
+      if (success) {
+        _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.success;
+        _ref.read(lastSyncTimeProvider.notifier).state = DateTime.now();
+        return true;
+      } else {
+        _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.error;
+        return false;
+      }
+    } catch (e) {
+      debugPrint('同步失败: $e');
+      _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.error;
+      return false;
+    }
+  }
+
+  /// 从云端恢复数据
+  Future<Map<String, dynamic>?> restore() async {
+    _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.syncing;
+    
+    try {
+      final files = await _webDAVService.listFiles();
+      
+      // 找到最新的备份文件
+      files.sort((a, b) => b.compareTo(a)); // 降序排列
+      
+      if (files.isEmpty) {
+        _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.idle;
+        return null;
+      }
+
+      final latestFile = files.first;
+      final content = await _webDAVService.downloadData(latestFile);
+      
+      if (content != null) {
+        _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.success;
+        return jsonDecode(content) as Map<String, dynamic>;
+      } else {
+        _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.error;
+        return null;
+      }
+    } catch (e) {
+      debugPrint('恢复失败: $e');
+      _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.error;
+      return null;
+    }
+  }
+}
+
+/// SyncManager Provider
+final syncManagerProvider = Provider<SyncManager>((ref) {
+  final webdavService = ref.watch(webdavServiceProvider);
+  return SyncManager(webdavService, ref);
+});

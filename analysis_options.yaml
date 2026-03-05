@@ -1,0 +1,32 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.gr.dart"
+    - "build/**"
+    - "lib/generated/**"
+    - ".dart_tool/**"
+
+linter:
+  rules:
+    # 建议启用的规则
+    - avoid_print
+    - avoid_returning_null_for_void
+    - constant_identifier_names
+    - curly_braces_in_flow_control_structures
+    - empty_catches
+    - empty_constructor_bodies
+    - library_names
+    - library_prefixes
+    - no_duplicate_case_values
+    - null_closures
+    - prefer_conditional_assignment
+    - unnecessary_const
+    - unnecessary_new
+    - unnecessary_null_aware_assignments
+    - unnecessary_statements
+    - use_full_hex_values_for_flutter_colors
+    - use_rethrow_when_possible
+    - valid_regexps
