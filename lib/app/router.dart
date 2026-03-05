@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'presentation/screens/home_screen.dart';
+import '../presentation/screens/home_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(

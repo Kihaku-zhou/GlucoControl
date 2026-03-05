@@ -35,7 +35,7 @@ class Meal with _$Meal {
   }
   
   /// 计算总碳水
-  double get totalCarbs {
+  static double calculateTotalCarbs(List<FoodItem> foods) {
     return foods.fold(0.0, (sum, food) => sum + (food.carbs ?? 0));
   }
 }
