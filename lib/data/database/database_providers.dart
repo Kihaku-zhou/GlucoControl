@@ -91,6 +91,23 @@ final exerciseRecordsByDateRangeProvider = FutureProvider.family<List<ExerciseRe
   return db.getExerciseRecordsByDateRange(range.start, range.end);
 });
 
+/// ==================== 训练计划 Providers ====================
+
+/// 训练计划列表 Provider
+final trainingPlansProvider = FutureProvider<List<TrainingPlan>>((ref) async {
+  final db = ref.watch(databaseProvider);
+  return db.getAllTrainingPlans();
+});
+
+/// 训练计划动作 Provider
+final trainingPlanExercisesProvider = FutureProvider.family<List<TrainingPlanExercise>, int>((ref, planId) async {
+  final db = ref.watch(databaseProvider);
+  return db.getExercisesByPlanId(planId);
+});
+
+/// 当前选择的训练计划
+final selectedTrainingPlanProvider = StateProvider<TrainingPlan?>((ref) => null);
+
 /// ==================== 饮食相关 Providers ====================
 
 /// 饮食记录列表 Provider

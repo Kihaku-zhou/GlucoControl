@@ -47,6 +47,31 @@ class StrengthTrainings extends Table {
   IntColumn get reps => integer()();
   RealColumn get weight => real().nullable()();
   IntColumn get restSeconds => integer().nullable()();
+  TextColumn get trainingType => text().withDefault(const Constant('strength'))(); // strength: 力量, endurance: 计时耐力
+  IntColumn get durationSeconds => integer().nullable()(); // 计时耐力训练的时长（秒）
+}
+
+/// 训练计划表
+class TrainingPlans extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()(); // 计划名称
+  TextColumn get description => text().nullable()(); // 计划描述
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+}
+
+/// 训练计划动作表
+class TrainingPlanExercises extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get planId => integer().references(TrainingPlans, #id)();
+  TextColumn get device => text()(); // 器械类型
+  TextColumn get movement => text()(); // 动作名称
+  IntColumn get targetSets => integer()(); // 目标组数
+  IntColumn get targetReps => integer()(); // 目标次数
+  RealColumn get targetWeight => real().nullable()(); // 目标重量
+  IntColumn get restSeconds => integer().nullable()(); // 休息时间
+  TextColumn get trainingType => text().withDefault(const Constant('strength'))(); // strength/endurance
+  IntColumn get orderIndex => integer().withDefault(const Constant(0))(); // 排序
 }
 
 /// 饮食记录表
@@ -83,6 +108,8 @@ class AppSettings extends Table {
   MealRecords,
   FoodItems,
   AppSettings,
+  TrainingPlans,
+  TrainingPlanExercises,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -187,6 +214,41 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteFoodItemsByMealId(int mealId) =>
       (delete(foodItems)..where((t) => t.mealId.equals(mealId))).go();
+
+  // ==================== 训练计划 CRUD ====================
+  
+  Future<List<TrainingPlan>> getAllTrainingPlans() =>
+      (select(trainingPlans)..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).get();
+
+  Future<int> insertTrainingPlan(TrainingPlansCompanion plan) =>
+      into(trainingPlans).insert(plan);
+
+  Future<bool> updateTrainingPlan(TrainingPlan plan) =>
+      update(trainingPlans).replace(plan);
+
+  Future<int> deleteTrainingPlan(int id) async {
+    // 先删除计划中的动作
+    await (delete(trainingPlanExercises)..where((t) => t.planId.equals(id))).go();
+    // 再删除计划
+    return (delete(trainingPlans)..where((t) => t.id.equals(id))).go();
+  }
+
+  // ==================== 训练计划动作 CRUD ====================
+  
+  Future<List<TrainingPlanExercise>> getExercisesByPlanId(int planId) =>
+      (select(trainingPlanExercises)
+        ..where((t) => t.planId.equals(planId))
+        ..orderBy([(t) => OrderingTerm.asc(t.orderIndex)]))
+      .get();
+
+  Future<int> insertTrainingPlanExercise(TrainingPlanExercisesCompanion exercise) =>
+      into(trainingPlanExercises).insert(exercise);
+
+  Future<int> deleteTrainingPlanExercise(int id) =>
+      (delete(trainingPlanExercises)..where((t) => t.id.equals(id))).go();
+
+  Future<int> deleteExercisesByPlanId(int planId) =>
+      (delete(trainingPlanExercises)..where((t) => t.planId.equals(planId))).go();
 
   // ==================== 设置 ====================
   
