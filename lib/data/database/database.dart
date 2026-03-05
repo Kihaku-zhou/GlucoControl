@@ -138,7 +138,25 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (Migrator m) async {
+        await m.createAll();
+      },
+      onUpgrade: (Migrator m, int from, int to) async {
+        if (from < 2) {
+          // 创建训练计划表
+          await m.createTable(trainingPlans);
+          await m.createTable(trainingPlanExercises);
+          // 创建体测记录表
+          await m.createTable(bodyMeasurements);
+        }
+      },
+    );
+  }
 
   // ==================== 血糖记录 CRUD ====================
   
@@ -153,6 +171,39 @@ class AppDatabase extends _$AppDatabase {
           ..where((t) => t.recordedAt.isBetweenValues(start, end))
           ..orderBy([(t) => OrderingTerm.desc(t.recordedAt)]))
         .get();
+  }
+
+  /// 批量转换血糖单位
+  Future<int> convertBloodSugarUnit(String fromUnit, String toUnit) async {
+    if (fromUnit == toUnit) return 0;
+    
+    final records = await getAllBloodSugarRecords();
+    int count = 0;
+    
+    for (final record in records) {
+      double newValue = record.value;
+      
+      // mg/dL 转 mmol/L: /18.0182
+      if (fromUnit == 'mg/dL' && toUnit == 'mmol/L') {
+        newValue = record.value / 18.0182;
+      }
+      // mmol/L 转 mg/dL: *18.0182
+      else if (fromUnit == 'mmol/L' && toUnit == 'mg/dL') {
+        newValue = record.value * 18.0182;
+      }
+      else {
+        continue;
+      }
+      
+      await updateBloodSugarRecord(record.copyWith(
+        value: newValue,
+        unit: toUnit,
+        updatedAt: DateTime.now(),
+      ));
+      count++;
+    }
+    
+    return count;
   }
 
   Future<int> insertBloodSugarRecord(BloodSugarRecordsCompanion record) =>

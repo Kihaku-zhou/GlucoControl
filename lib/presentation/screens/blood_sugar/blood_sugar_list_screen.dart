@@ -67,32 +67,77 @@ class BloodSugarListScreen extends ConsumerWidget {
             );
           }
 
+          // 计算 HbA1c（基于最近 30 天的平均血糖）
+          final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
+          final recentRecords = records.where((r) => r.recordedAt.isAfter(thirtyDaysAgo)).toList();
+          double? estimatedHbA1c;
+          if (recentRecords.isNotEmpty) {
+            final avgBloodSugar = recentRecords.map((r) => r.value).reduce((a, b) => a + b) / recentRecords.length;
+            estimatedHbA1c = (avgBloodSugar + 46.7) / 28.7;
+          }
+
           // 按日期分组
           final groupedRecords = _groupRecordsByDate(records);
 
-          return ListView.builder(
-            itemCount: groupedRecords.length,
-            itemBuilder: (context, index) {
-              final date = groupedRecords.keys.elementAt(index);
-              final dayRecords = groupedRecords[date]!;
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Text(
-                      date,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                      ),
+          return Column(
+            children: [
+              // HbA1c 估算卡片
+              if (estimatedHbA1c != null)
+                Card(
+                  margin: const EdgeInsets.all(16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.analytics, color: Colors.blue),
+                            SizedBox(width: 8),
+                            Text('预估 HbA1c', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        Text(
+                          '${estimatedHbA1c.toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: estimatedHbA1c < 5.7 ? Colors.green : (estimatedHbA1c < 6.5 ? Colors.orange : Colors.red),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  ...dayRecords.map((record) => _BloodSugarRecordTile(record: record)),
-                ],
-              );
-            },
+                ),
+              
+              // 记录列表
+              Expanded(
+                child: ListView.builder(
+                  itemCount: groupedRecords.length,
+                  itemBuilder: (context, index) {
+                    final date = groupedRecords.keys.elementAt(index);
+                    final dayRecords = groupedRecords[date]!;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          child: Text(
+                            date,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                        ...dayRecords.map((record) => _BloodSugarRecordTile(record: record)),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),

@@ -178,10 +178,24 @@ class BloodSugarUnitTile extends ConsumerWidget {
                   value: 'mg/dL',
                   groupValue: currentUnit,
                   onChanged: (value) async {
-                    final prefs = ref.read(sharedPreferencesProvider);
-                    await prefs.setString('blood_sugar_unit', value!);
-                    ref.read(bloodSugarUnitProvider.notifier).state = value;
-                    if (context.mounted) Navigator.pop(context);
+                    if (value != currentUnit) {
+                      final db = ref.read(databaseProvider);
+                      final prefs = ref.read(sharedPreferencesProvider);
+                      // 转换已有记录
+                      await db.convertBloodSugarUnit(currentUnit, value!);
+                      await prefs.setString('blood_sugar_unit', value);
+                      ref.read(bloodSugarUnitProvider.notifier).state = value;
+                      // 刷新血糖记录
+                      ref.invalidate(bloodSugarRecordsProvider);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('血糖单位已切换')),
+                        );
+                      }
+                    } else {
+                      if (context.mounted) Navigator.pop(context);
+                    }
                   },
                 ),
                 RadioListTile<String>(
@@ -189,10 +203,24 @@ class BloodSugarUnitTile extends ConsumerWidget {
                   value: 'mmol/L',
                   groupValue: currentUnit,
                   onChanged: (value) async {
-                    final prefs = ref.read(sharedPreferencesProvider);
-                    await prefs.setString('blood_sugar_unit', value!);
-                    ref.read(bloodSugarUnitProvider.notifier).state = value;
-                    if (context.mounted) Navigator.pop(context);
+                    if (value != currentUnit) {
+                      final db = ref.read(databaseProvider);
+                      final prefs = ref.read(sharedPreferencesProvider);
+                      // 转换已有记录
+                      await db.convertBloodSugarUnit(currentUnit, value!);
+                      await prefs.setString('blood_sugar_unit', value);
+                      ref.read(bloodSugarUnitProvider.notifier).state = value;
+                      // 刷新血糖记录
+                      ref.invalidate(bloodSugarRecordsProvider);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('血糖单位已切换')),
+                        );
+                      }
+                    } else {
+                      if (context.mounted) Navigator.pop(context);
+                    }
                   },
                 ),
               ],
