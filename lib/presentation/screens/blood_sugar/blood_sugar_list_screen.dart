@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../core/constants.dart';
 import '../../../core/theme.dart';
@@ -403,13 +404,24 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
   Future<void> _saveRecord() async {
     if (!_formKey.currentState!.validate()) return;
 
+    debugPrint('=== Saving blood sugar record ===');
+    debugPrint('Value: ${_valueController.text}');
+    debugPrint('Unit: $_selectedUnit');
+    debugPrint('Type: $_selectedType');
+    debugPrint('Hours after meal: $_hoursAfterMeal');
+    debugPrint('Date: $_selectedDate $_selectedTime');
+
     try {
       final db = ref.read(databaseProvider);
+      debugPrint('Database provider obtained');
+      
       var value = double.parse(_valueController.text);
+      debugPrint('Parsed value: $value');
       
       // 统一转换为 mg/dL 存储
       if (_selectedUnit == AppConstants.unitMmolL) {
         value = AppConstants.mmolLToMgDl(value);
+        debugPrint('Converted to mg/dL: $value');
       }
       
       final recordedAt = DateTime(
@@ -419,11 +431,12 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
         _selectedTime.hour,
         _selectedTime.minute,
       );
+      debugPrint('Recorded at: $recordedAt');
 
       await db.insertBloodSugarRecord(
         BloodSugarRecordsCompanion.insert(
           value: value,
-          unit: drift.Value(AppConstants.unitMgDl), // 数据库统一存储 mg/dL
+          unit: drift.Value(AppConstants.unitMgDl),
           type: _selectedType,
           recordedAt: recordedAt,
           hoursAfterMeal: drift.Value(_hoursAfterMeal),
@@ -431,9 +444,11 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
           updatedAt: DateTime.now(),
         ),
       );
+      debugPrint('Insert completed');
 
       // 刷新列表
       ref.invalidate(bloodSugarRecordsProvider);
+      debugPrint('Invalidated provider');
 
       if (mounted) {
         Navigator.pop(context);
@@ -441,7 +456,11 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
           const SnackBar(content: Text('血糖记录已保存')),
         );
       }
-    } catch (e) {
+      debugPrint('=== Save successful ===');
+    } catch (e, stack) {
+      debugPrint('=== Save FAILED ===');
+      debugPrint('Error: $e');
+      debugPrint('Stack: $stack');
       // 显示错误信息
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -3,34 +3,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../database/database.dart';
-import '../../services/web_stubs.dart';
 
 /// 数据库实例 Provider
 final databaseProvider = Provider<AppDatabase>((ref) {
-  if (isWeb) {
-    // Web 平台使用 stub，不实际存储数据
-    debugPrint('Web mode: Using stub database');
-    return _createWebStubDatabase();
+  debugPrint('===== Initializing database =====');
+  try {
+    final db = AppDatabase();
+    debugPrint('Database created successfully');
+    ref.onDispose(() {
+      debugPrint('Database disposed');
+      db.close();
+    });
+    return db;
+  } catch (e, stack) {
+    debugPrint('Database initialization FAILED: $e');
+    debugPrint('Stack: $stack');
+    rethrow;
   }
-  final db = AppDatabase();
-  ref.onDispose(() => db.close());
-  return db;
 });
-
-/// Web 平台的假数据库（用于 UI 测试）
-AppDatabase _createWebStubDatabase() {
-  // 返回一个假的数据库实现
-  throw UnimplementedError('Web 平台请使用 WebDatabaseStub');
-}
 
 /// SharedPreferences Provider
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError('需要在 main.dart 中初始化');
-});
-
-/// Web 平台数据存储 Provider（使用内存）
-final webStorageProvider = Provider<WebDatabaseStub>((ref) {
-  return WebDatabaseStub();
 });
 
 ///血糖相关 Providers = ==================== ===================
