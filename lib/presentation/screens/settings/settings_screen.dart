@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../../data/database/database_providers.dart';
+import '../../../services/data_export_service.dart';
 
 /// 设置主页面
 class SettingsMainScreen extends ConsumerWidget {
@@ -68,20 +71,58 @@ class SettingsMainScreen extends ConsumerWidget {
             leading: const Icon(Icons.file_download),
             title: const Text('导出数据'),
             subtitle: const Text('导出为 JSON 文件'),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('导出功能开发中...')),
-              );
+            onTap: () async {
+              try {
+                final db = ref.read(databaseProvider);
+                final exportService = DataExportService(db);
+                final filePath = await exportService.saveExportToFile();
+                
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('数据已导出到: $filePath')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('导出失败: $e')),
+                  );
+                }
+              }
             },
           ),
           ListTile(
             leading: const Icon(Icons.file_upload),
             title: const Text('导入数据'),
             subtitle: const Text('从 JSON 文件导入'),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('导入功能开发中...')),
-              );
+            onTap: () async {
+              try {
+                final result = await FilePicker.platform.pickFiles(
+                  type: FileType.custom,
+                  allowedExtensions: ['json'],
+                );
+                
+                if (result != null && result.files.single.path != null) {
+                  final file = File(result.files.single.path!);
+                  final jsonString = await file.readAsString();
+                  
+                  final db = ref.read(databaseProvider);
+                  final exportService = DataExportService(db);
+                  final count = await exportService.importFromJson(jsonString);
+                  
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('成功导入 $count 条记录')),
+                    );
+                  }
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('导入失败: $e')),
+                  );
+                }
+              }
             },
           ),
           const Divider(),
