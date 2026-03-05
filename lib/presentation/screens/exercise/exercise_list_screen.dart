@@ -568,9 +568,12 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
     }
 
     // 运动名称
-    final exerciseName = _selectedType == 'aerobic' 
-        ? (_selectedExercise ?? _nameController.text)
-        : (_movementController.isNotEmpty ? _movementController : _nameController.text);
+    String exerciseName;
+    if (_selectedType == 'aerobic') {
+      exerciseName = _selectedExercise ?? (_nameController.text.isNotEmpty ? _nameController.text : '有氧运动');
+    } else {
+      exerciseName = _movementController.isNotEmpty ? _movementController : (_nameController.text.isNotEmpty ? _nameController.text : '力量训练');
+    }
 
     // 先插入运动记录
     final exerciseId = await db.insertExerciseRecord(
@@ -585,7 +588,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
       ),
     );
 
-    // 如果是力量训练，同时保存详细记录
+    // 如果是力量训练且选择了器械，保存详细记录
     if (_selectedType == 'anaerobic' && _selectedDevice != null) {
       int? restSeconds;
       if (_restController.text.isNotEmpty) {
