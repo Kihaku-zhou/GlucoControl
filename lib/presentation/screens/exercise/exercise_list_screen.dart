@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import '../../../core/constants.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
+import 'workout_timer_screen.dart';
 
 /// 运动记录列表页面
 class ExerciseListScreen extends ConsumerWidget {
@@ -778,11 +779,61 @@ class TrainingPlanListScreen extends ConsumerWidget {
                     },
                   ),
                   onTap: () {
-                    // 选择这个计划
-                    ref.read(selectedTrainingPlanProvider.notifier).state = plan;
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('已选择计划: ${plan.name}')),
+                    // 显示选项：选择计划或开始训练
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => SafeArea(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.check_circle),
+                              title: const Text('设为当前计划'),
+                              onTap: () {
+                                ref.read(selectedTrainingPlanProvider.notifier).state = plan;
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('已选择计划: ${plan.name}')),
+                                );
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.play_arrow, color: Colors.green),
+                              title: const Text('开始训练', style: TextStyle(color: Colors.green)),
+                              onTap: () async {
+                                Navigator.pop(context);
+                                // 获取计划动作并开始训练
+                                final db = ref.read(databaseProvider);
+                                final exercises = await db.getExercisesByPlanId(plan.id);
+                                if (context.mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => WorkoutTimerScreen(
+                                        plan: plan,
+                                        exercises: exercises,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.edit),
+                              title: const Text('编辑计划'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TrainingPlanEditScreen(plan: plan),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
                     );
                   },
                 ),

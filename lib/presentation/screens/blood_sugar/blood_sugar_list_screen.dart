@@ -8,7 +8,6 @@ import '../../../core/theme.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
 import 'blood_sugar_chart_screen.dart';
-import 'hba1c_calculator_screen.dart';
 
 /// 血糖记录列表页面
 class BloodSugarListScreen extends ConsumerWidget {
@@ -17,6 +16,7 @@ class BloodSugarListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recordsAsync = ref.watch(bloodSugarRecordsProvider);
+    final currentUnit = ref.watch(bloodSugarUnitProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -33,18 +33,6 @@ class BloodSugarListScreen extends ConsumerWidget {
               );
             },
             tooltip: '血糖图表',
-          ),
-          IconButton(
-            icon: const Icon(Icons.calculate),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HbA1cCalculatorScreen(),
-                ),
-              );
-            },
-            tooltip: 'HbA1c 计算器',
           ),
         ],
       ),
@@ -170,15 +158,32 @@ class BloodSugarListScreen extends ConsumerWidget {
 }
 
 /// 血糖记录列表项
-class _BloodSugarRecordTile extends StatelessWidget {
+class _BloodSugarRecordTile extends ConsumerWidget {
   final BloodSugarRecord record;
 
   const _BloodSugarRecordTile({required this.record});
 
   @override
-  Widget build(BuildContext context) {
-    final color = AppTheme.getBloodSugarColor(record.value);
-    final status = AppTheme.getBloodSugarStatus(record.value);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingsUnit = ref.watch(bloodSugarUnitProvider);
+    
+    // 根据设置单位转换显示值
+    double displayValue = record.value;
+    String displayUnit = record.unit;
+    
+    // 如果设置是 mmol/L，但记录是 mg/dL
+    if (settingsUnit == 'mmol/L' && record.unit == 'mg/dL') {
+      displayValue = record.value / 18.0182;
+      displayUnit = 'mmol/L';
+    }
+    // 如果设置是 mg/dL，但记录是 mmol/L
+    else if (settingsUnit == 'mg/dL' && record.unit == 'mmol/L') {
+      displayValue = record.value * 18.0182;
+      displayUnit = 'mg/dL';
+    }
+    
+    final color = AppTheme.getBloodSugarColor(displayValue);
+    final status = AppTheme.getBloodSugarStatus(displayValue);
     final timeFormat = DateFormat('HH:mm');
 
     return Card(
@@ -193,7 +198,7 @@ class _BloodSugarRecordTile extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              record.value.toStringAsFixed(0),
+              displayValue.toStringAsFixed(0),
               style: TextStyle(
                 color: color,
                 fontWeight: FontWeight.bold,
@@ -203,7 +208,7 @@ class _BloodSugarRecordTile extends StatelessWidget {
           ),
         ),
         title: Text(
-          '${record.value.toStringAsFixed(1)} ${record.unit}',
+          '${displayValue.toStringAsFixed(1)} $displayUnit',
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Column(
@@ -262,10 +267,17 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
   final _formKey = GlobalKey<FormState>();
   final _valueController = TextEditingController();
   String _selectedType = 'fasting';
-  String _selectedUnit = AppConstants.unitMgDl; // 默认 mg/dL
+  late String _selectedUnit; // 默认单位从设置中读取
   double? _hoursAfterMeal;
   TimeOfDay _selectedTime = TimeOfDay.now();
   DateTime _selectedDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    // 从设置中读取默认单位
+    _selectedUnit = ref.read(bloodSugarUnitProvider);
+  }
 
   // 根据单位获取血糖范围验证
   String? _validateBloodSugar(String? value) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
@@ -867,16 +868,38 @@ class _AddBodyMeasurementSheetState extends ConsumerState<AddBodyMeasurementShee
 }
 
 /// 体测趋势图表页面
-class BodyMeasurementChartScreen extends ConsumerWidget {
+class BodyMeasurementChartScreen extends ConsumerStatefulWidget {
   const BodyMeasurementChartScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BodyMeasurementChartScreen> createState() => _BodyMeasurementChartScreenState();
+}
+
+class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChartScreen> {
+  String _selectedMetric = 'weight'; // weight, bmi, bodyFat
+  
+  @override
+  Widget build(BuildContext context) {
     final recordsAsync = ref.watch(bodyMeasurementsProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('体测趋势'),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              setState(() {
+                _selectedMetric = value;
+              });
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'weight', child: Text('体重')),
+              const PopupMenuItem(value: 'bmi', child: Text('BMI')),
+              const PopupMenuItem(value: 'bodyFat', child: Text('体脂率')),
+            ],
+          ),
+        ],
       ),
       body: recordsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -897,21 +920,188 @@ class BodyMeasurementChartScreen extends ConsumerWidget {
             );
           }
 
-          // TODO: 实现图表功能
-          return Center(
+          // 按时间排序
+          final sortedRecords = List<BodyMeasurement>.from(records)
+            ..sort((a, b) => a.measuredAt.compareTo(b.measuredAt));
+          
+          // 获取数据点
+          final spots = <FlSpot>[];
+          for (int i = 0; i < sortedRecords.length; i++) {
+            final record = sortedRecords[i];
+            double? value;
+            switch (_selectedMetric) {
+              case 'weight':
+                value = record.weight;
+                break;
+              case 'bmi':
+                value = record.bmi;
+                break;
+              case 'bodyFat':
+                value = record.bodyFat;
+                break;
+            }
+            if (value != null) {
+              spots.add(FlSpot(i.toDouble(), value));
+            }
+          }
+          
+          if (spots.isEmpty) {
+            return const Center(
+              child: Text('暂无该指标数据', style: TextStyle(color: Colors.grey)),
+            );
+          }
+          
+          final metricInfo = _getMetricInfo(_selectedMetric);
+          
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.show_chart, size: 64, color: Colors.blue),
+                // 图表标题
+                Text(
+                  metricInfo['title'] as String,
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 24),
+                
+                // 图表
+                SizedBox(
+                  height: 300,
+                  child: LineChart(
+                    LineChartData(
+                      gridData: const FlGridData(show: true),
+                      titlesData: FlTitlesData(
+                        leftTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (value, meta) {
+                              if (value.toInt() < sortedRecords.length) {
+                                final date = sortedRecords[value.toInt()].measuredAt;
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    DateFormat('MM/dd').format(date),
+                                    style: const TextStyle(fontSize: 10),
+                                  ),
+                                );
+                              }
+                              return const Text('');
+                            },
+                          ),
+                        ),
+                        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      ),
+                      borderData: FlBorderData(show: true),
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: spots,
+                          isCurved: true,
+                          color: metricInfo['color'] as Color,
+                          barWidth: 3,
+                          dotData: const FlDotData(show: true),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: (metricInfo['color'] as Color).withValues(alpha: 0.2),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 32),
+                
+                // 数据统计
+                Text('数据统计', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[700])),
                 const SizedBox(height: 16),
-                Text('共 ${records.length} 条记录', style: const TextStyle(fontSize: 18)),
-                const SizedBox(height: 8),
-                const Text('图表功能开发中...', style: TextStyle(color: Colors.grey)),
+                
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _buildStatRow('最新', '${spots.last.y.toStringAsFixed(1)} ${metricInfo['unit']}'),
+                        const Divider(),
+                        _buildStatRow('首次', '${spots.first.y.toStringAsFixed(1)} ${metricInfo['unit']}'),
+                        const Divider(),
+                        _buildStatRow('变化', '${(spots.last.y - spots.first.y).toStringAsFixed(1)} ${metricInfo['unit']}'),
+                        const Divider(),
+                        _buildStatRow('最小', '${spots.map((s) => s.y).reduce((a, b) => a < b ? a : b).toStringAsFixed(1)} ${metricInfo['unit']}'),
+                        const Divider(),
+                        _buildStatRow('最大', '${spots.map((s) => s.y).reduce((a, b) => a > b ? a : b).toStringAsFixed(1)} ${metricInfo['unit']}'),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // 历史数据列表
+                Text('历史记录', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[700])),
+                const SizedBox(height: 16),
+                
+                ...sortedRecords.reversed.map((record) {
+                  double? value;
+                  switch (_selectedMetric) {
+                    case 'weight':
+                      value = record.weight;
+                      break;
+                    case 'bmi':
+                      value = record.bmi;
+                      break;
+                    case 'bodyFat':
+                      value = record.bodyFat;
+                      break;
+                  }
+                  if (value == null) return const SizedBox.shrink();
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: const Icon(Icons.calendar_today, size: 20),
+                      title: Text(DateFormat('yyyy-MM-dd').format(record.measuredAt)),
+                      trailing: Text(
+                        '${value.toStringAsFixed(1)} ${metricInfo['unit']}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  );
+                }),
               ],
             ),
           );
         },
       ),
     );
+  }
+  
+  Widget _buildStatRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.grey)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+  
+  Map<String, dynamic> _getMetricInfo(String metric) {
+    switch (metric) {
+      case 'weight':
+        return {'title': '体重趋势', 'unit': 'kg', 'color': Colors.blue};
+      case 'bmi':
+        return {'title': 'BMI 趋势', 'unit': '', 'color': Colors.green};
+      case 'bodyFat':
+        return {'title': '体脂率趋势', 'unit': '%', 'color': Colors.orange};
+      default:
+        return {'title': '趋势', 'unit': '', 'color': Colors.blue};
+    }
   }
 }
