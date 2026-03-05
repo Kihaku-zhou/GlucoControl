@@ -55,6 +55,7 @@ class WebDAVService {
   WebDAVService._internal();
 
   Dio? _dio;
+  // ignore: unused_field - 保留配置供后续使用
   WebDAVConfig? _config;
 
   /// 初始化 WebDAV 服务

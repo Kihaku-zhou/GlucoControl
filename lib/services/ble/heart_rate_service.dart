@@ -58,6 +58,7 @@ class BleHeartRateService {
   StreamSubscription? _scanSubscription;
   StreamSubscription? _deviceSubscription;
   StreamSubscription? _heartRateSubscription;
+  // ignore: unused_field - 保存已连接的设备，留待后续使用
   dynamic _connectedDevice;
 
   /// 开始扫描心率设备
