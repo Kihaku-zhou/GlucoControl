@@ -9,10 +9,26 @@
 - 🧮 **糖化血红蛋白计算**：根据血糖记录计算 HbA1c
 - 🏋️ **健身追踪**：记录运动类型、时长、力量训练（器械、组数、次数）
 - ❤️ **心率监测**：支持 BLE 心率广播（华为手环10等）
-- 🍽️ **饮食记录**：手动录入食物，未来支持 AI 识图
-- 🤖 **AI 分析**：基于饮食和运动分析血糖变化
+- 🍽️ **饮食记录**：手动录入食物
+- 🤖 **AI 分析**：基于饮食和运动分析血糖变化（需配置 API）
 - ☁️ **数据同步**：通过 WebDAV 同步到坚果云
 - ⚙️ **自定义 API**：可配置 AI 分析 API
+
+## 下载 APK
+
+### GitHub Releases
+从 [Releases](https://github.com/Kihaku-zhou/GlucoControl/releases) 下载最新 APK
+
+### 本地构建
+```bash
+# Debug 版
+flutter build apk --debug
+
+# Release 版
+flutter build apk --release
+```
+
+APK 输出位置：`build/app/outputs/flutter-apk/`
 
 ## 技术栈
 
@@ -29,61 +45,19 @@
 ```
 lib/
 ├── app/                    # 应用入口
-│   ├── router.dart        # 路由配置
-│   └── ...
-├── core/                  # 核心工具
-│   ├── theme.dart         # 主题配置
-│   ├── constants.dart     # 常量定义
-│   └── ...
-├── data/                  # 数据层
-│   ├── database/          # 数据库配置
-│   ├── repositories/      # 数据仓库
-│   ├── api/              # API 客户端
-│   └── webdav/           # WebDAV 同步
-├── domain/                # 业务逻辑
-│   ├── models/           # 数据模型
-│   │   ├── blood_sugar.dart
-│   │   ├── exercise.dart
-│   │   ├── meal.dart
-│   │   └── ...
-│   └── repositories/      # 仓库接口
-├── presentation/         # UI 层
-│   ├── screens/          # 页面
-│   │   ├── home_screen.dart
-│   │   └── ...
-│   ├── widgets/          # 可复用组件
-│   └── ...
-└── services/             # 服务层
-    ├── ble/              # BLE 心率服务
-    ├── ai/               # AI 分析服务
-    └── notification/     # 通知服务
+├── core/                  # 核心工具（主题、常量）
+├── data/                  # 数据层（数据库、Providers）
+├── domain/                # 业务逻辑（数据模型）
+├── presentation/          # UI 层（页面、组件）
+└── services/              # 服务层（BLE、AI、WebDAV）
 ```
-
-## 开发状态
-
-### ✅ 已完成
-- [x] 项目架构设计
-- [x] 规格文档 (SPEC.md)
-- [x] 基础 Flutter 项目搭建
-- [x] 核心主题和常量
-- [x] 数据模型定义
-- [x] 基础路由配置
-- [x] 主页面框架
-- [x] Android 权限配置
-
-### 🔄 进行中
-- [ ] 数据库集成 (Drift)
-- [ ] 血糖记录页面
-- [ ] BLE 心率服务
-- [ ] WebDAV 同步
-- [ ] 图表显示
 
 ## 构建说明
 
 ### 环境要求
 - Flutter 3.x
 - Dart 3.x
-- Android SDK (Android 6.0+)
+- Android SDK (API 23+)
 
 ### 运行应用
 ```bash
@@ -91,7 +65,7 @@ lib/
 flutter pub get
 
 # 生成代码
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 
 # 运行应用
 flutter run
@@ -108,17 +82,21 @@ flutter run
 在设置中配置坚果云 WebDAV：
 - 服务器地址：https://dav.jianguoyun.com/dav/
 - 用户名：你的坚果云账号
-- 密码：应用密码
+- 密码：应用密码（不是登录密码）
 
 ### AI API 配置
-支持自定义 OpenAI 兼容 API：
+支持自定义 OpenAI 兼容 API（如 SiliconFlow、DeepSeek 等）：
 - API 地址
 - API Key
 - 模型名称
 
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
 ## 许可
 
-本项目仅供学习参考，请勿用于商业用途。
+MIT License - 请自由使用
 
 ---
-*开发中...*
+*© 2025 GlucoControl*
