@@ -217,10 +217,34 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
   final _formKey = GlobalKey<FormState>();
   final _valueController = TextEditingController();
   String _selectedType = 'fasting';
-  String _selectedUnit = 'mg/dL';
+  String _selectedUnit = AppConstants.unitMgDl; // 默认 mg/dL
   double? _hoursAfterMeal;
   TimeOfDay _selectedTime = TimeOfDay.now();
   DateTime _selectedDate = DateTime.now();
+
+  // 根据单位获取血糖范围验证
+  String? _validateBloodSugar(String? value) {
+    if (value == null || value.isEmpty) {
+      return '请输入血糖值';
+    }
+    final num = double.tryParse(value);
+    if (num == null || num <= 0) {
+      return '请输入有效的血糖值';
+    }
+    // 根据单位验证合理范围
+    if (_selectedUnit == AppConstants.unitMgDl) {
+      // mg/dL 合理范围: 20 - 600
+      if (num < 20 || num > 600) {
+        return '血糖值应在 20-600 mg/dL 之间';
+      }
+    } else {
+      // mmol/L 合理范围: 1.1 - 33.3
+      if (num < 1.1 || num > 33.3) {
+        return '血糖值应在 1.1-33.3 mmol/L 之间';
+      }
+    }
+    return null;
+  }
 
   @override
   void dispose() {
@@ -249,24 +273,40 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
               const SizedBox(height: 16),
 
               // 血糖值输入
-              TextFormField(
-                controller: _valueController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: '血糖值',
-                  hintText: '请输入血糖值',
-                  suffixText: 'mg/dL',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '请输入血糖值';
-                  }
-                  final num = double.tryParse(value);
-                  if (num == null || num <= 0) {
-                    return '请输入有效的血糖值';
-                  }
-                  return null;
-                },
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextFormField(
+                      controller: _valueController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(
+                        labelText: '血糖值',
+                        hintText: '请输入血糖值',
+                      ),
+                      validator: _validateBloodSugar,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedUnit,
+                      decoration: const InputDecoration(
+                        labelText: '单位',
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: AppConstants.unitMgDl, child: Text('mg/dL')),
+                        DropdownMenuItem(value: AppConstants.unitMmolL, child: Text('mmol/L')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedUnit = value!;
+                        });
+                      },
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
 
@@ -364,7 +404,13 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
     if (!_formKey.currentState!.validate()) return;
 
     final db = ref.read(databaseProvider);
-    final value = double.parse(_valueController.text);
+    var value = double.parse(_valueController.text);
+    
+    // 统一转换为 mg/dL 存储
+    if (_selectedUnit == AppConstants.unitMmolL) {
+      value = AppConstants.mmolLToMgDl(value);
+    }
+    
     final recordedAt = DateTime(
       _selectedDate.year,
       _selectedDate.month,
@@ -376,7 +422,7 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
     await db.insertBloodSugarRecord(
       BloodSugarRecordsCompanion.insert(
         value: value,
-        unit: drift.Value(_selectedUnit),
+        unit: const drift.Value(AppConstants.unitMgDl), // 数据库统一存储 mg/dL
         type: _selectedType,
         recordedAt: recordedAt,
         hoursAfterMeal: drift.Value(_hoursAfterMeal),

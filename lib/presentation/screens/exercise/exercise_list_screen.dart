@@ -179,6 +179,14 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
   final _durationController = TextEditingController();
   final _caloriesController = TextEditingController();
   
+  // 力量训练专用字段
+  String? _selectedDevice;
+  String _movementController = '';
+  final _setsController = TextEditingController();
+  final _repsController = TextEditingController();
+  final _weightController = TextEditingController();
+  final _restController = TextEditingController();
+  
   String _selectedType = 'aerobic';
   String? _selectedExercise;
   TimeOfDay _selectedTime = TimeOfDay.now();
@@ -244,12 +252,97 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
                     },
                   )
                 else
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: '运动名称',
-                      hintText: '例如：胸部训练、背部训练',
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // 器械类型
+                      DropdownButtonFormField<String>(
+                        value: _selectedDevice,
+                        decoration: const InputDecoration(labelText: '器械类型'),
+                        items: AppConstants.strengthDevices
+                            .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedDevice = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      // 动作名称
+                      TextFormField(
+                        initialValue: _movementController,
+                        decoration: const InputDecoration(
+                          labelText: '动作名称',
+                          hintText: '例如：卧推、深蹲、硬拉',
+                        ),
+                        onChanged: (value) => _movementController = value,
+                      ),
+                      const SizedBox(height: 16),
+                      // 组数、次数、重量
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _setsController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: '组数',
+                                hintText: '3',
+                              ),
+                              validator: _selectedType == 'anaerobic'
+                                  ? (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return '请输入组数';
+                                      }
+                                      return null;
+                                    }
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _repsController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: '次数',
+                                hintText: '10',
+                              ),
+                              validator: _selectedType == 'anaerobic'
+                                  ? (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return '请输入次数';
+                                      }
+                                      return null;
+                                    }
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _weightController,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              decoration: const InputDecoration(
+                                labelText: '重量(kg)',
+                                hintText: '20',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      // 休息时间
+                      TextFormField(
+                        controller: _restController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: '休息时间（秒，可选）',
+                          hintText: '60',
+                        ),
+                      ),
+                    ],
                   ),
                 const SizedBox(height: 16),
 
@@ -359,10 +452,16 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
       calories = int.tryParse(_caloriesController.text);
     }
 
-    await db.insertExerciseRecord(
+    // 运动名称：力量训练用动作名称，有氧用选择的项目
+    final exerciseName = _selectedType == 'aerobic' 
+        ? (_selectedExercise ?? _nameController.text)
+        : (_movementController.isNotEmpty ? _movementController : _nameController.text);
+
+    // 先插入运动记录
+    final exerciseId = await db.insertExerciseRecord(
       ExerciseRecordsCompanion.insert(
         type: _selectedType,
-        name: _nameController.text,
+        name: exerciseName,
         duration: duration,
         calories: drift.Value(calories),
         startedAt: startedAt,
@@ -370,6 +469,30 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
         createdAt: DateTime.now(),
       ),
     );
+
+    // 如果是力量训练，同时保存详细记录
+    if (_selectedType == 'anaerobic' && _selectedDevice != null) {
+      int? restSeconds;
+      if (_restController.text.isNotEmpty) {
+        restSeconds = int.tryParse(_restController.text);
+      }
+      double? weight;
+      if (_weightController.text.isNotEmpty) {
+        weight = double.tryParse(_weightController.text);
+      }
+      
+      await db.insertStrengthTraining(
+        StrengthTrainingsCompanion.insert(
+          exerciseId: exerciseId,
+          device: _selectedDevice!,
+          movement: _movementController.isNotEmpty ? _movementController : _nameController.text,
+          sets: int.tryParse(_setsController.text) ?? 0,
+          reps: int.tryParse(_repsController.text) ?? 0,
+          weight: drift.Value(weight),
+          restSeconds: drift.Value(restSeconds),
+        ),
+      );
+    }
 
     // 刷新列表
     ref.invalidate(exerciseRecordsProvider);
