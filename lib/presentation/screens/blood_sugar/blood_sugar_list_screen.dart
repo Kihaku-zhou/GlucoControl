@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../../core/constants.dart';
 import '../../../core/theme.dart';

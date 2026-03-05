@@ -4,22 +4,39 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../database/database.dart';
 
+/// 全局数据库实例
+AppDatabase? _globalDb;
+
 /// 数据库实例 Provider
 final databaseProvider = Provider<AppDatabase>((ref) {
+  if (_globalDb != null) {
+    return _globalDb!;
+  }
+  
   debugPrint('===== Initializing database =====');
   try {
-    final db = AppDatabase();
+    _globalDb = AppDatabase();
     debugPrint('Database created successfully');
+    
     ref.onDispose(() {
       debugPrint('Database disposed');
-      db.close();
+      _globalDb?.close();
+      _globalDb = null;
     });
-    return db;
+    
+    return _globalDb!;
   } catch (e, stack) {
     debugPrint('Database initialization FAILED: $e');
     debugPrint('Stack: $stack');
     rethrow;
   }
+});
+
+/// 强制重新创建数据库（用于错误恢复）
+final recreateDatabaseProvider = Provider<void>((ref) {
+  _globalDb?.close();
+  _globalDb = null;
+  ref.invalidate(databaseProvider);
 });
 
 /// SharedPreferences Provider
