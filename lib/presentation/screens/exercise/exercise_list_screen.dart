@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../core/constants.dart';
 import '../../../data/database/database.dart';
@@ -507,11 +508,32 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
 }
 
 /// 心率监测页面
-class HeartRateScreen extends StatelessWidget {
+class HeartRateScreen extends ConsumerWidget {
   const HeartRateScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Web 平台显示提示
+    if (kIsWeb) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('心率监测'),
+        ),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.bluetooth_disabled, size: 64, color: Colors.grey),
+              SizedBox(height: 16),
+              Text('Web 平台不支持蓝牙功能', style: TextStyle(fontSize: 18)),
+              SizedBox(height: 8),
+              Text('请使用手机或桌面端应用', style: TextStyle(color: Colors.grey)),
+            ],
+          ),
+        ),
+      );
+    }
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('心率监测'),

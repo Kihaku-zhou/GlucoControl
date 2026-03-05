@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 part 'database.g.dart';
 
@@ -208,6 +210,12 @@ class AppDatabase extends _$AppDatabase {
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
+    if (kIsWeb) {
+      // Web 平台使用内存数据库（仅供测试 UI）
+      // 实际项目中可以用 Firebase 或其他 Web 数据库
+      throw UnimplementedError('Web 平台请使用 WebDatabaseStub');
+    }
+    
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'glucocontrol.db'));
     return NativeDatabase.createInBackground(file);
