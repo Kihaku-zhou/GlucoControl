@@ -26,6 +26,10 @@ class BottomNavigationWidget extends StatelessWidget {
           label: '运动',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.straighten),
+          label: '体测',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.restaurant),
           label: '饮食',
         ),

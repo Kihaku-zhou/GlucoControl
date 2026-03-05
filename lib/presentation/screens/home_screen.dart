@@ -6,6 +6,7 @@ import 'blood_sugar/blood_sugar_list_screen.dart';
 import 'exercise/exercise_list_screen.dart';
 import 'meal/meal_list_screen.dart';
 import 'settings/settings_screen.dart';
+import 'body_measurement/body_measurement_list_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -43,8 +44,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       case 1:
         return const ExerciseListScreen();
       case 2:
-        return const MealListScreen();
+        return const BodyMeasurementListScreen();
       case 3:
+        return const MealListScreen();
+      case 4:
         return const SettingsMainScreen();
       default:
         return const Center(child: Text('页面不存在'));

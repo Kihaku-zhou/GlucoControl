@@ -3865,6 +3865,992 @@ class TrainingPlanExercisesCompanion
   }
 }
 
+class $BodyMeasurementsTable extends BodyMeasurements
+    with TableInfo<$BodyMeasurementsTable, BodyMeasurement> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BodyMeasurementsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _weightMeta = const VerificationMeta('weight');
+  @override
+  late final GeneratedColumn<double> weight = GeneratedColumn<double>(
+    'weight',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _heightMeta = const VerificationMeta('height');
+  @override
+  late final GeneratedColumn<double> height = GeneratedColumn<double>(
+    'height',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bodyFatMeta = const VerificationMeta(
+    'bodyFat',
+  );
+  @override
+  late final GeneratedColumn<double> bodyFat = GeneratedColumn<double>(
+    'body_fat',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _muscleMassMeta = const VerificationMeta(
+    'muscleMass',
+  );
+  @override
+  late final GeneratedColumn<double> muscleMass = GeneratedColumn<double>(
+    'muscle_mass',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _chestMeta = const VerificationMeta('chest');
+  @override
+  late final GeneratedColumn<double> chest = GeneratedColumn<double>(
+    'chest',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _waistMeta = const VerificationMeta('waist');
+  @override
+  late final GeneratedColumn<double> waist = GeneratedColumn<double>(
+    'waist',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hipMeta = const VerificationMeta('hip');
+  @override
+  late final GeneratedColumn<double> hip = GeneratedColumn<double>(
+    'hip',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _thighLeftMeta = const VerificationMeta(
+    'thighLeft',
+  );
+  @override
+  late final GeneratedColumn<double> thighLeft = GeneratedColumn<double>(
+    'thigh_left',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _thighRightMeta = const VerificationMeta(
+    'thighRight',
+  );
+  @override
+  late final GeneratedColumn<double> thighRight = GeneratedColumn<double>(
+    'thigh_right',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _armLeftMeta = const VerificationMeta(
+    'armLeft',
+  );
+  @override
+  late final GeneratedColumn<double> armLeft = GeneratedColumn<double>(
+    'arm_left',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _armRightMeta = const VerificationMeta(
+    'armRight',
+  );
+  @override
+  late final GeneratedColumn<double> armRight = GeneratedColumn<double>(
+    'arm_right',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _neckMeta = const VerificationMeta('neck');
+  @override
+  late final GeneratedColumn<double> neck = GeneratedColumn<double>(
+    'neck',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bmiMeta = const VerificationMeta('bmi');
+  @override
+  late final GeneratedColumn<double> bmi = GeneratedColumn<double>(
+    'bmi',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _waistHipRatioMeta = const VerificationMeta(
+    'waistHipRatio',
+  );
+  @override
+  late final GeneratedColumn<double> waistHipRatio = GeneratedColumn<double>(
+    'waist_hip_ratio',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _measuredAtMeta = const VerificationMeta(
+    'measuredAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> measuredAt = GeneratedColumn<DateTime>(
+    'measured_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    weight,
+    height,
+    bodyFat,
+    muscleMass,
+    chest,
+    waist,
+    hip,
+    thighLeft,
+    thighRight,
+    armLeft,
+    armRight,
+    neck,
+    bmi,
+    waistHipRatio,
+    note,
+    measuredAt,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'body_measurements';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BodyMeasurement> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('weight')) {
+      context.handle(
+        _weightMeta,
+        weight.isAcceptableOrUnknown(data['weight']!, _weightMeta),
+      );
+    }
+    if (data.containsKey('height')) {
+      context.handle(
+        _heightMeta,
+        height.isAcceptableOrUnknown(data['height']!, _heightMeta),
+      );
+    }
+    if (data.containsKey('body_fat')) {
+      context.handle(
+        _bodyFatMeta,
+        bodyFat.isAcceptableOrUnknown(data['body_fat']!, _bodyFatMeta),
+      );
+    }
+    if (data.containsKey('muscle_mass')) {
+      context.handle(
+        _muscleMassMeta,
+        muscleMass.isAcceptableOrUnknown(data['muscle_mass']!, _muscleMassMeta),
+      );
+    }
+    if (data.containsKey('chest')) {
+      context.handle(
+        _chestMeta,
+        chest.isAcceptableOrUnknown(data['chest']!, _chestMeta),
+      );
+    }
+    if (data.containsKey('waist')) {
+      context.handle(
+        _waistMeta,
+        waist.isAcceptableOrUnknown(data['waist']!, _waistMeta),
+      );
+    }
+    if (data.containsKey('hip')) {
+      context.handle(
+        _hipMeta,
+        hip.isAcceptableOrUnknown(data['hip']!, _hipMeta),
+      );
+    }
+    if (data.containsKey('thigh_left')) {
+      context.handle(
+        _thighLeftMeta,
+        thighLeft.isAcceptableOrUnknown(data['thigh_left']!, _thighLeftMeta),
+      );
+    }
+    if (data.containsKey('thigh_right')) {
+      context.handle(
+        _thighRightMeta,
+        thighRight.isAcceptableOrUnknown(data['thigh_right']!, _thighRightMeta),
+      );
+    }
+    if (data.containsKey('arm_left')) {
+      context.handle(
+        _armLeftMeta,
+        armLeft.isAcceptableOrUnknown(data['arm_left']!, _armLeftMeta),
+      );
+    }
+    if (data.containsKey('arm_right')) {
+      context.handle(
+        _armRightMeta,
+        armRight.isAcceptableOrUnknown(data['arm_right']!, _armRightMeta),
+      );
+    }
+    if (data.containsKey('neck')) {
+      context.handle(
+        _neckMeta,
+        neck.isAcceptableOrUnknown(data['neck']!, _neckMeta),
+      );
+    }
+    if (data.containsKey('bmi')) {
+      context.handle(
+        _bmiMeta,
+        bmi.isAcceptableOrUnknown(data['bmi']!, _bmiMeta),
+      );
+    }
+    if (data.containsKey('waist_hip_ratio')) {
+      context.handle(
+        _waistHipRatioMeta,
+        waistHipRatio.isAcceptableOrUnknown(
+          data['waist_hip_ratio']!,
+          _waistHipRatioMeta,
+        ),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('measured_at')) {
+      context.handle(
+        _measuredAtMeta,
+        measuredAt.isAcceptableOrUnknown(data['measured_at']!, _measuredAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_measuredAtMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BodyMeasurement map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BodyMeasurement(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      weight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}weight'],
+      ),
+      height: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}height'],
+      ),
+      bodyFat: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}body_fat'],
+      ),
+      muscleMass: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}muscle_mass'],
+      ),
+      chest: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}chest'],
+      ),
+      waist: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}waist'],
+      ),
+      hip: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}hip'],
+      ),
+      thighLeft: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}thigh_left'],
+      ),
+      thighRight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}thigh_right'],
+      ),
+      armLeft: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}arm_left'],
+      ),
+      armRight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}arm_right'],
+      ),
+      neck: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}neck'],
+      ),
+      bmi: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}bmi'],
+      ),
+      waistHipRatio: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}waist_hip_ratio'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      measuredAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}measured_at'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $BodyMeasurementsTable createAlias(String alias) {
+    return $BodyMeasurementsTable(attachedDatabase, alias);
+  }
+}
+
+class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
+  final int id;
+  final double? weight;
+  final double? height;
+  final double? bodyFat;
+  final double? muscleMass;
+  final double? chest;
+  final double? waist;
+  final double? hip;
+  final double? thighLeft;
+  final double? thighRight;
+  final double? armLeft;
+  final double? armRight;
+  final double? neck;
+  final double? bmi;
+  final double? waistHipRatio;
+  final String? note;
+  final DateTime measuredAt;
+  final DateTime createdAt;
+  const BodyMeasurement({
+    required this.id,
+    this.weight,
+    this.height,
+    this.bodyFat,
+    this.muscleMass,
+    this.chest,
+    this.waist,
+    this.hip,
+    this.thighLeft,
+    this.thighRight,
+    this.armLeft,
+    this.armRight,
+    this.neck,
+    this.bmi,
+    this.waistHipRatio,
+    this.note,
+    required this.measuredAt,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || weight != null) {
+      map['weight'] = Variable<double>(weight);
+    }
+    if (!nullToAbsent || height != null) {
+      map['height'] = Variable<double>(height);
+    }
+    if (!nullToAbsent || bodyFat != null) {
+      map['body_fat'] = Variable<double>(bodyFat);
+    }
+    if (!nullToAbsent || muscleMass != null) {
+      map['muscle_mass'] = Variable<double>(muscleMass);
+    }
+    if (!nullToAbsent || chest != null) {
+      map['chest'] = Variable<double>(chest);
+    }
+    if (!nullToAbsent || waist != null) {
+      map['waist'] = Variable<double>(waist);
+    }
+    if (!nullToAbsent || hip != null) {
+      map['hip'] = Variable<double>(hip);
+    }
+    if (!nullToAbsent || thighLeft != null) {
+      map['thigh_left'] = Variable<double>(thighLeft);
+    }
+    if (!nullToAbsent || thighRight != null) {
+      map['thigh_right'] = Variable<double>(thighRight);
+    }
+    if (!nullToAbsent || armLeft != null) {
+      map['arm_left'] = Variable<double>(armLeft);
+    }
+    if (!nullToAbsent || armRight != null) {
+      map['arm_right'] = Variable<double>(armRight);
+    }
+    if (!nullToAbsent || neck != null) {
+      map['neck'] = Variable<double>(neck);
+    }
+    if (!nullToAbsent || bmi != null) {
+      map['bmi'] = Variable<double>(bmi);
+    }
+    if (!nullToAbsent || waistHipRatio != null) {
+      map['waist_hip_ratio'] = Variable<double>(waistHipRatio);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['measured_at'] = Variable<DateTime>(measuredAt);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  BodyMeasurementsCompanion toCompanion(bool nullToAbsent) {
+    return BodyMeasurementsCompanion(
+      id: Value(id),
+      weight: weight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(weight),
+      height: height == null && nullToAbsent
+          ? const Value.absent()
+          : Value(height),
+      bodyFat: bodyFat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bodyFat),
+      muscleMass: muscleMass == null && nullToAbsent
+          ? const Value.absent()
+          : Value(muscleMass),
+      chest: chest == null && nullToAbsent
+          ? const Value.absent()
+          : Value(chest),
+      waist: waist == null && nullToAbsent
+          ? const Value.absent()
+          : Value(waist),
+      hip: hip == null && nullToAbsent ? const Value.absent() : Value(hip),
+      thighLeft: thighLeft == null && nullToAbsent
+          ? const Value.absent()
+          : Value(thighLeft),
+      thighRight: thighRight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(thighRight),
+      armLeft: armLeft == null && nullToAbsent
+          ? const Value.absent()
+          : Value(armLeft),
+      armRight: armRight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(armRight),
+      neck: neck == null && nullToAbsent ? const Value.absent() : Value(neck),
+      bmi: bmi == null && nullToAbsent ? const Value.absent() : Value(bmi),
+      waistHipRatio: waistHipRatio == null && nullToAbsent
+          ? const Value.absent()
+          : Value(waistHipRatio),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      measuredAt: Value(measuredAt),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory BodyMeasurement.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BodyMeasurement(
+      id: serializer.fromJson<int>(json['id']),
+      weight: serializer.fromJson<double?>(json['weight']),
+      height: serializer.fromJson<double?>(json['height']),
+      bodyFat: serializer.fromJson<double?>(json['bodyFat']),
+      muscleMass: serializer.fromJson<double?>(json['muscleMass']),
+      chest: serializer.fromJson<double?>(json['chest']),
+      waist: serializer.fromJson<double?>(json['waist']),
+      hip: serializer.fromJson<double?>(json['hip']),
+      thighLeft: serializer.fromJson<double?>(json['thighLeft']),
+      thighRight: serializer.fromJson<double?>(json['thighRight']),
+      armLeft: serializer.fromJson<double?>(json['armLeft']),
+      armRight: serializer.fromJson<double?>(json['armRight']),
+      neck: serializer.fromJson<double?>(json['neck']),
+      bmi: serializer.fromJson<double?>(json['bmi']),
+      waistHipRatio: serializer.fromJson<double?>(json['waistHipRatio']),
+      note: serializer.fromJson<String?>(json['note']),
+      measuredAt: serializer.fromJson<DateTime>(json['measuredAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'weight': serializer.toJson<double?>(weight),
+      'height': serializer.toJson<double?>(height),
+      'bodyFat': serializer.toJson<double?>(bodyFat),
+      'muscleMass': serializer.toJson<double?>(muscleMass),
+      'chest': serializer.toJson<double?>(chest),
+      'waist': serializer.toJson<double?>(waist),
+      'hip': serializer.toJson<double?>(hip),
+      'thighLeft': serializer.toJson<double?>(thighLeft),
+      'thighRight': serializer.toJson<double?>(thighRight),
+      'armLeft': serializer.toJson<double?>(armLeft),
+      'armRight': serializer.toJson<double?>(armRight),
+      'neck': serializer.toJson<double?>(neck),
+      'bmi': serializer.toJson<double?>(bmi),
+      'waistHipRatio': serializer.toJson<double?>(waistHipRatio),
+      'note': serializer.toJson<String?>(note),
+      'measuredAt': serializer.toJson<DateTime>(measuredAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  BodyMeasurement copyWith({
+    int? id,
+    Value<double?> weight = const Value.absent(),
+    Value<double?> height = const Value.absent(),
+    Value<double?> bodyFat = const Value.absent(),
+    Value<double?> muscleMass = const Value.absent(),
+    Value<double?> chest = const Value.absent(),
+    Value<double?> waist = const Value.absent(),
+    Value<double?> hip = const Value.absent(),
+    Value<double?> thighLeft = const Value.absent(),
+    Value<double?> thighRight = const Value.absent(),
+    Value<double?> armLeft = const Value.absent(),
+    Value<double?> armRight = const Value.absent(),
+    Value<double?> neck = const Value.absent(),
+    Value<double?> bmi = const Value.absent(),
+    Value<double?> waistHipRatio = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+    DateTime? measuredAt,
+    DateTime? createdAt,
+  }) => BodyMeasurement(
+    id: id ?? this.id,
+    weight: weight.present ? weight.value : this.weight,
+    height: height.present ? height.value : this.height,
+    bodyFat: bodyFat.present ? bodyFat.value : this.bodyFat,
+    muscleMass: muscleMass.present ? muscleMass.value : this.muscleMass,
+    chest: chest.present ? chest.value : this.chest,
+    waist: waist.present ? waist.value : this.waist,
+    hip: hip.present ? hip.value : this.hip,
+    thighLeft: thighLeft.present ? thighLeft.value : this.thighLeft,
+    thighRight: thighRight.present ? thighRight.value : this.thighRight,
+    armLeft: armLeft.present ? armLeft.value : this.armLeft,
+    armRight: armRight.present ? armRight.value : this.armRight,
+    neck: neck.present ? neck.value : this.neck,
+    bmi: bmi.present ? bmi.value : this.bmi,
+    waistHipRatio: waistHipRatio.present
+        ? waistHipRatio.value
+        : this.waistHipRatio,
+    note: note.present ? note.value : this.note,
+    measuredAt: measuredAt ?? this.measuredAt,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  BodyMeasurement copyWithCompanion(BodyMeasurementsCompanion data) {
+    return BodyMeasurement(
+      id: data.id.present ? data.id.value : this.id,
+      weight: data.weight.present ? data.weight.value : this.weight,
+      height: data.height.present ? data.height.value : this.height,
+      bodyFat: data.bodyFat.present ? data.bodyFat.value : this.bodyFat,
+      muscleMass: data.muscleMass.present
+          ? data.muscleMass.value
+          : this.muscleMass,
+      chest: data.chest.present ? data.chest.value : this.chest,
+      waist: data.waist.present ? data.waist.value : this.waist,
+      hip: data.hip.present ? data.hip.value : this.hip,
+      thighLeft: data.thighLeft.present ? data.thighLeft.value : this.thighLeft,
+      thighRight: data.thighRight.present
+          ? data.thighRight.value
+          : this.thighRight,
+      armLeft: data.armLeft.present ? data.armLeft.value : this.armLeft,
+      armRight: data.armRight.present ? data.armRight.value : this.armRight,
+      neck: data.neck.present ? data.neck.value : this.neck,
+      bmi: data.bmi.present ? data.bmi.value : this.bmi,
+      waistHipRatio: data.waistHipRatio.present
+          ? data.waistHipRatio.value
+          : this.waistHipRatio,
+      note: data.note.present ? data.note.value : this.note,
+      measuredAt: data.measuredAt.present
+          ? data.measuredAt.value
+          : this.measuredAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BodyMeasurement(')
+          ..write('id: $id, ')
+          ..write('weight: $weight, ')
+          ..write('height: $height, ')
+          ..write('bodyFat: $bodyFat, ')
+          ..write('muscleMass: $muscleMass, ')
+          ..write('chest: $chest, ')
+          ..write('waist: $waist, ')
+          ..write('hip: $hip, ')
+          ..write('thighLeft: $thighLeft, ')
+          ..write('thighRight: $thighRight, ')
+          ..write('armLeft: $armLeft, ')
+          ..write('armRight: $armRight, ')
+          ..write('neck: $neck, ')
+          ..write('bmi: $bmi, ')
+          ..write('waistHipRatio: $waistHipRatio, ')
+          ..write('note: $note, ')
+          ..write('measuredAt: $measuredAt, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    weight,
+    height,
+    bodyFat,
+    muscleMass,
+    chest,
+    waist,
+    hip,
+    thighLeft,
+    thighRight,
+    armLeft,
+    armRight,
+    neck,
+    bmi,
+    waistHipRatio,
+    note,
+    measuredAt,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BodyMeasurement &&
+          other.id == this.id &&
+          other.weight == this.weight &&
+          other.height == this.height &&
+          other.bodyFat == this.bodyFat &&
+          other.muscleMass == this.muscleMass &&
+          other.chest == this.chest &&
+          other.waist == this.waist &&
+          other.hip == this.hip &&
+          other.thighLeft == this.thighLeft &&
+          other.thighRight == this.thighRight &&
+          other.armLeft == this.armLeft &&
+          other.armRight == this.armRight &&
+          other.neck == this.neck &&
+          other.bmi == this.bmi &&
+          other.waistHipRatio == this.waistHipRatio &&
+          other.note == this.note &&
+          other.measuredAt == this.measuredAt &&
+          other.createdAt == this.createdAt);
+}
+
+class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
+  final Value<int> id;
+  final Value<double?> weight;
+  final Value<double?> height;
+  final Value<double?> bodyFat;
+  final Value<double?> muscleMass;
+  final Value<double?> chest;
+  final Value<double?> waist;
+  final Value<double?> hip;
+  final Value<double?> thighLeft;
+  final Value<double?> thighRight;
+  final Value<double?> armLeft;
+  final Value<double?> armRight;
+  final Value<double?> neck;
+  final Value<double?> bmi;
+  final Value<double?> waistHipRatio;
+  final Value<String?> note;
+  final Value<DateTime> measuredAt;
+  final Value<DateTime> createdAt;
+  const BodyMeasurementsCompanion({
+    this.id = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.height = const Value.absent(),
+    this.bodyFat = const Value.absent(),
+    this.muscleMass = const Value.absent(),
+    this.chest = const Value.absent(),
+    this.waist = const Value.absent(),
+    this.hip = const Value.absent(),
+    this.thighLeft = const Value.absent(),
+    this.thighRight = const Value.absent(),
+    this.armLeft = const Value.absent(),
+    this.armRight = const Value.absent(),
+    this.neck = const Value.absent(),
+    this.bmi = const Value.absent(),
+    this.waistHipRatio = const Value.absent(),
+    this.note = const Value.absent(),
+    this.measuredAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  BodyMeasurementsCompanion.insert({
+    this.id = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.height = const Value.absent(),
+    this.bodyFat = const Value.absent(),
+    this.muscleMass = const Value.absent(),
+    this.chest = const Value.absent(),
+    this.waist = const Value.absent(),
+    this.hip = const Value.absent(),
+    this.thighLeft = const Value.absent(),
+    this.thighRight = const Value.absent(),
+    this.armLeft = const Value.absent(),
+    this.armRight = const Value.absent(),
+    this.neck = const Value.absent(),
+    this.bmi = const Value.absent(),
+    this.waistHipRatio = const Value.absent(),
+    this.note = const Value.absent(),
+    required DateTime measuredAt,
+    required DateTime createdAt,
+  }) : measuredAt = Value(measuredAt),
+       createdAt = Value(createdAt);
+  static Insertable<BodyMeasurement> custom({
+    Expression<int>? id,
+    Expression<double>? weight,
+    Expression<double>? height,
+    Expression<double>? bodyFat,
+    Expression<double>? muscleMass,
+    Expression<double>? chest,
+    Expression<double>? waist,
+    Expression<double>? hip,
+    Expression<double>? thighLeft,
+    Expression<double>? thighRight,
+    Expression<double>? armLeft,
+    Expression<double>? armRight,
+    Expression<double>? neck,
+    Expression<double>? bmi,
+    Expression<double>? waistHipRatio,
+    Expression<String>? note,
+    Expression<DateTime>? measuredAt,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (weight != null) 'weight': weight,
+      if (height != null) 'height': height,
+      if (bodyFat != null) 'body_fat': bodyFat,
+      if (muscleMass != null) 'muscle_mass': muscleMass,
+      if (chest != null) 'chest': chest,
+      if (waist != null) 'waist': waist,
+      if (hip != null) 'hip': hip,
+      if (thighLeft != null) 'thigh_left': thighLeft,
+      if (thighRight != null) 'thigh_right': thighRight,
+      if (armLeft != null) 'arm_left': armLeft,
+      if (armRight != null) 'arm_right': armRight,
+      if (neck != null) 'neck': neck,
+      if (bmi != null) 'bmi': bmi,
+      if (waistHipRatio != null) 'waist_hip_ratio': waistHipRatio,
+      if (note != null) 'note': note,
+      if (measuredAt != null) 'measured_at': measuredAt,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  BodyMeasurementsCompanion copyWith({
+    Value<int>? id,
+    Value<double?>? weight,
+    Value<double?>? height,
+    Value<double?>? bodyFat,
+    Value<double?>? muscleMass,
+    Value<double?>? chest,
+    Value<double?>? waist,
+    Value<double?>? hip,
+    Value<double?>? thighLeft,
+    Value<double?>? thighRight,
+    Value<double?>? armLeft,
+    Value<double?>? armRight,
+    Value<double?>? neck,
+    Value<double?>? bmi,
+    Value<double?>? waistHipRatio,
+    Value<String?>? note,
+    Value<DateTime>? measuredAt,
+    Value<DateTime>? createdAt,
+  }) {
+    return BodyMeasurementsCompanion(
+      id: id ?? this.id,
+      weight: weight ?? this.weight,
+      height: height ?? this.height,
+      bodyFat: bodyFat ?? this.bodyFat,
+      muscleMass: muscleMass ?? this.muscleMass,
+      chest: chest ?? this.chest,
+      waist: waist ?? this.waist,
+      hip: hip ?? this.hip,
+      thighLeft: thighLeft ?? this.thighLeft,
+      thighRight: thighRight ?? this.thighRight,
+      armLeft: armLeft ?? this.armLeft,
+      armRight: armRight ?? this.armRight,
+      neck: neck ?? this.neck,
+      bmi: bmi ?? this.bmi,
+      waistHipRatio: waistHipRatio ?? this.waistHipRatio,
+      note: note ?? this.note,
+      measuredAt: measuredAt ?? this.measuredAt,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (weight.present) {
+      map['weight'] = Variable<double>(weight.value);
+    }
+    if (height.present) {
+      map['height'] = Variable<double>(height.value);
+    }
+    if (bodyFat.present) {
+      map['body_fat'] = Variable<double>(bodyFat.value);
+    }
+    if (muscleMass.present) {
+      map['muscle_mass'] = Variable<double>(muscleMass.value);
+    }
+    if (chest.present) {
+      map['chest'] = Variable<double>(chest.value);
+    }
+    if (waist.present) {
+      map['waist'] = Variable<double>(waist.value);
+    }
+    if (hip.present) {
+      map['hip'] = Variable<double>(hip.value);
+    }
+    if (thighLeft.present) {
+      map['thigh_left'] = Variable<double>(thighLeft.value);
+    }
+    if (thighRight.present) {
+      map['thigh_right'] = Variable<double>(thighRight.value);
+    }
+    if (armLeft.present) {
+      map['arm_left'] = Variable<double>(armLeft.value);
+    }
+    if (armRight.present) {
+      map['arm_right'] = Variable<double>(armRight.value);
+    }
+    if (neck.present) {
+      map['neck'] = Variable<double>(neck.value);
+    }
+    if (bmi.present) {
+      map['bmi'] = Variable<double>(bmi.value);
+    }
+    if (waistHipRatio.present) {
+      map['waist_hip_ratio'] = Variable<double>(waistHipRatio.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (measuredAt.present) {
+      map['measured_at'] = Variable<DateTime>(measuredAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BodyMeasurementsCompanion(')
+          ..write('id: $id, ')
+          ..write('weight: $weight, ')
+          ..write('height: $height, ')
+          ..write('bodyFat: $bodyFat, ')
+          ..write('muscleMass: $muscleMass, ')
+          ..write('chest: $chest, ')
+          ..write('waist: $waist, ')
+          ..write('hip: $hip, ')
+          ..write('thighLeft: $thighLeft, ')
+          ..write('thighRight: $thighRight, ')
+          ..write('armLeft: $armLeft, ')
+          ..write('armRight: $armRight, ')
+          ..write('neck: $neck, ')
+          ..write('bmi: $bmi, ')
+          ..write('waistHipRatio: $waistHipRatio, ')
+          ..write('note: $note, ')
+          ..write('measuredAt: $measuredAt, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3881,6 +4867,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TrainingPlansTable trainingPlans = $TrainingPlansTable(this);
   late final $TrainingPlanExercisesTable trainingPlanExercises =
       $TrainingPlanExercisesTable(this);
+  late final $BodyMeasurementsTable bodyMeasurements = $BodyMeasurementsTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3894,6 +4883,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     appSettings,
     trainingPlans,
     trainingPlanExercises,
+    bodyMeasurements,
   ];
 }
 
@@ -6621,6 +7611,461 @@ typedef $$TrainingPlanExercisesTableProcessedTableManager =
       TrainingPlanExercise,
       PrefetchHooks Function({bool planId})
     >;
+typedef $$BodyMeasurementsTableCreateCompanionBuilder =
+    BodyMeasurementsCompanion Function({
+      Value<int> id,
+      Value<double?> weight,
+      Value<double?> height,
+      Value<double?> bodyFat,
+      Value<double?> muscleMass,
+      Value<double?> chest,
+      Value<double?> waist,
+      Value<double?> hip,
+      Value<double?> thighLeft,
+      Value<double?> thighRight,
+      Value<double?> armLeft,
+      Value<double?> armRight,
+      Value<double?> neck,
+      Value<double?> bmi,
+      Value<double?> waistHipRatio,
+      Value<String?> note,
+      required DateTime measuredAt,
+      required DateTime createdAt,
+    });
+typedef $$BodyMeasurementsTableUpdateCompanionBuilder =
+    BodyMeasurementsCompanion Function({
+      Value<int> id,
+      Value<double?> weight,
+      Value<double?> height,
+      Value<double?> bodyFat,
+      Value<double?> muscleMass,
+      Value<double?> chest,
+      Value<double?> waist,
+      Value<double?> hip,
+      Value<double?> thighLeft,
+      Value<double?> thighRight,
+      Value<double?> armLeft,
+      Value<double?> armRight,
+      Value<double?> neck,
+      Value<double?> bmi,
+      Value<double?> waistHipRatio,
+      Value<String?> note,
+      Value<DateTime> measuredAt,
+      Value<DateTime> createdAt,
+    });
+
+class $$BodyMeasurementsTableFilterComposer
+    extends Composer<_$AppDatabase, $BodyMeasurementsTable> {
+  $$BodyMeasurementsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get height => $composableBuilder(
+    column: $table.height,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get bodyFat => $composableBuilder(
+    column: $table.bodyFat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get muscleMass => $composableBuilder(
+    column: $table.muscleMass,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get chest => $composableBuilder(
+    column: $table.chest,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get waist => $composableBuilder(
+    column: $table.waist,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get hip => $composableBuilder(
+    column: $table.hip,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get thighLeft => $composableBuilder(
+    column: $table.thighLeft,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get thighRight => $composableBuilder(
+    column: $table.thighRight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get armLeft => $composableBuilder(
+    column: $table.armLeft,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get armRight => $composableBuilder(
+    column: $table.armRight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get neck => $composableBuilder(
+    column: $table.neck,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get bmi => $composableBuilder(
+    column: $table.bmi,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get waistHipRatio => $composableBuilder(
+    column: $table.waistHipRatio,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get measuredAt => $composableBuilder(
+    column: $table.measuredAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$BodyMeasurementsTableOrderingComposer
+    extends Composer<_$AppDatabase, $BodyMeasurementsTable> {
+  $$BodyMeasurementsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get height => $composableBuilder(
+    column: $table.height,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get bodyFat => $composableBuilder(
+    column: $table.bodyFat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get muscleMass => $composableBuilder(
+    column: $table.muscleMass,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get chest => $composableBuilder(
+    column: $table.chest,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get waist => $composableBuilder(
+    column: $table.waist,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get hip => $composableBuilder(
+    column: $table.hip,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get thighLeft => $composableBuilder(
+    column: $table.thighLeft,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get thighRight => $composableBuilder(
+    column: $table.thighRight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get armLeft => $composableBuilder(
+    column: $table.armLeft,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get armRight => $composableBuilder(
+    column: $table.armRight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get neck => $composableBuilder(
+    column: $table.neck,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get bmi => $composableBuilder(
+    column: $table.bmi,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get waistHipRatio => $composableBuilder(
+    column: $table.waistHipRatio,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get measuredAt => $composableBuilder(
+    column: $table.measuredAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$BodyMeasurementsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BodyMeasurementsTable> {
+  $$BodyMeasurementsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get weight =>
+      $composableBuilder(column: $table.weight, builder: (column) => column);
+
+  GeneratedColumn<double> get height =>
+      $composableBuilder(column: $table.height, builder: (column) => column);
+
+  GeneratedColumn<double> get bodyFat =>
+      $composableBuilder(column: $table.bodyFat, builder: (column) => column);
+
+  GeneratedColumn<double> get muscleMass => $composableBuilder(
+    column: $table.muscleMass,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get chest =>
+      $composableBuilder(column: $table.chest, builder: (column) => column);
+
+  GeneratedColumn<double> get waist =>
+      $composableBuilder(column: $table.waist, builder: (column) => column);
+
+  GeneratedColumn<double> get hip =>
+      $composableBuilder(column: $table.hip, builder: (column) => column);
+
+  GeneratedColumn<double> get thighLeft =>
+      $composableBuilder(column: $table.thighLeft, builder: (column) => column);
+
+  GeneratedColumn<double> get thighRight => $composableBuilder(
+    column: $table.thighRight,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get armLeft =>
+      $composableBuilder(column: $table.armLeft, builder: (column) => column);
+
+  GeneratedColumn<double> get armRight =>
+      $composableBuilder(column: $table.armRight, builder: (column) => column);
+
+  GeneratedColumn<double> get neck =>
+      $composableBuilder(column: $table.neck, builder: (column) => column);
+
+  GeneratedColumn<double> get bmi =>
+      $composableBuilder(column: $table.bmi, builder: (column) => column);
+
+  GeneratedColumn<double> get waistHipRatio => $composableBuilder(
+    column: $table.waistHipRatio,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get measuredAt => $composableBuilder(
+    column: $table.measuredAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$BodyMeasurementsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BodyMeasurementsTable,
+          BodyMeasurement,
+          $$BodyMeasurementsTableFilterComposer,
+          $$BodyMeasurementsTableOrderingComposer,
+          $$BodyMeasurementsTableAnnotationComposer,
+          $$BodyMeasurementsTableCreateCompanionBuilder,
+          $$BodyMeasurementsTableUpdateCompanionBuilder,
+          (
+            BodyMeasurement,
+            BaseReferences<
+              _$AppDatabase,
+              $BodyMeasurementsTable,
+              BodyMeasurement
+            >,
+          ),
+          BodyMeasurement,
+          PrefetchHooks Function()
+        > {
+  $$BodyMeasurementsTableTableManager(
+    _$AppDatabase db,
+    $BodyMeasurementsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BodyMeasurementsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BodyMeasurementsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BodyMeasurementsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<double?> weight = const Value.absent(),
+                Value<double?> height = const Value.absent(),
+                Value<double?> bodyFat = const Value.absent(),
+                Value<double?> muscleMass = const Value.absent(),
+                Value<double?> chest = const Value.absent(),
+                Value<double?> waist = const Value.absent(),
+                Value<double?> hip = const Value.absent(),
+                Value<double?> thighLeft = const Value.absent(),
+                Value<double?> thighRight = const Value.absent(),
+                Value<double?> armLeft = const Value.absent(),
+                Value<double?> armRight = const Value.absent(),
+                Value<double?> neck = const Value.absent(),
+                Value<double?> bmi = const Value.absent(),
+                Value<double?> waistHipRatio = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> measuredAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => BodyMeasurementsCompanion(
+                id: id,
+                weight: weight,
+                height: height,
+                bodyFat: bodyFat,
+                muscleMass: muscleMass,
+                chest: chest,
+                waist: waist,
+                hip: hip,
+                thighLeft: thighLeft,
+                thighRight: thighRight,
+                armLeft: armLeft,
+                armRight: armRight,
+                neck: neck,
+                bmi: bmi,
+                waistHipRatio: waistHipRatio,
+                note: note,
+                measuredAt: measuredAt,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<double?> weight = const Value.absent(),
+                Value<double?> height = const Value.absent(),
+                Value<double?> bodyFat = const Value.absent(),
+                Value<double?> muscleMass = const Value.absent(),
+                Value<double?> chest = const Value.absent(),
+                Value<double?> waist = const Value.absent(),
+                Value<double?> hip = const Value.absent(),
+                Value<double?> thighLeft = const Value.absent(),
+                Value<double?> thighRight = const Value.absent(),
+                Value<double?> armLeft = const Value.absent(),
+                Value<double?> armRight = const Value.absent(),
+                Value<double?> neck = const Value.absent(),
+                Value<double?> bmi = const Value.absent(),
+                Value<double?> waistHipRatio = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                required DateTime measuredAt,
+                required DateTime createdAt,
+              }) => BodyMeasurementsCompanion.insert(
+                id: id,
+                weight: weight,
+                height: height,
+                bodyFat: bodyFat,
+                muscleMass: muscleMass,
+                chest: chest,
+                waist: waist,
+                hip: hip,
+                thighLeft: thighLeft,
+                thighRight: thighRight,
+                armLeft: armLeft,
+                armRight: armRight,
+                neck: neck,
+                bmi: bmi,
+                waistHipRatio: waistHipRatio,
+                note: note,
+                measuredAt: measuredAt,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$BodyMeasurementsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BodyMeasurementsTable,
+      BodyMeasurement,
+      $$BodyMeasurementsTableFilterComposer,
+      $$BodyMeasurementsTableOrderingComposer,
+      $$BodyMeasurementsTableAnnotationComposer,
+      $$BodyMeasurementsTableCreateCompanionBuilder,
+      $$BodyMeasurementsTableUpdateCompanionBuilder,
+      (
+        BodyMeasurement,
+        BaseReferences<_$AppDatabase, $BodyMeasurementsTable, BodyMeasurement>,
+      ),
+      BodyMeasurement,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6641,4 +8086,6 @@ class $AppDatabaseManager {
       $$TrainingPlansTableTableManager(_db, _db.trainingPlans);
   $$TrainingPlanExercisesTableTableManager get trainingPlanExercises =>
       $$TrainingPlanExercisesTableTableManager(_db, _db.trainingPlanExercises);
+  $$BodyMeasurementsTableTableManager get bodyMeasurements =>
+      $$BodyMeasurementsTableTableManager(_db, _db.bodyMeasurements);
 }

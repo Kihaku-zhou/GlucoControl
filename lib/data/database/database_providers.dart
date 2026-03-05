@@ -108,6 +108,26 @@ final trainingPlanExercisesProvider = FutureProvider.family<List<TrainingPlanExe
 /// 当前选择的训练计划
 final selectedTrainingPlanProvider = StateProvider<TrainingPlan?>((ref) => null);
 
+/// ==================== 体测记录 Providers ====================
+
+/// 体测记录列表 Provider
+final bodyMeasurementsProvider = FutureProvider<List<BodyMeasurement>>((ref) async {
+  final db = ref.watch(databaseProvider);
+  return db.getAllBodyMeasurements();
+});
+
+/// 最新体测记录 Provider
+final latestBodyMeasurementProvider = FutureProvider<BodyMeasurement?>((ref) async {
+  final db = ref.watch(databaseProvider);
+  return db.getLatestBodyMeasurement();
+});
+
+/// 按日期范围获取体测记录
+final bodyMeasurementsByDateRangeProvider = FutureProvider.family<List<BodyMeasurement>, DateRange>((ref, range) async {
+  final db = ref.watch(databaseProvider);
+  return db.getBodyMeasurementsByDateRange(range.start, range.end);
+});
+
 /// ==================== 饮食相关 Providers ====================
 
 /// 饮食记录列表 Provider

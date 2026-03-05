@@ -74,6 +74,28 @@ class TrainingPlanExercises extends Table {
   IntColumn get orderIndex => integer().withDefault(const Constant(0))(); // 排序
 }
 
+/// 体测记录表
+class BodyMeasurements extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  RealColumn get weight => real().nullable()(); // 体重 (kg)
+  RealColumn get height => real().nullable()(); // 身高 (cm)
+  RealColumn get bodyFat => real().nullable()(); // 体脂率 (%)
+  RealColumn get muscleMass => real().nullable()(); // 肌肉量 (kg)
+  RealColumn get chest => real().nullable()(); // 胸围 (cm)
+  RealColumn get waist => real().nullable()(); // 腰围 (cm)
+  RealColumn get hip => real().nullable()(); // 臀围 (cm)
+  RealColumn get thighLeft => real().nullable()(); // 左大腿围 (cm)
+  RealColumn get thighRight => real().nullable()(); // 右大腿围 (cm)
+  RealColumn get armLeft => real().nullable()(); // 左臂围 (cm)
+  RealColumn get armRight => real().nullable()(); // 右臂围 (cm)
+  RealColumn get neck => real().nullable()(); // 颈围 (cm)
+  RealColumn get bmi => real().nullable()(); // BMI (自动计算)
+  RealColumn get waistHipRatio => real().nullable()(); // 腰臀比 (自动计算)
+  TextColumn get note => text().nullable()(); // 备注
+  DateTimeColumn get measuredAt => dateTime()(); // 测量时间
+  DateTimeColumn get createdAt => dateTime()();
+}
+
 /// 饮食记录表
 class MealRecords extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -110,6 +132,7 @@ class AppSettings extends Table {
   AppSettings,
   TrainingPlans,
   TrainingPlanExercises,
+  BodyMeasurements,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -249,6 +272,39 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteExercisesByPlanId(int planId) =>
       (delete(trainingPlanExercises)..where((t) => t.planId.equals(planId))).go();
+
+  // ==================== 体测记录 CRUD ====================
+  
+  Future<List<BodyMeasurement>> getAllBodyMeasurements() =>
+      (select(bodyMeasurements)..orderBy([(t) => OrderingTerm.desc(t.measuredAt)])).get();
+
+  Future<List<BodyMeasurement>> getBodyMeasurementsByDateRange(
+    DateTime start,
+    DateTime end,
+  ) {
+    return (select(bodyMeasurements)
+          ..where((t) => t.measuredAt.isBetweenValues(start, end))
+          ..orderBy([(t) => OrderingTerm.desc(t.measuredAt)]))
+        .get();
+  }
+
+  /// 获取最新的体测记录
+  Future<BodyMeasurement?> getLatestBodyMeasurement() async {
+    final results = await (select(bodyMeasurements)
+          ..orderBy([(t) => OrderingTerm.desc(t.measuredAt)])
+          ..limit(1))
+        .get();
+    return results.isNotEmpty ? results.first : null;
+  }
+
+  Future<int> insertBodyMeasurement(BodyMeasurementsCompanion record) =>
+      into(bodyMeasurements).insert(record);
+
+  Future<bool> updateBodyMeasurement(BodyMeasurement record) =>
+      update(bodyMeasurements).replace(record);
+
+  Future<int> deleteBodyMeasurement(int id) =>
+      (delete(bodyMeasurements)..where((t) => t.id.equals(id))).go();
 
   // ==================== 设置 ====================
   
