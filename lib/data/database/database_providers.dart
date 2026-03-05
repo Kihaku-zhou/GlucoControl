@@ -15,7 +15,7 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError('需要在 main.dart 中初始化');
 });
 
-/// ==================== 血糖相关 Providers ====================
+///血糖相关 Providers = ==================== ===================
 
 /// 血糖记录列表 Provider
 final bloodSugarRecordsProvider = FutureProvider<List<BloodSugarRecord>>((ref) async {
@@ -24,22 +24,22 @@ final bloodSugarRecordsProvider = FutureProvider<List<BloodSugarRecord>>((ref) a
 });
 
 /// 按日期范围获取血糖记录
-final bloodSugarRecordsByDateRangeProvider = FutureProvider.family<List<BloodSugarRecord>, DateTimeRange>((ref, range) async {
+final bloodSugarRecordsByDateRangeProvider = FutureProvider.family<List<BloodSugarRecord>, DateRange>((ref, range) async {
   final db = ref.watch(databaseProvider);
   return db.getBloodSugarRecordsByDateRange(range.start, range.end);
 });
 
 /// 日期范围类
-class DateTimeRange {
+class DateRange {
   final DateTime start;
   final DateTime end;
   
-  DateTimeRange({required this.start, required this.end});
+  DateRange({required this.start, required this.end});
   
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DateTimeRange &&
+      other is DateRange &&
           runtimeType == other.runtimeType &&
           start == other.start &&
           end == other.end;
@@ -57,7 +57,7 @@ final exerciseRecordsProvider = FutureProvider<List<ExerciseRecord>>((ref) async
 });
 
 /// 按日期范围获取运动记录
-final exerciseRecordsByDateRangeProvider = FutureProvider.family<List<ExerciseRecord>, DateTimeRange>((ref, range) async {
+final exerciseRecordsByDateRangeProvider = FutureProvider.family<List<ExerciseRecord>, DateRange>((ref, range) async {
   final db = ref.watch(databaseProvider);
   return db.getExerciseRecordsByDateRange(range.start, range.end);
 });
@@ -71,7 +71,7 @@ final mealRecordsProvider = FutureProvider<List<MealRecord>>((ref) async {
 });
 
 /// 按日期范围获取饮食记录
-final mealRecordsByDateRangeProvider = FutureProvider.family<List<MealRecord>, DateTimeRange>((ref, range) async {
+final mealRecordsByDateRangeProvider = FutureProvider.family<List<MealRecord>, DateRange>((ref, range) async {
   final db = ref.watch(databaseProvider);
   return db.getMealRecordsByDateRange(range.start, range.end);
 });

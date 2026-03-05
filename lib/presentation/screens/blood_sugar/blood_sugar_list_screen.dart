@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../core/constants.dart';
-import '../../core/theme.dart';
-import '../../data/database/database.dart';
-import '../../data/database/database_providers.dart';
+import '../../../core/constants.dart';
+import '../../../core/theme.dart';
+import '../../../data/database/database.dart';
+import '../../../data/database/database_providers.dart';
+import 'blood_sugar_chart_screen.dart';
+import 'hba1c_calculator_screen.dart';
 
 /// 血糖记录列表页面
 class BloodSugarListScreen extends ConsumerWidget {
@@ -373,10 +376,10 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
     await db.insertBloodSugarRecord(
       BloodSugarRecordsCompanion.insert(
         value: value,
-        unit: Value(_selectedUnit),
+        unit: drift.Value(_selectedUnit),
         type: _selectedType,
         recordedAt: recordedAt,
-        hoursAfterMeal: Value(_hoursAfterMeal),
+        hoursAfterMeal: drift.Value(_hoursAfterMeal),
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),

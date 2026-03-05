@@ -16,7 +16,7 @@ class BloodSugarChartScreen extends ConsumerStatefulWidget {
 }
 
 class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
-  DateTimeRange _selectedRange = DateTimeRange(
+  DateRange _selectedRange = DateRange(
     start: DateTime.now().subtract(const Duration(days: 7)),
     end: DateTime.now(),
   );
@@ -36,19 +36,19 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
               setState(() {
                 switch (value) {
                   case '7d':
-                    _selectedRange = DateTimeRange(
+                    _selectedRange = DateRange(
                       start: DateTime.now().subtract(const Duration(days: 7)),
                       end: DateTime.now(),
                     );
                     break;
                   case '30d':
-                    _selectedRange = DateTimeRange(
+                    _selectedRange = DateRange(
                       start: DateTime.now().subtract(const Duration(days: 30)),
                       end: DateTime.now(),
                     );
                     break;
                   case '90d':
-                    _selectedRange = DateTimeRange(
+                    _selectedRange = DateRange(
                       start: DateTime.now().subtract(const Duration(days: 90)),
                       end: DateTime.now(),
                     );

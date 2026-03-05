@@ -227,7 +227,7 @@ class AIAnalysisService {
 - 今日血糖平均值: $avgBloodSugar mg/dL
 - 运动时长: $exerciseMinutes 分钟
 - 碳水摄入: ${totalCarbs}g
-- 消耗卡路里: $calories kcal
+- 消耗卡路里: $caloriesBurned kcal
 
 请用 2-3 句话总结今日健康状况，并给出 1 条建议。
 ''';

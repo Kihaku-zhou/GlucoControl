@@ -73,7 +73,7 @@ class WebDAVService {
   /// 测试连接
   Future<bool> testConnection() async {
     try {
-      final response = await _dio?.propfind(
+      final response = await _dio?.request(
         '/',
         options: Options(
           headers: {
@@ -134,7 +134,7 @@ class WebDAVService {
   /// 列出文件
   Future<List<String>> listFiles() async {
     try {
-      final response = await _dio?.propfind(
+      final response = await _dio?.request(
         '/glucocontrol/',
         options: Options(
           headers: {
@@ -179,7 +179,7 @@ class WebDAVService {
   /// 确保目录存在
   Future<void> _ensureDirectory(String path) async {
     try {
-      await _dio?.mkcol(path);
+      await _dio?.request(path);
     } catch (e) {
       // 目录可能已存在，忽略错误
     }

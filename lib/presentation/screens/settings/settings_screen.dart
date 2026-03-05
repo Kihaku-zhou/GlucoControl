@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../data/database/database_providers.dart';
+import '../../../data/database/database_providers.dart';
 
 /// 设置主页面
 class SettingsMainScreen extends ConsumerWidget {

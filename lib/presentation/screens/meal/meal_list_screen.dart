@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../data/database/database.dart';
-import '../../data/database/database_providers.dart';
+import '../../../data/database/database.dart';
+import '../../../data/database/database_providers.dart';
 
 /// 饮食记录列表页面
 class MealListScreen extends ConsumerWidget {
@@ -406,7 +407,7 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
       MealRecordsCompanion.insert(
         type: _selectedType,
         recordedAt: recordedAt,
-        note: Value(_noteController.text.isNotEmpty ? _noteController.text : null),
+        note: drift.Value(_noteController.text.isNotEmpty ? _noteController.text : null),
         createdAt: DateTime.now(),
       ),
     );
@@ -424,7 +425,7 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
             mealId: mealId,
             name: item.nameController.text,
             amount: double.tryParse(item.amountController.text) ?? 100,
-            carbs: Value(carbs),
+            carbs: drift.Value(carbs),
           ),
         );
       }

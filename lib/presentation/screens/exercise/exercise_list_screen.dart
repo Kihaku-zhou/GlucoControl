@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../core/constants.dart';
-import '../../data/database/database.dart';
-import '../../data/database/database_providers.dart';
+import '../../../core/constants.dart';
+import '../../../data/database/database.dart';
+import '../../../data/database/database_providers.dart';
 
 /// 运动记录列表页面
 class ExerciseListScreen extends ConsumerWidget {
@@ -363,7 +364,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
         type: _selectedType,
         name: _nameController.text,
         duration: duration,
-        calories: Value(calories),
+        calories: drift.Value(calories),
         startedAt: startedAt,
         endedAt: endedAt,
         createdAt: DateTime.now(),
