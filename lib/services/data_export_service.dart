@@ -69,6 +69,29 @@ class DataExportService {
       });
     }
     
+    // 导出体测记录
+    final bodyMeasurements = await db.getAllBodyMeasurements();
+    data['body_measurement'] = bodyMeasurements.map((m) => {
+      'id': m.id,
+      'weight': m.weight,
+      'height': m.height,
+      'body_fat': m.bodyFat,
+      'muscle_mass': m.muscleMass,
+      'chest': m.chest,
+      'waist': m.waist,
+      'hip': m.hip,
+      'thigh_left': m.thighLeft,
+      'thigh_right': m.thighRight,
+      'arm_left': m.armLeft,
+      'arm_right': m.armRight,
+      'neck': m.neck,
+      'bmi': m.bmi,
+      'waist_hip_ratio': m.waistHipRatio,
+      'note': m.note,
+      'measured_at': m.measuredAt.toIso8601String(),
+      'created_at': m.createdAt.toIso8601String(),
+    }).toList();
+    
     // 添加导出时间
     data['exported_at'] = DateTime.now().toIso8601String();
     data['app_version'] = '0.1.0';
