@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
+import '../../../services/meal_image_service.dart';
 
 /// 饮食记录列表页面
 class MealListScreen extends ConsumerWidget {
@@ -203,6 +207,18 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
   TimeOfDay _selectedTime = TimeOfDay.now();
   DateTime _selectedDate = DateTime.now();
   final List<FoodItemInput> _foodItems = [];
+  
+  // 图片相关
+  String? _imagePath;
+  final ImagePicker _picker = ImagePicker();
+  final MealImageService _imageService = MealImageService();
+
+  @override
+  void initState() {
+    super.initState();
+    // 初始化时清理旧图片
+    _imageService.cleanupOldImages();
+  }
 
   @override
   void dispose() {
@@ -213,6 +229,124 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
       item.carbsController.dispose();
     }
     super.dispose();
+  }
+
+  /// 选择图片来源
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 70,
+      );
+      
+      if (pickedFile != null) {
+        // 保存并压缩图片
+        final savedPath = await _imageService.saveCompressedImage(pickedFile);
+        if (savedPath != null && mounted) {
+          setState(() {
+            _imagePath = savedPath;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('选择图片失败: $e');
+    }
+  }
+
+  /// 显示图片选择对话框
+  void _showImagePicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('拍照'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('从相册选择'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+            if (_imagePath != null)
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('删除图片', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _imagePath = null;
+                  });
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 构建图片选择器
+  Widget _buildImagePicker() {
+    return GestureDetector(
+      onTap: _showImagePicker,
+      child: Container(
+        height: 180,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[300]!),
+        ),
+        child: _imagePath != null
+            ? Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      File(_imagePath!),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.black54,
+                      radius: 16,
+                      child: IconButton(
+                        icon: const Icon(Icons.close, size: 16, color: Colors.white),
+                        onPressed: () {
+                          setState(() {
+                            _imagePath = null;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add_a_photo, size: 48, color: Colors.grey[400]),
+                  const SizedBox(height: 8),
+                  Text('点击添加图片', style: TextStyle(color: Colors.grey[600])),
+                  Text('(图片将自动压缩)', style: TextStyle(fontSize: 12, color: Colors.grey[400])),
+                ],
+              ),
+      ),
+    );
   }
 
   @override
@@ -251,6 +385,10 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
                     });
                   },
                 ),
+                const SizedBox(height: 16),
+
+                // 图片上传
+                _buildImagePicker(),
                 const SizedBox(height: 16),
 
                 // 食物列表
@@ -407,6 +545,7 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
       MealRecordsCompanion.insert(
         type: _selectedType,
         recordedAt: recordedAt,
+        imagePath: drift.Value(_imagePath),
         note: drift.Value(_noteController.text.isNotEmpty ? _noteController.text : null),
         createdAt: DateTime.now(),
       ),
