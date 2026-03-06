@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/constants.dart';
 import '../../../core/theme.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
@@ -112,10 +113,24 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
   Widget _buildStatisticsCard(List<BloodSugarRecord> records) {
     // 获取当前单位
     final currentUnit = ref.watch(bloodSugarUnitProvider);
-    final values = records.map((r) => r.value).toList();
-    final avg = values.reduce((a, b) => a + b) / values.length;
-    final max = values.reduce((a, b) => a > b ? a : b);
-    final min = values.reduce((a, b) => a < b ? a : b);
+    
+    // 先把所有血糖值统一转换为 mg/dL 再计算统计
+    double totalMgDl = 0;
+    double maxMgDl = double.negativeInfinity;
+    double minMgDl = double.infinity;
+    for (final r in records) {
+      if (r.unit == 'mmol/L') {
+        totalMgDl += AppConstants.mmolLToMgDl(r.value);
+        final mgDlValue = AppConstants.mmolLToMgDl(r.value);
+        if (mgDlValue > maxMgDl) maxMgDl = mgDlValue;
+        if (mgDlValue < minMgDl) minMgDl = mgDlValue;
+      } else {
+        totalMgDl += r.value;
+        if (r.value > maxMgDl) maxMgDl = r.value;
+        if (r.value < minMgDl) minMgDl = r.value;
+      }
+    }
+    final avgMgDl = totalMgDl / records.length;
     
     // 获取安全范围（存储的是 mg/dL）
     final safeMinStored = ref.read(safeRangeMinProvider);
@@ -125,11 +140,21 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
     final safeMin = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(safeMinStored) : safeMinStored;
     final safeMax = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(safeMaxStored) : safeMaxStored;
     
-    // 将记录值转换为显示单位
-    final displayValues = values.map((v) => currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(v) : v).toList();
-    final displayAvg = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(avg) : avg;
-    final displayMax = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(max) : max;
-    final displayMin = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(min) : min;
+    // 将统计值转换为显示单位
+    final displayAvg = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(avgMgDl) : avgMgDl;
+    final displayMax = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(maxMgDl) : maxMgDl;
+    final displayMin = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(minMgDl) : minMgDl;
+    
+    // 计算达标率（使用 mg/dL 统一比较）
+    final inRange = records.where((r) {
+      final mgDlValue = r.unit == 'mmol/L' ? AppConstants.mmolLToMgDl(r.value) : r.value;
+      return mgDlValue >= safeMinStored && mgDlValue <= safeMaxStored;
+    }).length;
+    final displayValues = records.map((r) {
+      final mgDlValue = r.unit == 'mmol/L' ? AppConstants.mmolLToMgDl(r.value) : r.value;
+      return currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(mgDlValue) : mgDlValue;
+    }).toList();
+    final inRangePercent = (inRange / records.length * 100).toStringAsFixed(1);
     
     // 计算达标率（使用显示单位）
     final inRange = displayValues.where((v) => v >= safeMin && v <= safeMax).length;
@@ -232,9 +257,12 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
     final timeRange = maxTime - minTime;
     
     // 如果只有一个点或时间范围为0，使用索引
-    // 转换血糖值到显示单位
+    // 先统一转为 mg/dL，再根据当前显示单位转换
     final spots = sortedRecords.map((r) {
-      final displayValue = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(r.value) : r.value;
+      // 先统一转换为 mg/dL
+      final mgDlValue = r.unit == 'mmol/L' ? AppConstants.mmolLToMgDl(r.value) : r.value;
+      // 再转换为显示单位
+      final displayValue = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(mgDlValue) : mgDlValue;
       if (timeRange > 0 && sortedRecords.length > 1) {
         // 将时间戳映射到 0 到 (n-1) 的范围
         final x = (r.recordedAt.millisecondsSinceEpoch.toDouble() - minTime) / timeRange * (sortedRecords.length - 1);
