@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -158,6 +159,15 @@ final webdavEnabledProvider = StateProvider<bool>((ref) => false);
 
 /// AI API 是否启用
 final aiApiEnabledProvider = StateProvider<bool>((ref) => false);
+
+/// 通知设置 Providers
+final reminderEnabledProvider = StateProvider<bool>((ref) => false);
+final morningReminderEnabledProvider = StateProvider<bool>((ref) => false);
+final eveningReminderEnabledProvider = StateProvider<bool>((ref) => false);
+final morningReminderTimeProvider = StateProvider<TimeOfDay>((ref) => const TimeOfDay(hour: 7, minute: 0));
+final eveningReminderTimeProvider = StateProvider<TimeOfDay>((ref) => const TimeOfDay(hour: 21, minute: 0));
+final afterMealReminderEnabledProvider = StateProvider<bool>((ref) => false);
+final afterMealReminderHoursProvider = StateProvider<int>((ref) => 2);
 
 /// AI 对话列表
 final aiConversationsProvider = FutureProvider<List<AIConversation>>((ref) async {

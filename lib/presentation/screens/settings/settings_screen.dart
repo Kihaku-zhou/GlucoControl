@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 
 import '../../../data/database/database_providers.dart';
 import '../../../services/data_export_service.dart';
+import 'notification_settings_screen.dart';
 
 /// 设置主页面
 class SettingsMainScreen extends ConsumerWidget {
@@ -41,6 +42,24 @@ class SettingsMainScreen extends ConsumerWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const WebDAVSettingsScreen(),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+
+          // 通知设置
+          _buildSectionHeader('提醒'),
+          ListTile(
+            leading: const Icon(Icons.notifications),
+            title: const Text('测量提醒'),
+            subtitle: const Text('定时提醒测量血糖'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationSettingsScreen(),
                 ),
               );
             },
