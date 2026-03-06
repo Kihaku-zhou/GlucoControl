@@ -1,77 +1,45 @@
 name: glucocontrol
-description: "血糖控制应用 - 跨平台健康管理系统"
+description: "Glucose Control App"
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.0+1
 
 environment:
-  sdk: ^3.11.0
+  sdk: ^3.5.0
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  
-  # 状态管理
-  flutter_riverpod: ^2.5.1
-  riverpod_annotation: ^2.3.5
-  
-  # 本地数据库
-  drift: ^2.18.0
-  sqlite3_flutter_libs: ^0.5.24
-  
-  # Web 数据库兼容
-  sqflite_common_ffi: ^2.3.3
-  sqlite3: ^2.4.6
-  
-  # 图表
-  fl_chart: ^0.68.0
-  
-  # WebDAV
-  webdav_client: ^1.2.2
-  
-  # BLE 心率
-  flutter_blue_plus: ^1.32.0
-  
-  # HTTP
-  dio: ^5.4.3+1
-  
-  # 图片
-  image_picker: ^1.1.2
-  
-  # 文件选择
-  file_picker: ^8.0.0+1
-  
-  # 路径
-  path_provider: ^2.1.3
-  path: ^1.9.0
-  
-  # 权限
-  permission_handler: ^11.3.1
-  
-  # 通知
-  flutter_local_notifications: ^17.1.2
-  
-  # 路由
-  go_router: ^14.2.0
-  
-  # 代码生成
-  freezed_annotation: ^2.4.0
-  
-  # 工具
-  intl: ^0.19.0
-  uuid: ^4.5.1
-  shared_preferences: ^2.3.0
+  flutter_riverpod: any
+  riverpod_annotation: any
+  drift: any
+  sqlite3_flutter_libs: any
+  sqflite_common_ffi: any
+  sqlite3: any
+  fl_chart: any
+  webdav_client: any
+  flutter_blue_plus: any
+  dio: any
+  image_picker: any
+  file_picker: any
+  path_provider: any
+  permission_handler: any
+  flutter_local_notifications: any
+  go_router: any
+  freezed_annotation: any
+  intl: any
+  uuid: any
+  shared_preferences: any
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
-  drift_dev: ^2.18.0
-  build_runner: ^2.4.9
-  freezed: ^2.5.0
+  flutter_lints: any
+  build_runner: any
+  drift_dev: any
+  freezed: any
 
 flutter:
   uses-material-design: true
-  
   assets:
     - assets/images/

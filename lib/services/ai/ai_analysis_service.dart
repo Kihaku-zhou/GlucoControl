@@ -259,6 +259,55 @@ class AIAnalysisService {
       return null;
     }
   }
+
+  /// 聊天（通用对话）
+  Future<String> chat(List<Map<String, String>> messages) async {
+    if (!isInitialized) {
+      throw Exception('AI 服务未初始化');
+    }
+
+    try {
+      // 转换消息格式
+      final apiMessages = messages.map((m) => {
+        'role': m['role'],
+        'content': m['content'],
+      }).toList();
+
+      // 添加系统提示
+      final systemMessages = [
+        {
+          'role': 'system',
+          'content': '''你是 GlucoControl 健康助手，专门帮助用户管理血糖、健康和运动。
+你可以回答关于：
+- 血糖监测和控制
+- 饮食建议
+- 运动计划
+- 健康数据分析
+
+请用中文回答，保持友好和专业。''',
+        },
+        ...apiMessages,
+      ];
+
+      final response = await _dio!.post(
+        '/v1/chat/completions',
+        data: {
+          'model': _config!.model,
+          'messages': systemMessages,
+          'temperature': 0.7,
+          'max_tokens': 1000,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['choices'][0]['message']['content'] as String;
+      }
+      throw Exception('API 返回错误: ${response.statusCode}');
+    } catch (e) {
+      debugPrint('聊天失败: $e');
+      rethrow;
+    }
+  }
 }
 
 /// AI 分析服务 Provider

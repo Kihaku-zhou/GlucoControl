@@ -110,16 +110,30 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
   }
 
   Widget _buildStatisticsCard(List<BloodSugarRecord> records) {
+    // 获取当前单位
+    final currentUnit = ref.watch(bloodSugarUnitProvider);
     final values = records.map((r) => r.value).toList();
     final avg = values.reduce((a, b) => a + b) / values.length;
     final max = values.reduce((a, b) => a > b ? a : b);
     final min = values.reduce((a, b) => a < b ? a : b);
     
-    // 计算达标率
-    final safeMin = ref.read(safeRangeMinProvider);
-    final safeMax = ref.read(safeRangeMaxProvider);
-    final inRange = values.where((v) => v >= safeMin && v <= safeMax).length;
-    final inRangePercent = (inRange / values.length * 100).toStringAsFixed(1);
+    // 获取安全范围（存储的是 mg/dL）
+    final safeMinStored = ref.read(safeRangeMinProvider);
+    final safeMaxStored = ref.read(safeRangeMaxProvider);
+    
+    // 转换为当前显示单位
+    final safeMin = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(safeMinStored) : safeMinStored;
+    final safeMax = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(safeMaxStored) : safeMaxStored;
+    
+    // 将记录值转换为显示单位
+    final displayValues = values.map((v) => currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(v) : v).toList();
+    final displayAvg = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(avg) : avg;
+    final displayMax = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(max) : max;
+    final displayMin = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(min) : min;
+    
+    // 计算达标率（使用显示单位）
+    final inRange = displayValues.where((v) => v >= safeMin && v <= safeMax).length;
+    final inRangePercent = (inRange / displayValues.length * 100).toStringAsFixed(1);
 
     return Card(
       child: Padding(
@@ -135,9 +149,9 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatItem('平均值', '${avg.toStringAsFixed(1)}', 'mg/dL'),
-                _buildStatItem('最高', '${max.toStringAsFixed(1)}', 'mg/dL'),
-                _buildStatItem('最低', '${min.toStringAsFixed(1)}', 'mg/dL'),
+                _buildStatItem('平均值', displayAvg.toStringAsFixed(1), currentUnit),
+                _buildStatItem('最高', displayMax.toStringAsFixed(1), currentUnit),
+                _buildStatItem('最低', displayMin.toStringAsFixed(1), currentUnit),
                 _buildStatItem('达标率', '$inRangePercent', '%', color: Colors.green),
               ],
             ),
@@ -201,23 +215,49 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
     final sortedRecords = List<BloodSugarRecord>.from(records)
       ..sort((a, b) => a.recordedAt.compareTo(b.recordedAt));
 
-    final safeMin = ref.read(safeRangeMinProvider);
-    final safeMax = ref.read(safeRangeMaxProvider);
+    // 获取当前单位
+    final currentUnit = ref.watch(bloodSugarUnitProvider);
+    
+    // 获取安全范围（存储的是 mg/dL）
+    final safeMinStored = ref.read(safeRangeMinProvider);
+    final safeMaxStored = ref.read(safeRangeMaxProvider);
+    
+    // 转换为显示单位
+    final safeMin = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(safeMinStored) : safeMinStored;
+    final safeMax = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(safeMaxStored) : safeMaxStored;
 
-    final spots = sortedRecords.asMap().entries.map((entry) {
-      return FlSpot(
-        entry.key.toDouble(),
-        entry.value.value,
-      );
+    // 使用时间戳作为x轴，实现等比例显示
+    final minTime = sortedRecords.first.recordedAt.millisecondsSinceEpoch.toDouble();
+    final maxTime = sortedRecords.last.recordedAt.millisecondsSinceEpoch.toDouble();
+    final timeRange = maxTime - minTime;
+    
+    // 如果只有一个点或时间范围为0，使用索引
+    // 转换血糖值到显示单位
+    final spots = sortedRecords.map((r) {
+      final displayValue = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(r.value) : r.value;
+      if (timeRange > 0 && sortedRecords.length > 1) {
+        // 将时间戳映射到 0 到 (n-1) 的范围
+        final x = (r.recordedAt.millisecondsSinceEpoch.toDouble() - minTime) / timeRange * (sortedRecords.length - 1);
+        return FlSpot(x, displayValue);
+      } else {
+        // 只有一个点或时间相同，使用索引
+        final index = sortedRecords.indexOf(r);
+        return FlSpot(index.toDouble(), displayValue);
+      }
     }).toList();
+    
+    // 计算Y轴范围
+    final displayValues = spots.map((s) => s.y).toList();
+    final minY = (displayValues.reduce((a, b) => a < b ? a : b) - 30).clamp(0.0, double.infinity).toDouble();
+    final maxY = (displayValues.reduce((a, b) => a > b ? a : b) + 30).toDouble();
 
     return LineChart(
       LineChartData(
         gridData: FlGridData(
           show: true,
-          horizontalInterval: 50,
+          horizontalInterval: currentUnit == 'mmol/L' ? 2 : 50,  // mmol/L 时间隔为2
           getDrawingHorizontalLine: (value) {
-            if (value == safeMin || value == safeMax) {
+            if ((value - safeMin).abs() < 0.1 || (value - safeMax).abs() < 0.1) {
               return FlLine(
                 color: Colors.orange.withValues(alpha: 0.5),
                 strokeWidth: 2,
@@ -235,8 +275,9 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 30,
-              interval: (sortedRecords.length / 5).ceilToDouble(),
+              interval: sortedRecords.length > 1 ? 1 : 1,
               getTitlesWidget: (value, meta) {
+                // 根据x值计算对应的记录索引
                 final index = value.toInt();
                 if (index >= 0 && index < sortedRecords.length) {
                   return Padding(
@@ -255,10 +296,10 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 45,
-              interval: 50,
+              interval: currentUnit == 'mmol/L' ? 2 : 50,
               getTitlesWidget: (value, meta) {
                 return Text(
-                  value.toInt().toString(),
+                  value.toStringAsFixed(currentUnit == 'mmol/L' ? 1 : 0),
                   style: const TextStyle(fontSize: 10),
                 );
               },
@@ -268,8 +309,10 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
           topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         borderData: FlBorderData(show: true),
-        minY: (sortedRecords.map((r) => r.value).reduce((a, b) => a < b ? a : b) - 30).clamp(0, double.infinity),
-        maxY: sortedRecords.map((r) => r.value).reduce((a, b) => a > b ? a : b) + 30,
+        minX: 0,
+        maxX: (sortedRecords.length - 1).toDouble(),
+        minY: minY,
+        maxY: maxY,
         lineBarsData: [
           LineChartBarData(
             spots: spots,
@@ -280,7 +323,7 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
               show: true,
               getDotPainter: (spot, percent, barData, index) {
                 final value = sortedRecords[index].value;
-                final color = AppTheme.getBloodSugarColor(value);
+                final color = AppTheme.getBloodSugarColor(value, currentUnit);
                 return FlDotCirclePainter(
                   radius: 5,
                   color: color,
@@ -306,7 +349,7 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
                 show: true,
                 alignment: Alignment.topRight,
                 style: const TextStyle(color: Colors.orange, fontSize: 10),
-                labelResolver: (line) => '下限: ${safeMin.toInt()}',
+                labelResolver: (line) => '下限: ${safeMin.toStringAsFixed(currentUnit == 'mmol/L' ? 1 : 0)}',
               ),
             ),
             HorizontalLine(
@@ -318,7 +361,7 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
                 show: true,
                 alignment: Alignment.bottomRight,
                 style: const TextStyle(color: Colors.orange, fontSize: 10),
-                labelResolver: (line) => '上限: ${safeMax.toInt()}',
+                labelResolver: (line) => '上限: ${safeMax.toStringAsFixed(currentUnit == 'mmol/L' ? 1 : 0)}',
               ),
             ),
           ],

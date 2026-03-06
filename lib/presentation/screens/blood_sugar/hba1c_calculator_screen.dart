@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants.dart';
+import '../../../data/database/database_providers.dart';
 
 /// HbA1c 计算器页面
 class HbA1cCalculatorScreen extends ConsumerStatefulWidget {
@@ -16,7 +17,6 @@ class _HbA1cCalculatorScreenState extends ConsumerState<HbA1cCalculatorScreen> {
   final _avgBloodSugarController = TextEditingController();
   final _hba1cController = TextEditingController();
   
-  String _selectedUnit = 'mg/dL';
   double? _calculatedHbA1c;
   double? _calculatedAvgBloodSugar;
 
@@ -123,32 +123,15 @@ class _HbA1cCalculatorScreenState extends ConsumerState<HbA1cCalculatorScreen> {
                       ),
                       const SizedBox(height: 16),
                       
-                      // 单位选择
+                      // 使用全局血糖单位设置
                       Row(
                         children: [
                           const Text('血糖单位：'),
                           const SizedBox(width: 8),
-                          ChoiceChip(
-                            label: const Text('mg/dL'),
-                            selected: _selectedUnit == 'mg/dL',
-                            onSelected: (selected) {
-                              if (selected) {
-                                setState(() {
-                                  _selectedUnit = 'mg/dL';
-                                });
-                              }
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          ChoiceChip(
-                            label: const Text('mmol/L'),
-                            selected: _selectedUnit == 'mmol/L',
-                            onSelected: (selected) {
-                              if (selected) {
-                                setState(() {
-                                  _selectedUnit = 'mmol/L';
-                                });
-                              }
+                          Consumer(
+                            builder: (context, ref, child) {
+                              final unit = ref.watch(bloodSugarUnitProvider);
+                              return Chip(label: Text(unit));
                             },
                           ),
                         ],
@@ -161,7 +144,7 @@ class _HbA1cCalculatorScreenState extends ConsumerState<HbA1cCalculatorScreen> {
                         decoration: InputDecoration(
                           labelText: '平均血糖值',
                           hintText: '输入平均血糖',
-                          suffixText: _selectedUnit,
+                          suffixText: ref.watch(bloodSugarUnitProvider),
                         ),
                         onChanged: (_) => _clearResults(),
                       ),
@@ -220,11 +203,16 @@ class _HbA1cCalculatorScreenState extends ConsumerState<HbA1cCalculatorScreen> {
 
                       if (_calculatedAvgBloodSugar != null) ...[
                         const Divider(height: 32),
-                        _buildResultCard(
-                          '计算结果',
-                          '${_calculatedAvgBloodSugar!.toStringAsFixed(1)} ${_selectedUnit}',
-                          _getHbA1cStatus(double.parse(_hba1cController.text)),
-                          _getHbA1cColor(double.parse(_hba1cController.text)),
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final unit = ref.watch(bloodSugarUnitProvider);
+                            return _buildResultCard(
+                              '计算结果',
+                              '${_calculatedAvgBloodSugar!.toStringAsFixed(1)} $unit',
+                              _getHbA1cStatus(double.parse(_hba1cController.text)),
+                              _getHbA1cColor(double.parse(_hba1cController.text)),
+                            );
+                          },
                         ),
                       ],
                     ],
@@ -318,7 +306,7 @@ class _HbA1cCalculatorScreenState extends ConsumerState<HbA1cCalculatorScreen> {
 
     // 如果是 mmol/L，转换为 mg/dL
     double mgDlValue = value;
-    if (_selectedUnit == 'mmol/L') {
+    if (ref.read(bloodSugarUnitProvider) == 'mmol/L') {
       mgDlValue = AppConstants.mmolLToMgDl(value);
     }
 
@@ -341,7 +329,7 @@ class _HbA1cCalculatorScreenState extends ConsumerState<HbA1cCalculatorScreen> {
     double avgBloodSugar = AppConstants.calculateAvgBloodSugar(hba1c);
 
     // 如果选择 mmol/L，转换结果
-    if (_selectedUnit == 'mmol/L') {
+    if (ref.read(bloodSugarUnitProvider) == 'mmol/L') {
       avgBloodSugar = AppConstants.mgDlToMmolL(avgBloodSugar);
     }
 

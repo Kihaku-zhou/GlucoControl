@@ -138,9 +138,64 @@ class _MealRecordTile extends StatelessWidget {
         trailing: record.imagePath != null
             ? const Icon(Icons.photo, color: Colors.grey)
             : null,
-        onTap: () {
-          // TODO: 查看详情或编辑
-        },
+        onTap: () => _showRecordDetail(context, record),
+      ),
+    );
+  }
+
+  void _showRecordDetail(BuildContext context, MealRecord record) {
+    final dateFormat = DateFormat('yyyy年M月d日 HH:mm');
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(_getMealTypeIcon(record.type), color: Colors.orange),
+                const SizedBox(width: 8),
+                const Text(
+                  '饮食记录详情',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _buildDetailRow('餐次', _getMealTypeText(record.type)),
+            _buildDetailRow('记录时间', dateFormat.format(record.recordedAt)),
+            if (record.imagePath != null && record.imagePath!.isNotEmpty)
+              _buildDetailRow('图片', '已保存'),
+            if (record.note != null && record.note!.isNotEmpty)
+              _buildDetailRow('备注', record.note!),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('关闭'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(label, style: const TextStyle(color: Colors.grey)),
+          ),
+          Expanded(
+            child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
+          ),
+        ],
       ),
     );
   }

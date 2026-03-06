@@ -158,3 +158,15 @@ final webdavEnabledProvider = StateProvider<bool>((ref) => false);
 
 /// AI API 是否启用
 final aiApiEnabledProvider = StateProvider<bool>((ref) => false);
+
+/// AI 对话列表
+final aiConversationsProvider = FutureProvider<List<AIConversation>>((ref) async {
+  final db = ref.watch(databaseProvider);
+  return db.getAIConversations();
+});
+
+/// AI 对话消息
+final aiMessagesProvider = FutureProvider.family<List<AIMessage>, int>((ref, conversationId) async {
+  final db = ref.watch(databaseProvider);
+  return db.getAIMessages(conversationId);
+});

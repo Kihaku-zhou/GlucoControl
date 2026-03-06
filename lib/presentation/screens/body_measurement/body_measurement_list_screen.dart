@@ -924,6 +924,11 @@ class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChar
           final sortedRecords = List<BodyMeasurement>.from(records)
             ..sort((a, b) => a.measuredAt.compareTo(b.measuredAt));
           
+          // 使用时间戳作为x轴，实现等比例显示
+          final minTime = sortedRecords.first.measuredAt.millisecondsSinceEpoch.toDouble();
+          final maxTime = sortedRecords.last.measuredAt.millisecondsSinceEpoch.toDouble();
+          final timeRange = maxTime - minTime;
+          
           // 获取数据点
           final spots = <FlSpot>[];
           for (int i = 0; i < sortedRecords.length; i++) {
@@ -941,7 +946,14 @@ class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChar
                 break;
             }
             if (value != null) {
-              spots.add(FlSpot(i.toDouble(), value));
+              // 使用时间戳映射到x轴
+              double x;
+              if (timeRange > 0 && sortedRecords.length > 1) {
+                x = (record.measuredAt.millisecondsSinceEpoch.toDouble() - minTime) / timeRange * (sortedRecords.length - 1);
+              } else {
+                x = i.toDouble();
+              }
+              spots.add(FlSpot(x, value));
             }
           }
           
@@ -971,6 +983,8 @@ class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChar
                   child: LineChart(
                     LineChartData(
                       gridData: const FlGridData(show: true),
+                      minX: 0,
+                      maxX: (sortedRecords.length - 1).toDouble(),
                       titlesData: FlTitlesData(
                         leftTitles: const AxisTitles(
                           sideTitles: SideTitles(showTitles: true, reservedSize: 40),
@@ -1068,6 +1082,7 @@ class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChar
                         '${value.toStringAsFixed(1)} ${metricInfo['unit']}',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
+                      onTap: () => _showRecordDetail(context, record, _selectedMetric),
                     ),
                   );
                 }),
@@ -1075,6 +1090,73 @@ class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChar
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showRecordDetail(BuildContext context, BodyMeasurement record, String metric) {
+    final dateFormat = DateFormat('yyyy年M月d日 HH:mm');
+    final metricInfo = _getMetricInfo(metric);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.straighten, color: Colors.blue),
+                const SizedBox(width: 8),
+                const Text(
+                  '体测记录详情',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _buildDetailRow('记录时间', dateFormat.format(record.measuredAt)),
+            if (record.weight != null)
+              _buildDetailRow('体重', '${record.weight} kg'),
+            if (record.height != null)
+              _buildDetailRow('身高', '${record.height} cm'),
+            if (record.bmi != null)
+              _buildDetailRow('BMI', record.bmi!.toStringAsFixed(1)),
+            if (record.bodyFat != null)
+              _buildDetailRow('体脂率', '${record.bodyFat}%'),
+            if (record.waist != null)
+              _buildDetailRow('腰围', '${record.waist} cm'),
+            if (record.hip != null)
+              _buildDetailRow('臀围', '${record.hip} cm'),
+            if (record.note != null && record.note!.isNotEmpty)
+              _buildDetailRow('备注', record.note!),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('关闭'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(label, style: const TextStyle(color: Colors.grey)),
+          ),
+          Expanded(
+            child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
+          ),
+        ],
       ),
     );
   }

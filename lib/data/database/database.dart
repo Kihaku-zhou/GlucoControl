@@ -123,6 +123,23 @@ class AppSettings extends Table {
   TextColumn get value => text()();
 }
 
+/// AI 对话表
+class AIConversations extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+}
+
+/// AI 消息表
+class AIMessages extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get conversationId => integer().references(AIConversations, #id)();
+  TextColumn get role => text()(); // user, assistant
+  TextColumn get content => text()();
+  DateTimeColumn get createdAt => dateTime()();
+}
+
 @DriftDatabase(tables: [
   BloodSugarRecords,
   ExerciseRecords,
@@ -133,6 +150,8 @@ class AppSettings extends Table {
   TrainingPlans,
   TrainingPlanExercises,
   BodyMeasurements,
+  AIConversations,
+  AIMessages,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -356,6 +375,39 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteBodyMeasurement(int id) =>
       (delete(bodyMeasurements)..where((t) => t.id.equals(id))).go();
+
+  // ==================== AI 对话 ====================
+  
+  Future<int> insertAIConversation(AIConversationsCompanion conversation) =>
+      into(aIConversations).insert(conversation);
+
+  Future<List<AIConversation>> getAIConversations() =>
+      (select(aIConversations)..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])).get();
+
+  Future<AIConversation?> getAIConversation(int id) =>
+      (select(aIConversations)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+  Future<bool> updateAIConversation(AIConversation conversation) =>
+      update(aIConversations).replace(conversation);
+
+  Future<int> deleteAIConversation(int id) async {
+    // 先删除对话中的所有消息
+    await (delete(aIMessages)..where((t) => t.conversationId.equals(id))).go();
+    // 再删除对话
+    return (delete(aIConversations)..where((t) => t.id.equals(id))).go();
+  }
+
+  Future<int> insertAIMessage(AIMessagesCompanion message) =>
+      into(aIMessages).insert(message);
+
+  Future<List<AIMessage>> getAIMessages(int conversationId) =>
+      (select(aIMessages)
+            ..where((t) => t.conversationId.equals(conversationId))
+            ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
+          .get();
+
+  Future<int> deleteAIMessages(int conversationId) =>
+      (delete(aIMessages)..where((t) => t.conversationId.equals(conversationId))).go();
 
   // ==================== 设置 ====================
   

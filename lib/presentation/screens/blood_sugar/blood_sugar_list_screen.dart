@@ -247,9 +247,110 @@ class _BloodSugarRecordTile extends ConsumerWidget {
             ),
           ),
         ),
-        onTap: () {
-          // TODO: 编辑记录
-        },
+        onTap: () => _showRecordDetail(context, ref, record),
+      ),
+    );
+  }
+
+  void _showRecordDetail(BuildContext context, WidgetRef ref, BloodSugarRecord record) {
+    final timeFormat = DateFormat('yyyy年M月d日 HH:mm');
+    final currentUnit = ref.watch(bloodSugarUnitProvider);
+    
+    // 单位转换
+    double displayValue = record.value;
+    String displayUnit = record.unit;
+    if (currentUnit == 'mmol/L' && record.unit == 'mg/dL') {
+      displayValue = record.value / 18.0182;
+      displayUnit = 'mmol/L';
+    } else if (currentUnit == 'mg/dL' && record.unit == 'mmol/L') {
+      displayValue = record.value * 18.0182;
+      displayUnit = 'mg/dL';
+    }
+    
+    final color = AppTheme.getBloodSugarColor(displayValue);
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.monitor_heart, color: Colors.red),
+                const SizedBox(width: 8),
+                const Text(
+                  '血糖记录详情',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _buildDetailRow('血糖值', '${displayValue.toStringAsFixed(1)} $displayUnit', color: color),
+            _buildDetailRow('状态', AppTheme.getBloodSugarStatus(displayValue), color: color),
+            _buildDetailRow('测量时间', _getTypeText(record.type)),
+            if (record.hoursAfterMeal != null)
+              _buildDetailRow('餐后时间', '${record.hoursAfterMeal} 小时'),
+            _buildDetailRow('记录时间', timeFormat.format(record.recordedAt)),
+            if (record.note != null && record.note!.isNotEmpty)
+              _buildDetailRow('备注', record.note!),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      final db = ref.read(databaseProvider);
+                      await db.deleteBloodSugarRecord(record.id);
+                      ref.invalidate(bloodSugarRecordsProvider);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('记录已删除')),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    label: const Text('删除', style: TextStyle(color: Colors.red)),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('关闭'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value, {Color? color}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(label, style: const TextStyle(color: Colors.grey)),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: color,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

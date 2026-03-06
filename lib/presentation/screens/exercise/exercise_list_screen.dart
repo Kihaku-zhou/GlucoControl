@@ -164,6 +164,7 @@ class _ExerciseRecordTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timeFormat = DateFormat('HH:mm');
+    final dateFormat = DateFormat('yyyy年M月d日 HH:mm');
     final isAerobic = record.type == 'aerobic';
 
     return Card(
@@ -203,9 +204,74 @@ class _ExerciseRecordTile extends StatelessWidget {
         trailing: record.calories != null
             ? Text('${record.calories} kcal')
             : null,
-        onTap: () {
-          // TODO: 查看详情或编辑
-        },
+        onTap: () => _showRecordDetail(context, record),
+      ),
+    );
+  }
+
+  void _showRecordDetail(BuildContext context, ExerciseRecord record) {
+    final dateFormat = DateFormat('yyyy年M月d日 HH:mm');
+    final isAerobic = record.type == 'aerobic';
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  isAerobic ? Icons.directions_run : Icons.fitness_center,
+                  color: isAerobic ? Colors.blue : Colors.orange,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  '运动记录详情',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _buildDetailRow('运动名称', record.name),
+            _buildDetailRow('运动类型', isAerobic ? '有氧运动' : '力量训练'),
+            _buildDetailRow('时长', '${record.duration} 分钟'),
+            if (record.calories != null)
+              _buildDetailRow('消耗热量', '${record.calories} kcal'),
+            if (record.heartRateAvg != null)
+              _buildDetailRow('平均心率', '${record.heartRateAvg} bpm'),
+            if (record.heartRateMax != null)
+              _buildDetailRow('最大心率', '${record.heartRateMax} bpm'),
+            _buildDetailRow('开始时间', dateFormat.format(record.startedAt)),
+            if (record.note != null && record.note!.isNotEmpty)
+              _buildDetailRow('备注', record.note!),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('关闭'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(label, style: const TextStyle(color: Colors.grey)),
+          ),
+          Expanded(
+            child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500)),
+          ),
+        ],
       ),
     );
   }
@@ -958,26 +1024,30 @@ class _TrainingPlanEditScreenState extends ConsumerState<TrainingPlanEditScreen>
                     padding: const EdgeInsets.all(12),
                     child: Column(
                       children: [
+                        // 训练类型选择
                         Row(
                           children: [
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                value: exercise.device,
-                                decoration: const InputDecoration(
-                                  labelText: '器械',
-                                  isDense: true,
-                                ),
-                                items: AppConstants.strengthDevices
-                                    .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                                    .toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    exercise.device = value;
-                                  });
-                                },
-                              ),
+                            const Text('类型: ', style: TextStyle(fontSize: 12)),
+                            ChoiceChip(
+                              label: const Text('力量'),
+                              selected: exercise.trainingType == 'strength',
+                              onSelected: (selected) {
+                                setState(() {
+                                  exercise.trainingType = 'strength';
+                                });
+                              },
                             ),
                             const SizedBox(width: 8),
+                            ChoiceChip(
+                              label: const Text('有氧'),
+                              selected: exercise.trainingType == 'aerobic',
+                              onSelected: (selected) {
+                                setState(() {
+                                  exercise.trainingType = 'aerobic';
+                                });
+                              },
+                            ),
+                            const Spacer(),
                             IconButton(
                               icon: const Icon(Icons.delete_outline, color: Colors.red),
                               onPressed: () {
@@ -990,24 +1060,49 @@ class _TrainingPlanEditScreenState extends ConsumerState<TrainingPlanEditScreen>
                           ],
                         ),
                         const SizedBox(height: 8),
-                        TextField(
-                          controller: exercise.movementController,
-                          decoration: const InputDecoration(
-                            labelText: '动作名称',
-                            hintText: '例如：卧推、深蹲',
-                            isDense: true,
+                        
+                        if (exercise.trainingType == 'strength') ...[
+                          // 力量训练输入
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField<String>(
+                                  value: exercise.device,
+                                  decoration: const InputDecoration(
+                                    labelText: '器械',
+                                    isDense: true,
+                                  ),
+                                  items: AppConstants.strengthDevices
+                                      .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                                      .toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      exercise.device = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: exercise.setsController,
-                                keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
-                                  labelText: '组数',
-                                  isDense: true,
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: exercise.movementController,
+                            decoration: const InputDecoration(
+                              labelText: '动作名称',
+                              hintText: '例如：卧推、深蹲',
+                              isDense: true,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: exercise.setsController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    labelText: '组数',
+                                    isDense: true,
                                 ),
                               ),
                             ),
@@ -1035,6 +1130,58 @@ class _TrainingPlanEditScreenState extends ConsumerState<TrainingPlanEditScreen>
                             ),
                           ],
                         ),
+                        const SizedBox(height: 8),
+                        // 休息时间输入
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: exercise.restController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: '休息时间(秒)',
+                                  hintText: '60',
+                                  isDense: true,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: Text(
+                                '组间休息时长',
+                                style: TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                            ),
+                          ],
+                        ),
+                        ] else ...[
+                          // 有氧训练输入
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: exercise.durationController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    labelText: '时长(秒)',
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: exercise.repsController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    labelText: '组数',
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -1082,14 +1229,32 @@ class _TrainingPlanEditScreenState extends ConsumerState<TrainingPlanEditScreen>
     for (int i = 0; i < _exercises.length; i++) {
       final e = _exercises[i];
       if (e.device != null && e.movementController.text.isNotEmpty) {
+        // 处理有氧训练：如果选择的是有氧，使用 durationController
+        String movement = e.movementController.text;
+        int targetSets = int.tryParse(e.setsController.text) ?? 3;
+        int targetReps = int.tryParse(e.repsController.text) ?? 10;
+        
+        // 有氧训练使用 durationController 作为时长
+        if (e.trainingType == 'aerobic') {
+          targetReps = int.tryParse(e.durationController.text) ?? 30;
+        }
+        
+        // 解析休息时间（仅力量训练需要）
+        int? restSeconds;
+        if (e.trainingType == 'strength' && e.restController.text.isNotEmpty) {
+          restSeconds = int.tryParse(e.restController.text);
+        }
+        
         await db.insertTrainingPlanExercise(
           TrainingPlanExercisesCompanion.insert(
             planId: planId,
             device: e.device!,
-            movement: e.movementController.text,
-            targetSets: int.tryParse(e.setsController.text) ?? 3,
-            targetReps: int.tryParse(e.repsController.text) ?? 10,
-            targetWeight: drift.Value(double.tryParse(e.weightController.text)),
+            movement: movement,
+            targetSets: targetSets,
+            targetReps: targetReps,
+            targetWeight: drift.Value(e.trainingType == 'aerobic' ? null : double.tryParse(e.weightController.text)),
+            restSeconds: drift.Value(restSeconds),
+            trainingType: drift.Value(e.trainingType == 'aerobic' ? 'endurance' : 'strength'),
             orderIndex: drift.Value(i),
           ),
         );
@@ -1110,15 +1275,20 @@ class _TrainingPlanEditScreenState extends ConsumerState<TrainingPlanEditScreen>
 /// 训练计划动作输入
 class PlanExerciseInput {
   String? device;
+  String trainingType = 'strength'; // strength 或 aerobic
   final movementController = TextEditingController();
   final setsController = TextEditingController(text: '3');
   final repsController = TextEditingController(text: '10');
   final weightController = TextEditingController();
+  final durationController = TextEditingController(text: '30'); // 有氧训练时长(秒)
+  final restController = TextEditingController(text: '60'); // 休息时间(秒)
   
   void dispose() {
     movementController.dispose();
     setsController.dispose();
     repsController.dispose();
     weightController.dispose();
+    durationController.dispose();
+    restController.dispose();
   }
 }

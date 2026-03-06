@@ -11,6 +11,38 @@ class AppTheme {
   static const Color preDiabetesColor = Color(0xFFFFC107);      // 糖尿病前期 - 黄色
   static const Color highBloodSugarColor = Color(0xFFF44336);   // 高血糖 - 红色
   
+  /// mg/dL 转 mmol/L
+  static double mgdlToMmoll(double mgdl) {
+    return mgdl / 18.0182;
+  }
+  
+  /// mmol/L 转 mg/dL
+  static double mmollToMgdl(double mmol) {
+    return mmol * 18.0182;
+  }
+  
+  /// 根据当前单位获取血糖值对应的颜色
+  static Color getBloodSugarColor(double value, [String unit = 'mg/dL']) {
+    if (unit == 'mmol/L') {
+      value = mmollToMgdl(value);
+    }
+    if (value < 70) return lowBloodSugarColor;
+    if (value < 100) return normalBloodSugarColor;
+    if (value < 126) return preDiabetesColor;
+    return highBloodSugarColor;
+  }
+  
+  /// 获取血糖状态文本
+  static String getBloodSugarStatus(double value, [String unit = 'mg/dL']) {
+    if (unit == 'mmol/L') {
+      value = mmollToMgdl(value);
+    }
+    if (value < 70) return '低血糖';
+    if (value < 100) return '正常';
+    if (value < 126) return '糖尿病前期';
+    return '高血糖';
+  }
+  
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -84,21 +116,5 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
       ),
     );
-  }
-  
-  /// 获取血糖值对应的颜色
-  static Color getBloodSugarColor(double value) {
-    if (value < 70) return lowBloodSugarColor;
-    if (value < 100) return normalBloodSugarColor;
-    if (value < 126) return preDiabetesColor;
-    return highBloodSugarColor;
-  }
-  
-  /// 获取血糖状态文本
-  static String getBloodSugarStatus(double value) {
-    if (value < 70) return '低血糖';
-    if (value < 100) return '正常';
-    if (value < 126) return '糖尿病前期';
-    return '高血糖';
   }
 }

@@ -1,3 +1,4 @@
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -9,58 +10,80 @@ part of 'strength_training.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
 
 /// @nodoc
 mixin _$StrengthTraining {
-  int? get id => throw _privateConstructorUsedError;
-  int get exerciseId => throw _privateConstructorUsedError;
-  String get device => throw _privateConstructorUsedError;
-  String get movement => throw _privateConstructorUsedError;
-  int get sets => throw _privateConstructorUsedError;
-  int get reps => throw _privateConstructorUsedError;
-  double? get weight => throw _privateConstructorUsedError;
-  int? get restSeconds => throw _privateConstructorUsedError;
+  int? get id;
+  int get exerciseId;
+  String get device;
+  String get movement;
+  int get sets;
+  int get reps;
+  double? get weight;
+  int? get restSeconds;
 
   /// Create a copy of StrengthTraining
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
   $StrengthTrainingCopyWith<StrengthTraining> get copyWith =>
-      throw _privateConstructorUsedError;
+      _$StrengthTrainingCopyWithImpl<StrengthTraining>(
+          this as StrengthTraining, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is StrengthTraining &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.exerciseId, exerciseId) ||
+                other.exerciseId == exerciseId) &&
+            (identical(other.device, device) || other.device == device) &&
+            (identical(other.movement, movement) ||
+                other.movement == movement) &&
+            (identical(other.sets, sets) || other.sets == sets) &&
+            (identical(other.reps, reps) || other.reps == reps) &&
+            (identical(other.weight, weight) || other.weight == weight) &&
+            (identical(other.restSeconds, restSeconds) ||
+                other.restSeconds == restSeconds));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, id, exerciseId, device, movement,
+      sets, reps, weight, restSeconds);
+
+  @override
+  String toString() {
+    return 'StrengthTraining(id: $id, exerciseId: $exerciseId, device: $device, movement: $movement, sets: $sets, reps: $reps, weight: $weight, restSeconds: $restSeconds)';
+  }
 }
 
 /// @nodoc
-abstract class $StrengthTrainingCopyWith<$Res> {
+abstract mixin class $StrengthTrainingCopyWith<$Res> {
   factory $StrengthTrainingCopyWith(
-    StrengthTraining value,
-    $Res Function(StrengthTraining) then,
-  ) = _$StrengthTrainingCopyWithImpl<$Res, StrengthTraining>;
+          StrengthTraining value, $Res Function(StrengthTraining) _then) =
+      _$StrengthTrainingCopyWithImpl;
   @useResult
-  $Res call({
-    int? id,
-    int exerciseId,
-    String device,
-    String movement,
-    int sets,
-    int reps,
-    double? weight,
-    int? restSeconds,
-  });
+  $Res call(
+      {int? id,
+      int exerciseId,
+      String device,
+      String movement,
+      int sets,
+      int reps,
+      double? weight,
+      int? restSeconds});
 }
 
 /// @nodoc
-class _$StrengthTrainingCopyWithImpl<$Res, $Val extends StrengthTraining>
+class _$StrengthTrainingCopyWithImpl<$Res>
     implements $StrengthTrainingCopyWith<$Res> {
-  _$StrengthTrainingCopyWithImpl(this._value, this._then);
+  _$StrengthTrainingCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final StrengthTraining _self;
+  final $Res Function(StrengthTraining) _then;
 
   /// Create a copy of StrengthTraining
   /// with the given fields replaced by the non-null parameter values.
@@ -76,142 +99,55 @@ class _$StrengthTrainingCopyWithImpl<$Res, $Val extends StrengthTraining>
     Object? weight = freezed,
     Object? restSeconds = freezed,
   }) {
-    return _then(
-      _value.copyWith(
-            id: freezed == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            exerciseId: null == exerciseId
-                ? _value.exerciseId
-                : exerciseId // ignore: cast_nullable_to_non_nullable
-                      as int,
-            device: null == device
-                ? _value.device
-                : device // ignore: cast_nullable_to_non_nullable
-                      as String,
-            movement: null == movement
-                ? _value.movement
-                : movement // ignore: cast_nullable_to_non_nullable
-                      as String,
-            sets: null == sets
-                ? _value.sets
-                : sets // ignore: cast_nullable_to_non_nullable
-                      as int,
-            reps: null == reps
-                ? _value.reps
-                : reps // ignore: cast_nullable_to_non_nullable
-                      as int,
-            weight: freezed == weight
-                ? _value.weight
-                : weight // ignore: cast_nullable_to_non_nullable
-                      as double?,
-            restSeconds: freezed == restSeconds
-                ? _value.restSeconds
-                : restSeconds // ignore: cast_nullable_to_non_nullable
-                      as int?,
-          )
-          as $Val,
-    );
-  }
-}
-
-/// @nodoc
-abstract class _$$StrengthTrainingImplCopyWith<$Res>
-    implements $StrengthTrainingCopyWith<$Res> {
-  factory _$$StrengthTrainingImplCopyWith(
-    _$StrengthTrainingImpl value,
-    $Res Function(_$StrengthTrainingImpl) then,
-  ) = __$$StrengthTrainingImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    int? id,
-    int exerciseId,
-    String device,
-    String movement,
-    int sets,
-    int reps,
-    double? weight,
-    int? restSeconds,
-  });
-}
-
-/// @nodoc
-class __$$StrengthTrainingImplCopyWithImpl<$Res>
-    extends _$StrengthTrainingCopyWithImpl<$Res, _$StrengthTrainingImpl>
-    implements _$$StrengthTrainingImplCopyWith<$Res> {
-  __$$StrengthTrainingImplCopyWithImpl(
-    _$StrengthTrainingImpl _value,
-    $Res Function(_$StrengthTrainingImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of StrengthTraining
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = freezed,
-    Object? exerciseId = null,
-    Object? device = null,
-    Object? movement = null,
-    Object? sets = null,
-    Object? reps = null,
-    Object? weight = freezed,
-    Object? restSeconds = freezed,
-  }) {
-    return _then(
-      _$StrengthTrainingImpl(
-        id: freezed == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        exerciseId: null == exerciseId
-            ? _value.exerciseId
-            : exerciseId // ignore: cast_nullable_to_non_nullable
-                  as int,
-        device: null == device
-            ? _value.device
-            : device // ignore: cast_nullable_to_non_nullable
-                  as String,
-        movement: null == movement
-            ? _value.movement
-            : movement // ignore: cast_nullable_to_non_nullable
-                  as String,
-        sets: null == sets
-            ? _value.sets
-            : sets // ignore: cast_nullable_to_non_nullable
-                  as int,
-        reps: null == reps
-            ? _value.reps
-            : reps // ignore: cast_nullable_to_non_nullable
-                  as int,
-        weight: freezed == weight
-            ? _value.weight
-            : weight // ignore: cast_nullable_to_non_nullable
-                  as double?,
-        restSeconds: freezed == restSeconds
-            ? _value.restSeconds
-            : restSeconds // ignore: cast_nullable_to_non_nullable
-                  as int?,
-      ),
-    );
+    return _then(_self.copyWith(
+      id: freezed == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int?,
+      exerciseId: null == exerciseId
+          ? _self.exerciseId
+          : exerciseId // ignore: cast_nullable_to_non_nullable
+              as int,
+      device: null == device
+          ? _self.device
+          : device // ignore: cast_nullable_to_non_nullable
+              as String,
+      movement: null == movement
+          ? _self.movement
+          : movement // ignore: cast_nullable_to_non_nullable
+              as String,
+      sets: null == sets
+          ? _self.sets
+          : sets // ignore: cast_nullable_to_non_nullable
+              as int,
+      reps: null == reps
+          ? _self.reps
+          : reps // ignore: cast_nullable_to_non_nullable
+              as int,
+      weight: freezed == weight
+          ? _self.weight
+          : weight // ignore: cast_nullable_to_non_nullable
+              as double?,
+      restSeconds: freezed == restSeconds
+          ? _self.restSeconds
+          : restSeconds // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ));
   }
 }
 
 /// @nodoc
 
-class _$StrengthTrainingImpl implements _StrengthTraining {
-  const _$StrengthTrainingImpl({
-    this.id,
-    required this.exerciseId,
-    required this.device,
-    required this.movement,
-    required this.sets,
-    required this.reps,
-    this.weight,
-    this.restSeconds,
-  });
+class _StrengthTraining implements StrengthTraining {
+  const _StrengthTraining(
+      {this.id,
+      required this.exerciseId,
+      required this.device,
+      required this.movement,
+      required this.sets,
+      required this.reps,
+      this.weight,
+      this.restSeconds});
 
   @override
   final int? id;
@@ -230,16 +166,19 @@ class _$StrengthTrainingImpl implements _StrengthTraining {
   @override
   final int? restSeconds;
 
+  /// Create a copy of StrengthTraining
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  String toString() {
-    return 'StrengthTraining(id: $id, exerciseId: $exerciseId, device: $device, movement: $movement, sets: $sets, reps: $reps, weight: $weight, restSeconds: $restSeconds)';
-  }
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$StrengthTrainingCopyWith<_StrengthTraining> get copyWith =>
+      __$StrengthTrainingCopyWithImpl<_StrengthTraining>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$StrengthTrainingImpl &&
+            other is _StrengthTraining &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.exerciseId, exerciseId) ||
                 other.exerciseId == exerciseId) &&
@@ -254,63 +193,91 @@ class _$StrengthTrainingImpl implements _StrengthTraining {
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    id,
-    exerciseId,
-    device,
-    movement,
-    sets,
-    reps,
-    weight,
-    restSeconds,
-  );
+  int get hashCode => Object.hash(runtimeType, id, exerciseId, device, movement,
+      sets, reps, weight, restSeconds);
+
+  @override
+  String toString() {
+    return 'StrengthTraining(id: $id, exerciseId: $exerciseId, device: $device, movement: $movement, sets: $sets, reps: $reps, weight: $weight, restSeconds: $restSeconds)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$StrengthTrainingCopyWith<$Res>
+    implements $StrengthTrainingCopyWith<$Res> {
+  factory _$StrengthTrainingCopyWith(
+          _StrengthTraining value, $Res Function(_StrengthTraining) _then) =
+      __$StrengthTrainingCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {int? id,
+      int exerciseId,
+      String device,
+      String movement,
+      int sets,
+      int reps,
+      double? weight,
+      int? restSeconds});
+}
+
+/// @nodoc
+class __$StrengthTrainingCopyWithImpl<$Res>
+    implements _$StrengthTrainingCopyWith<$Res> {
+  __$StrengthTrainingCopyWithImpl(this._self, this._then);
+
+  final _StrengthTraining _self;
+  final $Res Function(_StrengthTraining) _then;
 
   /// Create a copy of StrengthTraining
   /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$StrengthTrainingImplCopyWith<_$StrengthTrainingImpl> get copyWith =>
-      __$$StrengthTrainingImplCopyWithImpl<_$StrengthTrainingImpl>(
-        this,
-        _$identity,
-      );
+  $Res call({
+    Object? id = freezed,
+    Object? exerciseId = null,
+    Object? device = null,
+    Object? movement = null,
+    Object? sets = null,
+    Object? reps = null,
+    Object? weight = freezed,
+    Object? restSeconds = freezed,
+  }) {
+    return _then(_StrengthTraining(
+      id: freezed == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int?,
+      exerciseId: null == exerciseId
+          ? _self.exerciseId
+          : exerciseId // ignore: cast_nullable_to_non_nullable
+              as int,
+      device: null == device
+          ? _self.device
+          : device // ignore: cast_nullable_to_non_nullable
+              as String,
+      movement: null == movement
+          ? _self.movement
+          : movement // ignore: cast_nullable_to_non_nullable
+              as String,
+      sets: null == sets
+          ? _self.sets
+          : sets // ignore: cast_nullable_to_non_nullable
+              as int,
+      reps: null == reps
+          ? _self.reps
+          : reps // ignore: cast_nullable_to_non_nullable
+              as int,
+      weight: freezed == weight
+          ? _self.weight
+          : weight // ignore: cast_nullable_to_non_nullable
+              as double?,
+      restSeconds: freezed == restSeconds
+          ? _self.restSeconds
+          : restSeconds // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ));
+  }
 }
 
-abstract class _StrengthTraining implements StrengthTraining {
-  const factory _StrengthTraining({
-    final int? id,
-    required final int exerciseId,
-    required final String device,
-    required final String movement,
-    required final int sets,
-    required final int reps,
-    final double? weight,
-    final int? restSeconds,
-  }) = _$StrengthTrainingImpl;
-
-  @override
-  int? get id;
-  @override
-  int get exerciseId;
-  @override
-  String get device;
-  @override
-  String get movement;
-  @override
-  int get sets;
-  @override
-  int get reps;
-  @override
-  double? get weight;
-  @override
-  int? get restSeconds;
-
-  /// Create a copy of StrengthTraining
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$StrengthTrainingImplCopyWith<_$StrengthTrainingImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
+// dart format on

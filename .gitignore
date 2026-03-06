@@ -1,74 +1,4 @@
-# Android
-**/android/**/gradle-wrapper.jar
-**/android/.gradle
-**/android/captures/
-**/android/gradle/
-**/android/key.properties
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
-**/android/**/.project
-**/android/**/.classpath
-**/android/**/.settings/
-
-# iOS
-**/ios/**/*.mode1v3
-**/ios/**/*.mode2v3
-**/ios/**/*.moved-aside
-**/ios/**/*.pbxuser
-**/ios/**/*.perspectivev3
-**/ios/**/*sync/
-**/ios/**/.sconsign.dblite
-**/ios/**/.tags*
-**/ios/**/.vagrant/
-**/ios/**/DerivedData/
-**/ios/**/Icon?
-**/ios/**/Pods/
-**/ios/**/.symlinks/
-**/ios/**/profile
-**/ios/**/xcuserdata
-**/ios/.generated/
-**/ios/Flutter/App.framework
-**/ios/Flutter/Flutter.framework
-**/ios/Flutter/Flutter.podspec
-**/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/ephemeral/
-**/ios/Flutter/app.flx
-**/ios/Flutter/app.zip
-**/ios/Flutter/flutter_assets/
-**/ios/Flutter/flutter_export_environment.sh
-**/ios/ServiceDefinitions.json
-**/ios/Runner/GeneratedPluginRegistrant.*
-
-# Windows
-**/windows/flutter/generated_plugin_registrant.cc
-**/windows/flutter/generated_plugins.cmake
-**/windows/flutter/generated_plugin_registrant.h
-**/windows/flutter/ephemeral/
-
-# Linux
-**/linux/flutter/generated_plugin_registrant.cc
-**/linux/flutter/generated_plugins.cmake
-**/linux/flutter/generated_plugin_registrant.h
-**/linux/flutter/ephemeral/
-
-# Web
-**/web/
-
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.buildlog/
-.history
-.svn/
-.vscode/
-migrate_working_dir.txt
-
-# Flutter/Dart/Pub
-**/doc/api/
+# Flutter
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
@@ -76,30 +6,30 @@ migrate_working_dir.txt
 .pub-cache/
 .pub/
 build/
-fvm.lock
+android/.gradle/
+android/app/build/
+ios/.symlinks/
+ios/Pods/
+ios/Podfile.lock
+linux/.cmake/
+linux/build/
+macos/.symlinks/
+macos/Pods/
+web/build/
+windows/.cmake/
+windows/build/
 
-# Android Studio/IntelliJ
+# IDE
 .idea/
-**/android/**/.idea/
-*.iml
-*.ipr
-*.iws
-local.properties
-
-# Visual Studio Code
 .vscode/
-*.code-workspace
+*.iml
 
-# Flutter/Dart
-**/generated_plugin_registrant.dart
-**/generated_plugin_registrant.cc
-**/generated_plugin_registrant.h
-**/generated_plugins.cmake
+# OS
+.DS_Store
+Thumbs.db
 
-# App specific
-*.db
-*.db-wal
-*.db-shm
+# Logs
 *.log
-*.lock
-glucocontrol.log
+
+# Test
+coverage/
