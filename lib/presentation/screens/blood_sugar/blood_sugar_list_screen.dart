@@ -73,7 +73,16 @@ class BloodSugarListScreen extends ConsumerWidget {
           final recentRecords = records.where((r) => r.recordedAt.isAfter(thirtyDaysAgo)).toList();
           double? estimatedHbA1c;
           if (recentRecords.isNotEmpty) {
-            final avgBloodSugar = recentRecords.map((r) => r.value).reduce((a, b) => a + b) / recentRecords.length;
+            // 先把所有血糖值转换为 mg/dL 再求平均
+            double totalMgDl = 0;
+            for (final r in recentRecords) {
+              if (r.unit == 'mmol/L') {
+                totalMgDl += AppConstants.mmolLToMgDl(r.value);
+              } else {
+                totalMgDl += r.value;
+              }
+            }
+            final avgBloodSugar = totalMgDl / recentRecords.length;
             estimatedHbA1c = (avgBloodSugar + 46.7) / 28.7;
           }
 
