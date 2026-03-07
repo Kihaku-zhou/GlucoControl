@@ -316,6 +316,7 @@ class _BloodSugarRecordTile extends ConsumerWidget {
     
     // 根据设置单位显示
     double displayValue;
+    String displayUnit = settingsUnit;
     if (settingsUnit == 'mmol/L') {
       displayValue = AppTheme.mgdlToMmoll(mgDlValue);
     } else {
@@ -392,6 +393,7 @@ class _BloodSugarRecordTile extends ConsumerWidget {
     }
     
     double displayValue;
+    String displayUnit = currentUnit;
     if (currentUnit == 'mmol/L') {
       displayValue = AppTheme.mgdlToMmoll(mgDlValue);
     } else {
