@@ -306,22 +306,23 @@ class _BloodSugarRecordTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsUnit = ref.watch(bloodSugarUnitProvider);
     
-    // 根据设置单位转换显示值
-    double displayValue = record.value;
-    String displayUnit = record.unit;
-    
-    // 如果设置是 mmol/L，但记录是 mg/dL
-    if (settingsUnit == 'mmol/L' && record.unit == 'mg/dL') {
-      displayValue = record.value / 18.0182;
-      displayUnit = 'mmol/L';
-    }
-    // 如果设置是 mg/dL，但记录是 mmol/L
-    else if (settingsUnit == 'mg/dL' && record.unit == 'mmol/L') {
-      displayValue = record.value * 18.0182;
-      displayUnit = 'mg/dL';
+    // 统一转换为 mg/dL（数据库存储的是 mg/dL）
+    double mgDlValue;
+    if (record.unit == 'mmol/L') {
+      mgDlValue = AppConstants.mmolLToMgDl(record.value);
+    } else {
+      mgDlValue = record.value;
     }
     
-    final color = AppTheme.getBloodSugarColor(displayValue);
+    // 根据设置单位显示
+    double displayValue;
+    if (settingsUnit == 'mmol/L') {
+      displayValue = AppTheme.mgdlToMmoll(mgDlValue);
+    } else {
+      displayValue = mgDlValue;
+    }
+    
+    final color = AppTheme.getBloodSugarColor(displayValue, settingsUnit);
     final status = AppTheme.getBloodSugarStatus(displayValue);
     final timeFormat = DateFormat('HH:mm');
 
@@ -382,18 +383,22 @@ class _BloodSugarRecordTile extends ConsumerWidget {
     final timeFormat = DateFormat('yyyy年M月d日 HH:mm');
     final currentUnit = ref.watch(bloodSugarUnitProvider);
     
-    // 单位转换
-    double displayValue = record.value;
-    String displayUnit = record.unit;
-    if (currentUnit == 'mmol/L' && record.unit == 'mg/dL') {
-      displayValue = record.value / 18.0182;
-      displayUnit = 'mmol/L';
-    } else if (currentUnit == 'mg/dL' && record.unit == 'mmol/L') {
-      displayValue = record.value * 18.0182;
-      displayUnit = 'mg/dL';
+    // 单位转换：先统一转为 mg/dL，再根据设置转换显示
+    double mgDlValue;
+    if (record.unit == 'mmol/L') {
+      mgDlValue = AppConstants.mmolLToMgDl(record.value);
+    } else {
+      mgDlValue = record.value;
     }
     
-    final color = AppTheme.getBloodSugarColor(displayValue);
+    double displayValue;
+    if (currentUnit == 'mmol/L') {
+      displayValue = AppTheme.mgdlToMmoll(mgDlValue);
+    } else {
+      displayValue = mgDlValue;
+    }
+    
+    final color = AppTheme.getBloodSugarColor(displayValue, currentUnit);
 
     showModalBottomSheet(
       context: context,
