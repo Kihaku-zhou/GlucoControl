@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../../../core/constants.dart';
+import '../../../core/app_colors.dart';
 import '../../../core/theme.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';

@@ -29,7 +29,7 @@ class BloodSugarListScreen extends ConsumerWidget {
         title: const Text('血糖记录'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.calendar_today),
+            icon: Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary),
             onPressed: () {
               Navigator.push(
                 context,
