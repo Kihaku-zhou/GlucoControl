@@ -22,55 +22,6 @@ class ExerciseListScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('运动记录'),
         actions: [
-          // 运动报告按钮
-          IconButton(
-            icon: const Icon(Icons.assessment),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const Center(child: Text("运动报告")),
-                ),
-              );
-            },
-            tooltip: '运动报告',
-          ),
-          // 运动趋势按钮
-          IconButton(
-            icon: const Icon(Icons.show_chart),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                ),
-              );
-            },
-            tooltip: '运动趋势',
-          ),
-          // 成就按钮
-          IconButton(
-            icon: const Icon(Icons.emoji_events),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                ),
-              );
-            },
-            tooltip: '运动成就',
-          ),
-          // 筛选按钮
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                ),
-              );
-            },
-            tooltip: '筛选',
-          ),
           // 训练计划按钮
           IconButton(
             icon: const Icon(Icons.assignment),

@@ -181,7 +181,7 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
           const Divider(),
           
           // 运动提醒
-          _buildSectionHeader('运动提醒'),
+          _buildSectionHeader('运动提醒', context),
           SwitchListTile(
             title: const Text('运动提醒'),
             subtitle: const Text('定时提醒运动'),
@@ -248,7 +248,7 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
   }
 }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Text(
