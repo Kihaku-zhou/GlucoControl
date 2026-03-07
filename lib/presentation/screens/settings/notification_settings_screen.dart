@@ -272,118 +272,121 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('选择提醒日期'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CheckboxListTile(
-              title: const Text('周一'),
-              value: 1,
-              groupValue: selectedDays.contains(1),
-              onChanged: (value) {
-                if (value == true) {
-                  selectedDays.add(1);
-                } else {
-                  selectedDays.remove(1);
-                }
-                (context as Element).markNeedsBuild();
-              },
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('选择提醒日期'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CheckboxListTile(
+                  title: const Text('周一'),
+                  value: selectedDays.contains(1),
+                  onChanged: (value) {
+                    setState(() {
+                      if (value == true) {
+                        selectedDays.add(1);
+                      } else {
+                        selectedDays.remove(1);
+                      }
+                    });
+                  },
+                ),
+                CheckboxListTile(
+                  title: const Text('周二'),
+                  value: selectedDays.contains(2),
+                  onChanged: (value) {
+                    setState(() {
+                      if (value == true) {
+                        selectedDays.add(2);
+                      } else {
+                        selectedDays.remove(2);
+                      }
+                    });
+                  },
+                ),
+                CheckboxListTile(
+                  title: const Text('周三'),
+                  value: selectedDays.contains(3),
+                  onChanged: (value) {
+                    setState(() {
+                      if (value == true) {
+                        selectedDays.add(3);
+                      } else {
+                        selectedDays.remove(3);
+                      }
+                    });
+                  },
+                ),
+                CheckboxListTile(
+                  title: const Text('周四'),
+                  value: selectedDays.contains(4),
+                  onChanged: (value) {
+                    setState(() {
+                      if (value == true) {
+                        selectedDays.add(4);
+                      } else {
+                        selectedDays.remove(4);
+                      }
+                    });
+                  },
+                ),
+                CheckboxListTile(
+                  title: const Text('周五'),
+                  value: selectedDays.contains(5),
+                  onChanged: (value) {
+                    setState(() {
+                      if (value == true) {
+                        selectedDays.add(5);
+                      } else {
+                        selectedDays.remove(5);
+                      }
+                    });
+                  },
+                ),
+                CheckboxListTile(
+                  title: const Text('周六'),
+                  value: selectedDays.contains(6),
+                  onChanged: (value) {
+                    setState(() {
+                      if (value == true) {
+                        selectedDays.add(6);
+                      } else {
+                        selectedDays.remove(6);
+                      }
+                    });
+                  },
+                ),
+                CheckboxListTile(
+                  title: const Text('周日'),
+                  value: selectedDays.contains(7),
+                  onChanged: (value) {
+                    setState(() {
+                      if (value == true) {
+                        selectedDays.add(7);
+                      } else {
+                        selectedDays.remove(7);
+                      }
+                    });
+                  },
+                ),
+              ],
             ),
-            CheckboxListTile(
-              title: const Text('周二'),
-              value: 2,
-              groupValue: selectedDays.contains(2),
-              onChanged: (value) {
-                if (value == true) {
-                  selectedDays.add(2);
-                } else {
-                  selectedDays.remove(2);
-                }
-                (context as Element).markNeedsBuild();
-              },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('取消'),
             ),
-            CheckboxListTile(
-              title: const Text('周三'),
-              value: 3,
-              groupValue: selectedDays.contains(3),
-              onChanged: (value) {
-                if (value == true) {
-                  selectedDays.add(3);
-                } else {
-                  selectedDays.remove(3);
-                }
-                (context as Element).markNeedsBuild();
+            TextButton(
+              onPressed: () {
+                ref.read(exerciseReminderDaysProvider.notifier).state = selectedDays;
+                Navigator.pop(dialogContext);
               },
-            ),
-            CheckboxListTile(
-              title: const Text('周四'),
-              value: 4,
-              groupValue: selectedDays.contains(4),
-              onChanged: (value) {
-                if (value == true) {
-                  selectedDays.add(4);
-                } else {
-                  selectedDays.remove(4);
-                }
-                (context as Element).markNeedsBuild();
-              },
-            ),
-            CheckboxListTile(
-              title: const Text('周五'),
-              value: 5,
-              groupValue: selectedDays.contains(5),
-              onChanged: (value) {
-                if (value == true) {
-                  selectedDays.add(5);
-                } else {
-                  selectedDays.remove(5);
-                }
-                (context as Element).markNeedsBuild();
-              },
-            ),
-            CheckboxListTile(
-              title: const Text('周六'),
-              value: 6,
-              groupValue: selectedDays.contains(6),
-              onChanged: (value) {
-                if (value == true) {
-                  selectedDays.add(6);
-                } else {
-                  selectedDays.remove(6);
-                }
-                (context as Element).markNeedsBuild();
-              },
-            ),
-            CheckboxListTile(
-              title: const Text('周日'),
-              value: 7,
-              groupValue: selectedDays.contains(7),
-              onChanged: (value) {
-                if (value == true) {
-                  selectedDays.add(7);
-                } else {
-                  selectedDays.remove(7);
-                }
-                (context as Element).markNeedsBuild();
-              },
+              child: const Text('保存'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              ref.read(exerciseReminderDaysProvider.notifier).state = selectedDays;
-              _updateNotifications();
-              Navigator.pop(context);
-            },
-            child: const Text('保存'),
-          ),
-        ],
       ),
     );
   }
