@@ -37,14 +37,54 @@ class AppConstants {
   ];
   
   // 有氧运动类型
+  // 有氧运动类型 - 户外
+  static const List<String> outdoorAerobicExercises = [
+    '跑步',
+    '步行',
+    '骑行',
+    '登山',
+  ];
+  
+  // 有氧运动类型 - 室内
+  static const List<String> indoorAerobicExercises = [
+    '椭圆机',
+    '室内单车',
+  ];
+  
+  // 所有有氧运动类型
   static const List<String> aerobicExercises = [
     '跑步',
-    '快走',
+    '步行',
     '骑行',
+    '登山',
+    '椭圆机',
+    '室内单车',
     '游泳',
     '跳绳',
-    '椭圆机',
     '划船机',
+    '其他',
+  ];
+  
+  // 力量训练器械
+  static const List<String> strengthDevices = [
+    '哑铃',
+    '杠铃',
+    '史密斯机',
+    '龙门架',
+    '腿举机',
+    '高位下拉器',
+    '划船机',
+    '其他',
+  ];
+  
+  // 耐力训练类型
+  static const List<String> enduranceTypes = [
+    '波比跳',
+    '平板支撑',
+    '登山跑',
+    '深蹲跳',
+    '开合跳',
+    '高抬腿',
     '其他',
   ];
   
@@ -52,8 +92,13 @@ class AppConstants {
   static const List<String> distanceExercises = [
     '跑步',
     '骑行',
-    '游泳',
-    '快走',
+    '登山',
+  ];
+  
+  // 需要功率记录的运动类型
+  static const List<String> powerExercises = [
+    '椭圆机',
+    '室内单车',
   ];
   
   // WebDAV 默认坚果云地址

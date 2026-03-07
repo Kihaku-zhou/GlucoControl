@@ -25,10 +25,15 @@ class BloodSugarRecords extends Table {
 /// 运动记录表
 class ExerciseRecords extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get type => text()(); // aerobic, anaerobic
+  TextColumn get type => text()(); // aerobic, anaerobic, endurance
   TextColumn get name => text()();
   IntColumn get duration => integer()(); // 分钟
   RealColumn get distance => real().nullable()(); // 距离(公里)
+  RealColumn get elevation => real().nullable()(); // 爬升(米)
+  RealColumn get power => real().nullable()(); // 平均功率(瓦)
+  IntColumn get sets => integer().nullable()(); // 组数
+  RealColumn get weight => real().nullable()(); // 重量(kg)
+  IntColumn get seconds => integer().nullable()(); // 耐力训练时长(秒)
   IntColumn get calories => integer().nullable()();
   IntColumn get heartRateAvg => integer().nullable()();
   IntColumn get heartRateMax => integer().nullable()();
