@@ -180,6 +180,47 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
           
           const Divider(),
           
+          // 运动提醒
+          _buildSectionHeader('运动提醒'),
+          SwitchListTile(
+            title: const Text('运动提醒'),
+            subtitle: const Text('定时提醒运动'),
+            value: ref.watch(exerciseReminderEnabledProvider),
+            onChanged: (value) {
+              ref.read(exerciseReminderEnabledProvider.notifier).state = value;
+              _updateNotifications();
+            },
+          ),
+          
+          if (ref.watch(exerciseReminderEnabledProvider)) ...[
+            ListTile(
+              title: const Text('提醒时间'),
+              trailing: TextButton(
+                onPressed: () async {
+                  final time = await showTimePicker(
+                    context: context,
+                    initialTime: ref.read(exerciseReminderTimeProvider),
+                  );
+                  if (time != null) {
+                    ref.read(exerciseReminderTimeProvider.notifier).state = time;
+                    _updateNotifications();
+                  }
+                },
+                child: Text(
+                  '${ref.read(exerciseReminderTimeProvider).hour.toString().padLeft(2, '0')}:${ref.read(exerciseReminderTimeProvider).minute.toString().padLeft(2, '0')}',
+                ),
+              ),
+            ),
+            ListTile(
+              title: const Text('提醒日期'),
+              subtitle: Text(_getWeekDaysText(ref.read(exerciseReminderDaysProvider))),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _showExerciseDaysDialog(context, ref),
+            ),
+          ],
+          
+          const Divider(),
+          
           // 测试通知按钮
           ListTile(
             title: const Text('测试通知'),
@@ -206,3 +247,143 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     );
   }
 }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: Theme.of(context).primaryColor,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  String _getWeekDaysText(List<int> days) {
+    if (days.isEmpty) return '未选择';
+    const weekDays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    return days.map((d) => weekDays[d - 1]).join('、');
+  }
+
+  void _showExerciseDaysDialog(BuildContext context, WidgetRef ref) {
+    final selectedDays = List<int>.from(ref.read(exerciseReminderDaysProvider));
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('选择提醒日期'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CheckboxListTile(
+              title: const Text('周一'),
+              value: 1,
+              groupValue: selectedDays.contains(1),
+              onChanged: (value) {
+                if (value == true) {
+                  selectedDays.add(1);
+                } else {
+                  selectedDays.remove(1);
+                }
+                (context as Element).markNeedsBuild();
+              },
+            ),
+            CheckboxListTile(
+              title: const Text('周二'),
+              value: 2,
+              groupValue: selectedDays.contains(2),
+              onChanged: (value) {
+                if (value == true) {
+                  selectedDays.add(2);
+                } else {
+                  selectedDays.remove(2);
+                }
+                (context as Element).markNeedsBuild();
+              },
+            ),
+            CheckboxListTile(
+              title: const Text('周三'),
+              value: 3,
+              groupValue: selectedDays.contains(3),
+              onChanged: (value) {
+                if (value == true) {
+                  selectedDays.add(3);
+                } else {
+                  selectedDays.remove(3);
+                }
+                (context as Element).markNeedsBuild();
+              },
+            ),
+            CheckboxListTile(
+              title: const Text('周四'),
+              value: 4,
+              groupValue: selectedDays.contains(4),
+              onChanged: (value) {
+                if (value == true) {
+                  selectedDays.add(4);
+                } else {
+                  selectedDays.remove(4);
+                }
+                (context as Element).markNeedsBuild();
+              },
+            ),
+            CheckboxListTile(
+              title: const Text('周五'),
+              value: 5,
+              groupValue: selectedDays.contains(5),
+              onChanged: (value) {
+                if (value == true) {
+                  selectedDays.add(5);
+                } else {
+                  selectedDays.remove(5);
+                }
+                (context as Element).markNeedsBuild();
+              },
+            ),
+            CheckboxListTile(
+              title: const Text('周六'),
+              value: 6,
+              groupValue: selectedDays.contains(6),
+              onChanged: (value) {
+                if (value == true) {
+                  selectedDays.add(6);
+                } else {
+                  selectedDays.remove(6);
+                }
+                (context as Element).markNeedsBuild();
+              },
+            ),
+            CheckboxListTile(
+              title: const Text('周日'),
+              value: 7,
+              groupValue: selectedDays.contains(7),
+              onChanged: (value) {
+                if (value == true) {
+                  selectedDays.add(7);
+                } else {
+                  selectedDays.remove(7);
+                }
+                (context as Element).markNeedsBuild();
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              ref.read(exerciseReminderDaysProvider.notifier).state = selectedDays;
+              _updateNotifications();
+              Navigator.pop(context);
+            },
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+  }

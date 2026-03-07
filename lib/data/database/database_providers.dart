@@ -178,6 +178,11 @@ final afterMealReminderHoursProvider = StateProvider<int>((ref) => 2);
 /// 主题模式 Provider
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
 
+/// 运动提醒 Providers
+final exerciseReminderEnabledProvider = StateProvider<bool>((ref) => false);
+final exerciseReminderTimeProvider = StateProvider<TimeOfDay>((ref) => const TimeOfDay(hour: 18, minute: 0));
+final exerciseReminderDaysProvider = StateProvider<List<int>>((ref) => [1, 3, 5, 6]); // 默认周一三五六
+
 /// AI 对话列表
 final aiConversationsProvider = FutureProvider<List<AIConversation>>((ref) async {
   final db = ref.watch(databaseProvider);
