@@ -9,6 +9,7 @@ import '../../../data/database/database_providers.dart';
 import '../../../services/data_export_service.dart';
 import 'notification_settings_screen.dart';
 import 'exercise_goal_screen.dart';
+import 'blood_sugar_goal_screen.dart';
 
 /// 设置主页面
 class SettingsMainScreen extends ConsumerWidget {
@@ -85,6 +86,23 @@ class SettingsMainScreen extends ConsumerWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const ExerciseGoalScreen(),
+                ),
+              );
+            },
+          ),
+          
+          // 血糖目标
+          _buildSectionHeader('血糖目标'),
+          ListTile(
+            leading: const Icon(Icons.monitor_heart),
+            title: const Text('血糖目标设置'),
+            subtitle: const Text('设置安全血糖范围和TIR目标'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BloodSugarGoalScreen(),
                 ),
               );
             },

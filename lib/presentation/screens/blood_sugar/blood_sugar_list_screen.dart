@@ -9,6 +9,7 @@ import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
 import 'blood_sugar_chart_screen.dart';
 import 'weekly_report_screen.dart';
+import 'blood_sugar_stats_screen.dart';
 import '../ai/ai_analysis_screen.dart';
 
 /// 血糖记录列表页面
@@ -59,6 +60,18 @@ class BloodSugarListScreen extends ConsumerWidget {
               );
             },
             tooltip: '血糖图表',
+          ),
+          IconButton(
+            icon: const Icon(Icons.analytics),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BloodSugarStatsScreen(),
+                ),
+              );
+            },
+            tooltip: '血糖统计',
           ),
         ],
       ),
