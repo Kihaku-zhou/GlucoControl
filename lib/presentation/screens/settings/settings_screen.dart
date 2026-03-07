@@ -180,6 +180,16 @@ class SettingsMainScreen extends ConsumerWidget {
           ),
           const Divider(),
 
+          // 数据管理
+          _buildSectionHeader('数据管理'),
+          ListTile(
+            leading: const Icon(Icons.delete_sweep, color: Colors.red),
+            title: const Text('清理旧数据'),
+            subtitle: const Text('删除指定日期之前的数据'),
+            onTap: () => _showClearDataDialog(context, ref),
+          ),
+          const Divider(),
+
           // 关于
           _buildSectionHeader('关于'),
           const ListTile(
@@ -808,3 +818,71 @@ class ThemeModeTile extends ConsumerWidget {
     );
   }
 }
+
+  /// 显示清理数据对话框
+  void _showClearDataDialog(BuildContext context, WidgetRef ref) {
+    DateTime selectedDate = DateTime.now().subtract(const Duration(days: 90));
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('清理旧数据'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('删除指定日期之前的数据，此操作不可恢复，请谨慎操作！'),
+            const SizedBox(height: 16),
+            OutlinedButton(
+              onPressed: () async {
+                final date = await showDatePicker(
+                  context: context,
+                  initialDate: selectedDate,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime.now(),
+                );
+                if (date != null) {
+                  selectedDate = date;
+                  (context as Element).markNeedsBuild();
+                }
+              },
+              child: Text('选择日期: ${selectedDate.year}-${selectedDate.month}-${selectedDate.day}'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('仅显示'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                final db = ref.read(databaseProvider);
+                final count = await db.clearRecordsBeforeDate(selectedDate);
+                
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('已删除 $count 条记录')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('删除失败: $e')),
+                  );
+                }
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('确认删除'),
+          ),
+        ],
+      ),
+    );
+  }

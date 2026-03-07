@@ -234,6 +234,28 @@ class AppDatabase extends _$AppDatabase {
   Future<int> deleteBloodSugarRecord(int id) =>
       (delete(bloodSugarRecords)..where((t) => t.id.equals(id))).go();
 
+  /// 清理指定日期之前的所有数据
+  Future<int> clearRecordsBeforeDate(DateTime date) async {
+    int count = 0;
+    
+    // 删除血糖记录
+    count += await (delete(bloodSugarRecords)
+      ..where((t) => t.recordedAt.isSmallerThanValue(date)))
+        .go();
+    
+    // 删除运动记录
+    count += await (delete(exerciseRecords)
+      ..where((t) => t.startedAt.isSmallerThanValue(date)))
+        .go();
+    
+    // 删除饮食记录
+    count += await (delete(mealRecords)
+      ..where((t) => t.recordedAt.isSmallerThanValue(date)))
+        .go();
+    
+    return count;
+  }
+
   // ==================== 运动记录 CRUD ====================
   
   Future<List<ExerciseRecord>> getAllExerciseRecords() =>
