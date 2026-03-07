@@ -25,6 +25,11 @@ class SettingsMainScreen extends ConsumerWidget {
           const BloodSugarUnitTile(),
           const Divider(),
 
+          // 主题设置
+          _buildSectionHeader('外观'),
+          const ThemeModeTile(),
+          const Divider(),
+
           // 血糖范围
           _buildSectionHeader('血糖范围'),
           const SafeRangeTile(),
@@ -696,5 +701,81 @@ class _AIApiSettingsScreenState extends ConsumerState<AIApiSettingsScreen> {
         const SnackBar(content: Text('AI API 设置已保存')),
       );
     }
+  }
+}
+
+/// 主题模式设置
+class ThemeModeTile extends ConsumerWidget {
+  const ThemeModeTile({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
+    return ListTile(
+      leading: Icon(
+        themeMode == ThemeMode.dark
+            ? Icons.dark_mode
+            : themeMode == ThemeMode.light
+                ? Icons.light_mode
+                : Icons.brightness_auto,
+      ),
+      title: const Text('主题模式'),
+      subtitle: Text(_getThemeModeText(themeMode)),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => _showThemeModeDialog(context, ref),
+    );
+  }
+
+  String _getThemeModeText(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system:
+        return '跟随系统';
+      case ThemeMode.light:
+        return '浅色模式';
+      case ThemeMode.dark:
+        return '深色模式';
+    }
+  }
+
+  void _showThemeModeDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('选择主题'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<ThemeMode>(
+              title: const Text('跟随系统'),
+              value: ThemeMode.system,
+              groupValue: ref.read(themeModeProvider),
+              onChanged: (value) {
+                ref.read(themeModeProvider.notifier).state = value!;
+                Navigator.pop(context);
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: const Text('浅色模式'),
+              value: ThemeMode.light,
+              groupValue: ref.read(themeModeProvider),
+              onChanged: (value) {
+                ref.read(themeModeProvider.notifier).state = value!;
+                Navigator.pop(context);
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: const Text('深色模式'),
+              value: ThemeMode.dark,
+              groupValue: ref.read(themeModeProvider),
+              onChanged: (value) {
+                ref.read(themeModeProvider.notifier).state = value!;
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

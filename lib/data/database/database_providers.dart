@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../database/database.dart';
 
@@ -168,6 +169,9 @@ final morningReminderTimeProvider = StateProvider<TimeOfDay>((ref) => const Time
 final eveningReminderTimeProvider = StateProvider<TimeOfDay>((ref) => const TimeOfDay(hour: 21, minute: 0));
 final afterMealReminderEnabledProvider = StateProvider<bool>((ref) => false);
 final afterMealReminderHoursProvider = StateProvider<int>((ref) => 2);
+
+/// 主题模式 Provider
+final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
 
 /// AI 对话列表
 final aiConversationsProvider = FutureProvider<List<AIConversation>>((ref) async {
