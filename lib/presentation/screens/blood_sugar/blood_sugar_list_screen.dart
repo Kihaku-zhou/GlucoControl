@@ -8,6 +8,7 @@ import '../../../core/theme.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
 import 'blood_sugar_chart_screen.dart';
+import 'weekly_report_screen.dart';
 import '../ai/ai_analysis_screen.dart';
 
 /// 血糖记录列表页面
@@ -23,6 +24,18 @@ class BloodSugarListScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('血糖记录'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WeeklyReportScreen(),
+                ),
+              );
+            },
+            tooltip: '每周报告',
+          ),
           IconButton(
             icon: const Icon(Icons.psychology),
             onPressed: () {
