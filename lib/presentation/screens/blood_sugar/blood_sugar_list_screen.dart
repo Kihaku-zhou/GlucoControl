@@ -11,6 +11,8 @@ import 'blood_sugar_chart_screen.dart';
 import 'weekly_report_screen.dart';
 import 'blood_sugar_stats_screen.dart';
 import 'blood_sugar_filter_screen.dart';
+import 'blood_sugar_achievement_screen.dart';
+import 'blood_sugar_trend_screen.dart';
 import '../ai/ai_analysis_screen.dart';
 
 /// 血糖记录列表页面
@@ -85,6 +87,30 @@ class BloodSugarListScreen extends ConsumerWidget {
               );
             },
             tooltip: '筛选',
+          ),
+          IconButton(
+            icon: const Icon(Icons.emoji_events),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BloodSugarAchievementScreen(),
+                ),
+              );
+            },
+            tooltip: '血糖成就',
+          ),
+          IconButton(
+            icon: const Icon(Icons.trending_up),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BloodSugarTrendScreen(),
+                ),
+              );
+            },
+            tooltip: '血糖趋势',
           ),
         ],
       ),
