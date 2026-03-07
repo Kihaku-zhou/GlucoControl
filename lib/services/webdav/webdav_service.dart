@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/database/database_providers.dart';
+
 /// WebDAV 同步状态
 enum WebDAVSyncState {
   idle,
@@ -219,15 +221,50 @@ class SyncManager {
     _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.syncing;
     
     try {
-      // TODO: 从数据库获取所有数据
-      // final bloodSugarRecords = await db.getAllBloodSugarRecords();
-      // final exerciseRecords = await db.getAllExerciseRecords();
-      // final mealRecords = await db.getAllMealRecords();
+      // 从数据库获取所有数据
+      final db = _ref.read(databaseProvider);
+      
+      final bloodSugarRecords = await db.getAllBloodSugarRecords();
+      final exerciseRecords = await db.getAllExerciseRecords();
+      final mealRecords = await db.getAllMealRecords();
+
+      // 转换为 Map 格式
+      final bloodSugarData = bloodSugarRecords.map((r) => {
+        'id': r.id,
+        'value': r.value,
+        'unit': r.unit,
+        'type': r.type,
+        'recordedAt': r.recordedAt.toIso8601String(),
+        'hoursAfterMeal': r.hoursAfterMeal,
+        'mealId': r.mealId,
+        'note': r.note,
+      }).toList();
+      
+      final exerciseData = exerciseRecords.map((r) => {
+        'id': r.id,
+        'type': r.type,
+        'name': r.name,
+        'duration': r.duration,
+        'calories': r.calories,
+        'heartRateAvg': r.heartRateAvg,
+        'heartRateMax': r.heartRateMax,
+        'startedAt': r.startedAt.toIso8601String(),
+        'endedAt': r.endedAt.toIso8601String(),
+        'note': r.note,
+      }).toList();
+      
+      final mealData = mealRecords.map((r) => {
+        'id': r.id,
+        'type': r.type,
+        'recordedAt': r.recordedAt.toIso8601String(),
+        'imagePath': r.imagePath,
+        'note': r.note,
+      }).toList();
 
       final data = _webDAVService.exportAllData(
-        bloodSugarRecords: [],
-        exerciseRecords: [],
-        mealRecords: [],
+        bloodSugarRecords: bloodSugarData,
+        exerciseRecords: exerciseData,
+        mealRecords: mealData,
       );
 
       final jsonStr = jsonEncode(data);

@@ -145,20 +145,29 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
     final displayMax = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(maxMgDl) : maxMgDl;
     final displayMin = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(minMgDl) : minMgDl;
     
-    // 计算达标率（使用 mg/dL 统一比较）
+    // 计算达标率 TIR (Time In Range)
     final inRange = records.where((r) {
       final mgDlValue = r.unit == 'mmol/L' ? AppConstants.mmolLToMgDl(r.value) : r.value;
       return mgDlValue >= safeMinStored && mgDlValue <= safeMaxStored;
     }).length;
+    final inRangePercent = (inRange / records.length * 100).toStringAsFixed(1);
+    
+    // 计算低血糖和高血糖占比
+    final lowCount = records.where((r) {
+      final mgDlValue = r.unit == 'mmol/L' ? AppConstants.mmolLToMgDl(r.value) : r.value;
+      return mgDlValue < safeMinStored;
+    }).length;
+    final highCount = records.where((r) {
+      final mgDlValue = r.unit == 'mmol/L' ? AppConstants.mmolLToMgDl(r.value) : r.value;
+      return mgDlValue > safeMaxStored;
+    }).length;
+    final lowPercent = (lowCount / records.length * 100).toStringAsFixed(1);
+    final highPercent = (highCount / records.length * 100).toStringAsFixed(1);
+    
     final displayValues = records.map((r) {
       final mgDlValue = r.unit == 'mmol/L' ? AppConstants.mmolLToMgDl(r.value) : r.value;
       return currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(mgDlValue) : mgDlValue;
     }).toList();
-    final inRangePercent = (inRange / records.length * 100).toStringAsFixed(1);
-    
-    // 计算达标率（使用显示单位）
-    final inRange = displayValues.where((v) => v >= safeMin && v <= safeMax).length;
-    final inRangePercent = (inRange / displayValues.length * 100).toStringAsFixed(1);
 
     return Card(
       child: Padding(
@@ -177,7 +186,19 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
                 _buildStatItem('平均值', displayAvg.toStringAsFixed(1), currentUnit),
                 _buildStatItem('最高', displayMax.toStringAsFixed(1), currentUnit),
                 _buildStatItem('最低', displayMin.toStringAsFixed(1), currentUnit),
-                _buildStatItem('达标率', '$inRangePercent', '%', color: Colors.green),
+                _buildStatItem('TIR', '$inRangePercent', '%', color: Colors.green),
+              ],
+            ),
+            
+            const SizedBox(height: 12),
+            
+            // TIR 明细
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatItem('达标', '$inRangePercent', '%', color: Colors.green),
+                _buildStatItem('偏低', '$lowPercent', '%', color: Colors.orange),
+                _buildStatItem('偏高', '$highPercent', '%', color: Colors.red),
               ],
             ),
           ],

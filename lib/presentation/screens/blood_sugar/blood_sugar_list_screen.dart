@@ -152,10 +152,62 @@ class BloodSugarListScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddBloodSugarDialog(context, ref),
+        onPressed: () => _showQuickAddMenu(context, ref),
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  void _showQuickAddMenu(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => _QuickAddMenu(
+        onAdd: (value, type) => _quickAddBloodSugar(context, ref, value, type),
+        onAddCustom: () {
+          Navigator.pop(context);
+          _showAddBloodSugarDialog(context, ref);
+        },
+      ),
+    );
+  }
+
+  Future<void> _quickAddBloodSugar(BuildContext context, WidgetRef ref, double value, String type) async {
+    Navigator.pop(context);
+    try {
+      final db = ref.read(databaseProvider);
+      final currentUnit = ref.read(bloodSugarUnitProvider);
+      
+      // 转换为 mg/dL 存储
+      var mgDlValue = value;
+      if (currentUnit == 'mmol/L') {
+        mgDlValue = AppConstants.mmolLToMgDl(value);
+      }
+      
+      await db.insertBloodSugarRecord(
+        BloodSugarRecordsCompanion.insert(
+          value: mgDlValue,
+          unit: drift.Value(AppConstants.unitMgDl),
+          type: type,
+          recordedAt: DateTime.now(),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+      
+      ref.invalidate(bloodSugarRecordsProvider);
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('已快速记录 $value $currentUnit')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('记录失败: $e')),
+        );
+      }
+    }
   }
 
   Map<String, List<BloodSugarRecord>> _groupRecordsByDate(List<BloodSugarRecord> records) {
@@ -647,5 +699,101 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
         );
       }
     }
+  }
+}
+
+/// 快速添加菜单
+class _QuickAddMenu extends StatelessWidget {
+  final Function(double value, String type) onAdd;
+  final VoidCallback onAddCustom;
+
+  const _QuickAddMenu({
+    required this.onAdd,
+    required this.onAddCustom,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            '快速记录',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          
+          // 空腹血糖快速选项
+          const Text('空腹血糖', style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              _QuickAddChip(label: '4.0', unit: 'mmol/L', type: 'fasting', onTap: () => onAdd(4.0, 'fasting')),
+              _QuickAddChip(label: '4.5', unit: 'mmol/L', type: 'fasting', onTap: () => onAdd(4.5, 'fasting')),
+              _QuickAddChip(label: '5.0', unit: 'mmol/L', type: 'fasting', onTap: () => onAdd(5.0, 'fasting')),
+              _QuickAddChip(label: '5.5', unit: 'mmol/L', type: 'fasting', onTap: () => onAdd(5.5, 'fasting')),
+              _QuickAddChip(label: '6.0', unit: 'mmol/L', type: 'fasting', onTap: () => onAdd(6.0, 'fasting')),
+              _QuickAddChip(label: '6.5', unit: 'mmol/L', type: 'fasting', onTap: () => onAdd(6.5, 'fasting')),
+              _QuickAddChip(label: '7.0', unit: 'mmol/L', type: 'fasting', onTap: () => onAdd(7.0, 'fasting')),
+              _QuickAddChip(label: '7.8', unit: 'mmol/L', type: 'fasting', onTap: () => onAdd(7.8, 'fasting')),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // 餐后血糖快速选项
+          const Text('餐后血糖', style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: [
+              _QuickAddChip(label: '6.0', unit: 'mmol/L', type: 'post_meal', onTap: () => onAdd(6.0, 'post_meal')),
+              _QuickAddChip(label: '7.0', unit: 'mmol/L', type: 'post_meal', onTap: () => onAdd(7.0, 'post_meal')),
+              _QuickAddChip(label: '8.0', unit: 'mmol/L', type: 'post_meal', onTap: () => onAdd(8.0, 'post_meal')),
+              _QuickAddChip(label: '9.0', unit: 'mmol/L', type: 'post_meal', onTap: () => onAdd(9.0, 'post_meal')),
+              _QuickAddChip(label: '10.0', unit: 'mmol/L', type: 'post_meal', onTap: () => onAdd(10.0, 'post_meal')),
+              _QuickAddChip(label: '11.0', unit: 'mmol/L', type: 'post_meal', onTap: () => onAdd(11.0, 'post_meal')),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // 自定义添加按钮
+          OutlinedButton.icon(
+            onPressed: onAddCustom,
+            icon: const Icon(Icons.edit),
+            label: const Text('自定义添加'),
+          ),
+          
+          SizedBox(height: MediaQuery.of(context).padding.bottom),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickAddChip extends StatelessWidget {
+  final String label;
+  final String unit;
+  final String type;
+  final VoidCallback onTap;
+
+  const _QuickAddChip({
+    required this.label,
+    required this.unit,
+    required this.type,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      label: Text('$label $unit'),
+      onPressed: onTap,
+    );
   }
 }
