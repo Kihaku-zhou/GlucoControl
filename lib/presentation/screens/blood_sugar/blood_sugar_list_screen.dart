@@ -324,7 +324,7 @@ class _BloodSugarRecordTile extends ConsumerWidget {
     }
     
     final color = AppTheme.getBloodSugarColor(displayValue, settingsUnit);
-    final status = AppTheme.getBloodSugarStatus(displayValue);
+    final status = AppTheme.getBloodSugarStatus(displayValue, settingsUnit);
     final timeFormat = DateFormat('HH:mm');
 
     return Card(
@@ -422,7 +422,7 @@ class _BloodSugarRecordTile extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             _buildDetailRow('血糖值', '${displayValue.toStringAsFixed(1)} $displayUnit', color: color),
-            _buildDetailRow('状态', AppTheme.getBloodSugarStatus(displayValue), color: color),
+            _buildDetailRow('状态', AppTheme.getBloodSugarStatus(displayValue, currentUnit), color: color),
             _buildDetailRow('测量时间', _getTypeText(record.type)),
             if (record.hoursAfterMeal != null)
               _buildDetailRow('餐后时间', '${record.hoursAfterMeal} 小时'),
