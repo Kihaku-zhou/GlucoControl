@@ -8,6 +8,7 @@ import '../../../core/constants.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
 import 'workout_timer_screen.dart';
+import 'exercise_report_screen.dart';
 
 /// 运动记录列表页面
 class ExerciseListScreen extends ConsumerWidget {
@@ -22,6 +23,19 @@ class ExerciseListScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('运动记录'),
         actions: [
+          // 运动报告按钮
+          IconButton(
+            icon: const Icon(Icons.assessment),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ExerciseReportScreen(),
+                ),
+              );
+            },
+            tooltip: '运动报告',
+          ),
           // 训练计划按钮
           IconButton(
             icon: const Icon(Icons.assignment),
