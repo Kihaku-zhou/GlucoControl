@@ -37,13 +37,13 @@ class BloodSugarStatsScreen extends ConsumerWidget {
             );
           }
 
-          return _buildStats(context, records);
+          return _buildStats(context, ref, records);
         },
       ),
     );
   }
 
-  Widget _buildStats(BuildContext context, List<BloodSugarRecord> records) {
+  Widget _buildStats(BuildContext context, WidgetRef ref, List<BloodSugarRecord> records) {
     final currentUnit = ref.watch(bloodSugarUnitProvider);
     final safeMin = ref.watch(safeRangeMinProvider);
     final safeMax = ref.watch(safeRangeMaxProvider);
