@@ -6,6 +6,8 @@ class AppConstants {
   // 血糖转换公式
   static double mgdlToMmoll(double mgdl) => mgdl / 18.0182;
   static double mmollToMgdl(double mmol) => mmol * 18.0182;
+  // 兼容旧代码的大小写
+  static double mmolLToMgdl(double value) => mmollToMgdl(value);
   
   // 血糖安全范围 (mg/dL)
   static const double defaultSafeMin = 70.0;
