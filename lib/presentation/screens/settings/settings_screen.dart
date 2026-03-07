@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../data/database/database_providers.dart';
 import '../../../services/data_export_service.dart';
@@ -93,7 +94,7 @@ class SettingsMainScreen extends ConsumerWidget {
           _buildSectionHeader('数据管理'),
           ListTile(
             leading: const Icon(Icons.file_download),
-            title: const Text('导出数据'),
+            title: const Text('导出数据 (JSON)'),
             subtitle: const Text('导出为 JSON 文件'),
             onTap: () async {
               try {
@@ -104,6 +105,34 @@ class SettingsMainScreen extends ConsumerWidget {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('数据已导出到: $filePath')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('导出失败: $e')),
+                  );
+                }
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.table_chart),
+            title: const Text('导出血糖 (CSV)'),
+            subtitle: const Text('导出为 Excel 可用格式'),
+            onTap: () async {
+              try {
+                final db = ref.read(databaseProvider);
+                final exportService = DataExportService(db);
+                final csv = await exportService.exportBloodSugarToCsv();
+                
+                final directory = await getApplicationDocumentsDirectory();
+                final file = File('${directory.path}/glucocontrol_bloodsugar_${DateTime.now().millisecondsSinceEpoch}.csv');
+                await file.writeAsString(csv);
+                
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('血糖数据已导出到: ${file.path}')),
                   );
                 }
               } catch (e) {

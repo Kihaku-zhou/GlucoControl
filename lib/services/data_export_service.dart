@@ -199,3 +199,61 @@ class DataExportService {
     return importedCount;
   }
 }
+
+  /// 导出血糖记录为 CSV 格式
+  Future<String> exportBloodSugarToCsv() async {
+    final records = await db.getAllBloodSugarRecords();
+    final buffer = StringBuffer();
+    
+    // CSV 表头
+    buffer.writeln('日期,时间,血糖值,单位,类型,餐后小时数,备注');
+    
+    // CSV 数据行
+    for (final r in records) {
+      final date = '${r.recordedAt.year}-${r.recordedAt.month.toString().padLeft(2, '0')}-${r.recordedAt.day.toString().padLeft(2, '0')}';
+      final time = '${r.recordedAt.hour.toString().padLeft(2, '0')}:${r.recordedAt.minute.toString().padLeft(2, '0')}';
+      final type = _getTypeText(r.type);
+      final hoursAfterMeal = r.hoursAfterMeal?.toString() ?? '';
+      final note = r.note?.replaceAll(',', ';') ?? '';
+      
+      buffer.writeln('$date,$time,${r.value},${r.unit},$type,$hoursAfterMeal,$note');
+    }
+    
+    return buffer.toString();
+  }
+
+  /// 导出运动记录为 CSV 格式
+  Future<String> exportExerciseToCsv() async {
+    final records = await db.getAllExerciseRecords();
+    final buffer = StringBuffer();
+    
+    // CSV 表头
+    buffer.writeln('日期,运动类型,运动名称,时长(分钟),卡路里,平均心率,最大心率,备注');
+    
+    // CSV 数据行
+    for (final r in records) {
+      final date = '${r.startedAt.year}-${r.startedAt.month.toString().padLeft(2, '0')}-${r.startedAt.day.toString().padLeft(2, '0')}';
+      final type = r.type == 'aerobic' ? '有氧' : '力量';
+      final calories = r.calories?.toString() ?? '';
+      final heartRateAvg = r.heartRateAvg?.toString() ?? '';
+      final heartRateMax = r.heartRateMax?.toString() ?? '';
+      final note = r.note?.replaceAll(',', ';') ?? '';
+      
+      buffer.writeln('$date,$type,${r.name},${r.duration},$calories,$heartRateAvg,$heartRateMax,$note');
+    }
+    
+    return buffer.toString();
+  }
+
+  String _getTypeText(String type) {
+    switch (type) {
+      case 'fasting':
+        return '空腹';
+      case 'post_meal':
+        return '餐后';
+      case 'custom':
+        return '自定义';
+      default:
+        return type;
+    }
+  }
