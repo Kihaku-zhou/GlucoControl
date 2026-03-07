@@ -466,6 +466,8 @@ class _ExerciseRecordTile extends StatelessWidget {
             _buildDetailRow('运动名称', record.name),
             _buildDetailRow('运动类型', isAerobic ? '有氧运动' : '力量训练'),
             _buildDetailRow('时长', '${record.duration} 分钟'),
+            if (record.distance != null)
+              _buildDetailRow('距离', '${record.distance} 公里'),
             if (record.calories != null)
               _buildDetailRow('消耗热量', '${record.calories} kcal'),
             if (record.heartRateAvg != null)
@@ -518,6 +520,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
   final _nameController = TextEditingController();
   final _durationController = TextEditingController();
   final _caloriesController = TextEditingController();
+  final _distanceController = TextEditingController(); // 距离(公里)
   
   // 力量训练专用字段
   String? _selectedDevice;
@@ -541,6 +544,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
     _nameController.dispose();
     _durationController.dispose();
     _caloriesController.dispose();
+    _distanceController.dispose();
     _setsController.dispose();
     _repsController.dispose();
     _weightController.dispose();
@@ -649,6 +653,22 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
                   },
                 ),
                 const SizedBox(height: 16),
+
+                // 距离（可选）- 仅对需要距离的运动类型显示
+                if (_selectedExercise != null && AppConstants.distanceExercises.contains(_selectedExercise))
+                  Column(
+                    children: [
+                      TextFormField(
+                        controller: _distanceController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(
+                          labelText: '距离（可选）',
+                          suffixText: '公里',
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
 
                 // 消耗卡路里（可选）
                 TextFormField(
@@ -871,11 +891,18 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
     }
 
     // 先插入运动记录
+    // 获取距离
+    double? distance;
+    if (_distanceController.text.isNotEmpty) {
+      distance = double.tryParse(_distanceController.text);
+    }
+    
     final exerciseId = await db.insertExerciseRecord(
       ExerciseRecordsCompanion.insert(
         type: _selectedType,
         name: exerciseName,
         duration: duration,
+        distance: drift.Value(distance),
         calories: drift.Value(calories),
         startedAt: startedAt,
         endedAt: endedAt,

@@ -28,6 +28,7 @@ class ExerciseRecords extends Table {
   TextColumn get type => text()(); // aerobic, anaerobic
   TextColumn get name => text()();
   IntColumn get duration => integer()(); // 分钟
+  RealColumn get distance => real().nullable()(); // 距离(公里)
   IntColumn get calories => integer().nullable()();
   IntColumn get heartRateAvg => integer().nullable()();
   IntColumn get heartRateMax => integer().nullable()();

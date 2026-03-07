@@ -48,6 +48,14 @@ class AppConstants {
     '其他',
   ];
   
+  // 需要距离记录的运动类型
+  static const List<String> distanceExercises = [
+    '跑步',
+    '骑行',
+    '游泳',
+    '快走',
+  ];
+  
   // WebDAV 默认坚果云地址
   static const String defaultWebDavUrl = 'https://dav.jianguoyun.com/dav/';
   
