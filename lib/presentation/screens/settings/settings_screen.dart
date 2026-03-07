@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../../data/database/database_providers.dart';
 import '../../../services/data_export_service.dart';
 import 'notification_settings_screen.dart';
+import 'exercise_goal_screen.dart';
 
 /// 设置主页面
 class SettingsMainScreen extends ConsumerWidget {
@@ -66,6 +67,24 @@ class SettingsMainScreen extends ConsumerWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const NotificationSettingsScreen(),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+
+          // 运动目标
+          _buildSectionHeader('运动目标'),
+          ListTile(
+            leading: const Icon(Icons.fitness_center),
+            title: const Text('运动目标设置'),
+            subtitle: const Text('设置每周运动时长和天数目标'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ExerciseGoalScreen(),
                 ),
               );
             },

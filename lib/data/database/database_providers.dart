@@ -87,6 +87,11 @@ final exerciseRecordsProvider = FutureProvider<List<ExerciseRecord>>((ref) async
   return db.getAllExerciseRecords();
 });
 
+/// 运动目标 Providers
+final weeklyExerciseGoalProvider = StateProvider<int>((ref) => 150); // 每周目标分钟数
+final weeklyExerciseDaysGoalProvider = StateProvider<int>((ref) => 3); // 每周目标运动天数
+final dailyCalorieGoalProvider = StateProvider<int>((ref) => 300); // 每日卡路里目标
+
 /// 按日期范围获取运动记录
 final exerciseRecordsByDateRangeProvider = FutureProvider.family<List<ExerciseRecord>, DateRange>((ref, range) async {
   final db = ref.watch(databaseProvider);

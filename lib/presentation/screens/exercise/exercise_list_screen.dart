@@ -95,13 +95,21 @@ class ExerciseListScreen extends ConsumerWidget {
                   );
                 }
 
+                // 计算本周统计
+                final weekStats = _calculateWeekStats(records);
+
                 // 按日期分组
                 final groupedRecords = _groupRecordsByDate(records);
 
                 return ListView.builder(
-                  itemCount: groupedRecords.length,
+                  itemCount: groupedRecords.length + 1,
                   itemBuilder: (context, index) {
-                    final date = groupedRecords.keys.elementAt(index);
+                    // 第一个item是统计卡片
+                    if (index == 0) {
+                      return _buildWeekStatsCard(weekStats, records);
+                    }
+                    
+                    final date = groupedRecords.keys.elementAt(index - 1);
                     final dayRecords = groupedRecords[date]!;
 
                     return Column(
@@ -128,10 +136,56 @@ class ExerciseListScreen extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddExerciseDialog(context, ref),
+        onPressed: () => _showQuickAddMenu(context, ref),
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  void _showQuickAddMenu(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => _QuickAddExerciseMenu(
+        onAdd: (type, name, duration) => _quickAddExercise(context, ref, type, name, duration),
+        onAddCustom: () {
+          Navigator.pop(context);
+          _showAddExerciseDialog(context, ref);
+        },
+      ),
+    );
+  }
+
+  Future<void> _quickAddExercise(BuildContext context, WidgetRef ref, String type, String name, int duration) async {
+    Navigator.pop(context);
+    try {
+      final db = ref.read(databaseProvider);
+      final now = DateTime.now();
+      
+      await db.insertExerciseRecord(
+        ExerciseRecordsCompanion.insert(
+          type: type,
+          name: name,
+          duration: duration,
+          startedAt: now,
+          endedAt: now.add(Duration(minutes: duration)),
+          createdAt: DateTime.now(),
+        ),
+      );
+      
+      ref.invalidate(exerciseRecordsProvider);
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('已记录 $name $duration 分钟')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('记录失败: $e')),
+        );
+      }
+    }
   }
 
   Map<String, List<ExerciseRecord>> _groupRecordsByDate(List<ExerciseRecord> records) {
@@ -144,6 +198,138 @@ class ExerciseListScreen extends ConsumerWidget {
     }
 
     return grouped;
+  }
+
+  /// 计算本周运动统计
+  Map<String, dynamic> _calculateWeekStats(List<ExerciseRecord> records) {
+    final now = DateTime.now();
+    final weekStart = now.subtract(Duration(days: now.weekday - 1));
+    final startOfWeek = DateTime(weekStart.year, weekStart.month, weekStart.day);
+    
+    // 筛选本周记录
+    final weekRecords = records.where((r) => 
+      r.startedAt.isAfter(startOfWeek) || r.startedAt.isAtSameMomentAs(startOfWeek)
+    ).toList();
+    
+    // 计算统计数据
+    int totalMinutes = 0;
+    int totalCalories = 0;
+    int aerobicCount = 0;
+    int anaerobicCount = 0;
+    
+    for (final r in weekRecords) {
+      totalMinutes += r.duration;
+      totalCalories += r.calories ?? 0;
+      if (r.type == 'aerobic') {
+        aerobicCount++;
+      } else {
+        anaerobicCount++;
+      }
+    }
+    
+    return {
+      'totalMinutes': totalMinutes,
+      'totalCalories': totalCalories,
+      'aerobicCount': aerobicCount,
+      'anaerobicCount': anaerobicCount,
+      'totalCount': weekRecords.length,
+    };
+  }
+
+  /// 构建统计卡片
+  Widget _buildWeekStatsCard(Map<String, dynamic> stats, List<ExerciseRecord> records) {
+    if (stats['totalCount'] == 0) {
+      return const SizedBox.shrink();
+    }
+    
+    return Card(
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.analytics, color: Colors.blue),
+                SizedBox(width: 8),
+                Text('本周运动', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatItem('${stats['totalMinutes']}', '分钟', Colors.blue),
+                _buildStatItem('${stats['totalCalories']}', '千卡', Colors.orange),
+                _buildStatItem('${stats['totalCount']}', '次', Colors.green),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // 运动类型分布
+            Row(
+              children: [
+                Expanded(
+                  child: _buildDistributionBar(
+                    '有氧',
+                    stats['aerobicCount'],
+                    stats['totalCount'],
+                    Colors.blue,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _buildDistributionBar(
+                    '力量',
+                    stats['anaerobicCount'],
+                    stats['totalCount'],
+                    Colors.purple,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String value, String unit, Color color) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color),
+        ),
+        Text(unit, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+      ],
+    );
+  }
+
+  Widget _buildDistributionBar(String label, int count, int total, Color color) {
+    final percent = total > 0 ? (count / total * 100) : 0.0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: const TextStyle(fontSize: 12)),
+            Text('$count次', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: percent / 100,
+            backgroundColor: Colors.grey.shade200,
+            valueColor: AlwaysStoppedAnimation(color),
+            minHeight: 8,
+          ),
+        ),
+      ],
+    );
   }
 
   void _showAddExerciseDialog(BuildContext context, WidgetRef ref) {
@@ -1290,5 +1476,113 @@ class PlanExerciseInput {
     weightController.dispose();
     durationController.dispose();
     restController.dispose();
+  }
+}
+
+/// 快速添加运动菜单
+class _QuickAddExerciseMenu extends StatelessWidget {
+  final Function(String type, String name, int duration) onAdd;
+  final VoidCallback onAddCustom;
+
+  const _QuickAddExerciseMenu({
+    required this.onAdd,
+    required this.onAddCustom,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            '快速记录运动',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          
+          // 有氧运动快速选项
+          const Text('🏃 有氧运动', style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _QuickExerciseChip(
+                label: '跑步 30分钟',
+                onTap: () => onAdd('aerobic', '跑步', 30),
+              ),
+              _QuickExerciseChip(
+                label: '快走 30分钟',
+                onTap: () => onAdd('aerobic', '快走', 30),
+              ),
+              _QuickExerciseChip(
+                label: '骑行 30分钟',
+                onTap: () => onAdd('aerobic', '骑行', 30),
+              ),
+              _QuickExerciseChip(
+                label: '游泳 30分钟',
+                onTap: () => onAdd('aerobic', '游泳', 30),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // 力量训练快速选项
+          const Text('💪 力量训练', style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _QuickExerciseChip(
+                label: '哑铃 30分钟',
+                onTap: () => onAdd('anaerobic', '哑铃训练', 30),
+              ),
+              _QuickExerciseChip(
+                label: '杠铃 30分钟',
+                onTap: () => onAdd('anaerobic', '杠铃训练', 30),
+              ),
+              _QuickExerciseChip(
+                label: '自重 30分钟',
+                onTap: () => onAdd('anaerobic', '自重训练', 30),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // 自定义添加按钮
+          OutlinedButton.icon(
+            onPressed: onAddCustom,
+            icon: const Icon(Icons.edit),
+            label: const Text('自定义添加'),
+          ),
+          
+          SizedBox(height: MediaQuery.of(context).padding.bottom),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickExerciseChip extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _QuickExerciseChip({
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      label: Text(label),
+      onPressed: onTap,
+    );
   }
 }
