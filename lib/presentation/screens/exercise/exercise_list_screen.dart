@@ -9,6 +9,7 @@ import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
 import 'workout_timer_screen.dart';
 import 'exercise_report_screen.dart';
+import 'exercise_trend_screen.dart';
 
 /// 运动记录列表页面
 class ExerciseListScreen extends ConsumerWidget {
@@ -35,6 +36,19 @@ class ExerciseListScreen extends ConsumerWidget {
               );
             },
             tooltip: '运动报告',
+          ),
+          // 运动趋势按钮
+          IconButton(
+            icon: const Icon(Icons.show_chart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ExerciseTrendScreen(),
+                ),
+              );
+            },
+            tooltip: '运动趋势',
           ),
           // 训练计划按钮
           IconButton(
