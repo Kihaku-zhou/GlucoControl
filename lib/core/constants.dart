@@ -7,7 +7,7 @@ class AppConstants {
   static double mgdlToMmoll(double mgdl) => mgdl / 18.0182;
   static double mmollToMgdl(double mmol) => mmol * 18.0182;
   // 兼容旧代码
-  static double mmolLToMgdl(double value) => mmollToMgdl(value);
+  static double mmolLToMgDl(double value) => mmollToMgdl(value);
   
   // 血糖安全范围 (mg/dL)
   static const double defaultSafeMin = 70.0;
@@ -18,7 +18,7 @@ class AppConstants {
   static const double defaultSafeMaxMmol = 7.8;
   
   // 餐后小时选项
-  static const List<int> postMealHours = [0, 1, 2, 3, 4, 5];
+  static const List<double> postMealHours = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
   
   // ==================== 运动类型 ====================
   // 有氧运动类型 - 户外
