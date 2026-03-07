@@ -482,6 +482,8 @@ class _ExerciseRecordTile extends StatelessWidget {
             _buildDetailRow('时长', '${record.duration} 分钟'),
             if (record.distance != null)
               _buildDetailRow('距离', '${record.distance} 公里'),
+            if (record.distance != null && record.duration > 0)
+              _buildDetailRow('平均速度', '${(record.distance! / (record.duration / 60)).toStringAsFixed(2)} km/h'),
             if (record.calories != null)
               _buildDetailRow('消耗热量', '${record.calories} kcal'),
             if (record.heartRateAvg != null)
