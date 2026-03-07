@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/bottom_navigation.dart';
 import 'blood_sugar/blood_sugar_list_screen.dart';
 import 'exercise/exercise_list_screen.dart';
+import 'exercise/simple_exercise_list_screen.dart';
 import 'meal/meal_list_screen.dart';
 import 'settings/settings_screen.dart';
 import 'body_measurement/body_measurement_list_screen.dart';
@@ -126,7 +127,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       case 0:
         return const BloodSugarListScreen();
       case 1:
-        return const ExerciseListScreen();
+        return const SimpleExerciseListScreen();
       case 2:
         return const BodyMeasurementListScreen();
       case 3:
