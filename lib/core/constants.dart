@@ -66,11 +66,6 @@ class AppConstants {
   ];
   
   // 力量训练器械
-  static const List<String> strengthDevices = [
-    '哑铃',
-    '杠铃',
-    '史密斯机',
-    '龙门架',
     '腿举机',
     '高位下拉器',
     '划船机',
