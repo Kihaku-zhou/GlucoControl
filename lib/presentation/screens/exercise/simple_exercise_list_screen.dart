@@ -608,7 +608,7 @@ class _PlanExerciseListSheet extends ConsumerStatefulWidget {
   const _PlanExerciseListSheet({required this.plan, required this.exercises});
 
   @override
-  State<_PlanExerciseListSheet> createState() => _PlanExerciseListSheetState();
+  ConsumerState<_PlanExerciseListSheet> createState() => _PlanExerciseListSheetState();
 }
 
 class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> {
