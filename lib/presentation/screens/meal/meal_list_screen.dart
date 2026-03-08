@@ -183,8 +183,20 @@ class _MealRecordTile extends StatelessWidget {
             const SizedBox(height: 24),
             _buildDetailRow('餐次', _getMealTypeText(record.type)),
             _buildDetailRow('记录时间', dateFormat.format(record.recordedAt)),
-            if (record.imagePath != null && record.imagePath!.isNotEmpty)
-              _buildDetailRow('图片', '已保存'),
+            if (record.imagePath != null && record.imagePath!.isNotEmpty) ...[
+              const Text('图片', style: TextStyle(color: Colors.grey)),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.file(
+                  File(record.imagePath!),
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Text('图片加载失败'),
+                ),
+              ),
+            ],
             if (record.note != null && record.note!.isNotEmpty)
               _buildDetailRow('备注', record.note!),
             const SizedBox(height: 24),

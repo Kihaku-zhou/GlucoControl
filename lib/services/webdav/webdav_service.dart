@@ -77,6 +77,10 @@ class WebDAVService {
   /// 测试连接
   Future<bool> testConnection() async {
     try {
+      if (_dio == null) {
+        debugPrint('WebDAV: _dio is null, not initialized');
+        return false;
+      }
       final response = await _dio?.request(
         '/',
         options: Options(
@@ -95,6 +99,10 @@ class WebDAVService {
   /// 上传数据
   Future<bool> uploadData(String fileName, String content) async {
     try {
+      if (_dio == null) {
+        debugPrint('WebDAV: _dio is null, not initialized');
+        return false;
+      }
       // 确保目录存在
       await _ensureDirectory('/glucocontrol');
 

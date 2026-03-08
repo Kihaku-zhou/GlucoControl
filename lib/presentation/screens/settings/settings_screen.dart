@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../data/database/database_providers.dart';
 import '../../../services/data_export_service.dart';
+import '../../../services/webdav/webdav_service.dart';
 import 'notification_settings_screen.dart';
 import 'exercise_goal_screen.dart';
 import 'blood_sugar_goal_screen.dart';
@@ -635,9 +636,46 @@ class _WebDAVSettingsScreenState extends ConsumerState<WebDAVSettingsScreen> {
   }
 
   Future<void> _testConnection() async {
+    if (_serverController.text.isEmpty || _usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('请填写完整的服务器地址、用户名和密码')),
+      );
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('测试连接功能开发中...')),
+      const SnackBar(content: Text('正在测试连接...')),
     );
+
+    try {
+      final webdavService = WebDAVService();
+      webdavService.init(WebDAVConfig(
+        server: _serverController.text,
+        username: _usernameController.text,
+        password: _passwordController.text,
+        enabled: true,
+      ));
+
+      final success = await webdavService.testConnection();
+      
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('连接成功！'), backgroundColor: Colors.green),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('连接失败，请检查配置'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('连接错误: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   Future<void> _saveSettings() async {

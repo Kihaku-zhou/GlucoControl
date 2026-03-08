@@ -139,6 +139,9 @@ class SimpleExerciseListScreen extends ConsumerWidget {
     final typeText = _getTypeText(record.type);
     final timeFormat = DateFormat('HH:mm');
     final details = _getRecordDetails(record);
+    
+    // 力量训练不显示时长
+    final durationText = record.type == 'anaerobic' ? '' : ' · ${record.duration}分钟';
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -148,7 +151,7 @@ class SimpleExerciseListScreen extends ConsumerWidget {
           child: Icon(typeIcon, color: Colors.white, size: 20),
         ),
         title: Text(record.name),
-        subtitle: Text('$typeText · ${record.duration}分钟 · ${timeFormat.format(record.startedAt)}${details.isNotEmpty ? ' · $details' : ''}'),
+        subtitle: Text('$typeText$durationText · ${timeFormat.format(record.startedAt)}${details.isNotEmpty ? ' · $details' : ''}'),
         trailing: record.calories != null ? Text('${record.calories} kcal') : null,
         onTap: () => _showRecordDetail(context, ref, record),
       ),
@@ -214,7 +217,7 @@ class SimpleExerciseListScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             _buildDetailRow('运动名称', record.name),
             _buildDetailRow('运动类型', _getTypeText(record.type)),
-            _buildDetailRow('时长', '${record.duration} 分钟'),
+            if (record.type != 'anaerobic') _buildDetailRow('时长', '${record.duration} 分钟'),
             if (record.distance != null && record.distance! > 0) _buildDetailRow('距离', '${record.distance} 公里'),
             if (record.elevation != null && record.elevation! > 0) _buildDetailRow('爬升', '${record.elevation} 米'),
             if (record.power != null && record.power! > 0) _buildDetailRow('平均功率', '${record.power} 瓦'),
