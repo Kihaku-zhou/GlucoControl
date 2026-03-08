@@ -323,7 +323,7 @@ class _TrainingPlanListSheet extends ConsumerWidget {
                         ),
                         onTap: () async {
                           final db = ref.read(databaseProvider);
-                          final exercises = await db.getTrainingPlanExercises(plan.id).get();
+                          final exercises = await db.getExercisesByPlanId(plan.id).get();
                           onSelectPlan(plan, exercises);
                         },
                       ),
@@ -378,7 +378,7 @@ class _TrainingPlanEditSheetState extends ConsumerState<_TrainingPlanEditSheet> 
   Future<void> _loadExercises() async {
     if (widget.plan == null) return;
     final db = ref.read(databaseProvider);
-    final exercises = await db.getTrainingPlanExercises(widget.plan!.id).get();
+    final exercises = await db.getExercisesByPlanId(widget.plan!.id).get();
     setState(() {
       _exercises = exercises.map((e) => _PlanExerciseItem(
         device: e.device,
@@ -611,7 +611,7 @@ class _PlanExerciseListSheet extends StatefulWidget {
   State<_PlanExerciseListSheet> createState() => _PlanExerciseListSheetState();
 }
 
-class _PlanExerciseListSheetState extends State<_PlanExerciseListSheet> {
+class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> {
   final Map<int, bool> _completed = {};
 
   @override
