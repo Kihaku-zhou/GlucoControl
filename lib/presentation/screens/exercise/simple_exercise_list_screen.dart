@@ -380,14 +380,33 @@ class _TrainingPlanEditSheetState extends ConsumerState<_TrainingPlanEditSheet> 
     final db = ref.read(databaseProvider);
     final exercises = await db.getExercisesByPlanId(widget.plan!.id);
     setState(() {
-      _exercises = exercises.map((e) => _PlanExerciseItem(
-        device: e.device,
-        movement: e.movement,
-        sets: e.targetSets,
-        reps: e.targetReps,
-        weight: e.targetWeight ?? 0,
-        restSeconds: e.restSeconds ?? 60,
-      )).toList();
+      _exercises = exercises.map((e) {
+        // 解析每组次数列表
+        List<int> repsList = [];
+        if (e.targetRepsList != null && e.targetRepsList!.isNotEmpty) {
+          try {
+            // 去掉方括号，按逗号分割
+            final str = e.targetRepsList!.replaceAll('[', '').replaceAll(']', '');
+            repsList = str.split(',').map((s) => int.tryParse(s.trim()) ?? 0).where((r) => r > 0).toList();
+          } catch (_) {
+            repsList = [];
+          }
+        }
+        // 如果没有解析到每组次数，使用默认的 targetReps
+        if (repsList.isEmpty) {
+          repsList = List.generate(e.targetSets, (_) => e.targetReps);
+        }
+
+        return _PlanExerciseItem(
+          device: e.device,
+          movement: e.movement,
+          sets: e.targetSets,
+          reps: e.targetReps,
+          repsList: repsList,
+          weight: e.targetWeight ?? 0,
+          restSeconds: e.restSeconds ?? 60,
+        );
+      }).toList();
     });
   }
 
@@ -438,7 +457,7 @@ class _TrainingPlanEditSheetState extends ConsumerState<_TrainingPlanEditSheet> 
                             IconButton(icon: const Icon(Icons.delete, size: 20), onPressed: () => setState(() => _exercises.removeAt(i))),
                           ],
                         ),
-                        Text('器械: ${e.device} · ${e.sets}组 x ${e.reps}次 · ${e.weight}kg · 休息${e.restSeconds}秒'),
+                        Text('器械: ${e.device} · ${e.sets}组 · ${e.repsList.join('/')}次 · ${e.weight}kg · 休息${e.restSeconds}秒'),
                       ],
                     ),
                   ),
@@ -490,12 +509,15 @@ class _TrainingPlanEditSheetState extends ConsumerState<_TrainingPlanEditSheet> 
 
     for (var i = 0; i < _exercises.length; i++) {
       final e = _exercises[i];
+      // 将每组次数列表转换为 JSON 字符串存储
+      final repsListJson = e.repsList.isNotEmpty ? '[${e.repsList.join(",")}]' : null;
       await db.insertTrainingPlanExercise(TrainingPlanExercisesCompanion.insert(
         planId: planId,
         device: e.device,
         movement: e.movement,
         targetSets: e.sets,
         targetReps: e.reps,
+        targetRepsList: drift.Value(repsListJson),
         targetWeight: drift.Value(e.weight > 0 ? e.weight : null),
         restSeconds: drift.Value(e.restSeconds),
         orderIndex: drift.Value(i),
@@ -511,11 +533,20 @@ class _PlanExerciseItem {
   String device;
   String movement;
   int sets;
-  int reps;
+  int reps; // 保留兼容，默认次数
+  List<int> repsList; // 每组次数列表
   double weight;
   int restSeconds;
 
-  _PlanExerciseItem({required this.device, required this.movement, required this.sets, required this.reps, required this.weight, required this.restSeconds});
+  _PlanExerciseItem({
+    required this.device,
+    required this.movement,
+    required this.sets,
+    required this.reps,
+    required this.repsList,
+    required this.weight,
+    required this.restSeconds,
+  });
 }
 
 class _AddExerciseDialog extends StatefulWidget {
@@ -525,6 +556,18 @@ class _AddExerciseDialog extends StatefulWidget {
   @override
   State<_AddExerciseDialog> createState() => _AddExerciseDialogState();
 }
+
+/// 器械列表 - 高位下拉机、划船机、外展机、内收机、俯卧腿弯举、倒蹬、推胸 + 其他
+const _deviceList = [
+  '高位下拉机',
+  '划船机',
+  '外展机',
+  '内收机',
+  '俯卧腿弯举',
+  '倒蹬',
+  '推胸',
+  '其他',
+];
 
 class _AddExerciseDialogState extends State<_AddExerciseDialog> {
   String? _selectedDevice;
@@ -555,19 +598,32 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
             DropdownButtonFormField<String>(
               value: _selectedDevice,
               decoration: const InputDecoration(labelText: '器械'),
-              items: AppConstants.strengthDevices.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-              onChanged: (v) => setState(() => _selectedDevice = v),
+              items: _deviceList.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+              onChanged: (v) => setState(() {
+                _selectedDevice = v;
+                // 选择"其他"时清空动作名称
+                if (v == '其他') {
+                  _movementController.clear();
+                }
+              }),
             ),
             const SizedBox(height: 8),
-            TextField(controller: _movementController, decoration: const InputDecoration(labelText: '动作名称')),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(child: TextField(controller: _setsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组数'))),
-                const SizedBox(width: 8),
-                Expanded(child: TextField(controller: _repsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '次数'))),
-              ],
+            TextField(
+              controller: _movementController,
+              decoration: InputDecoration(
+                labelText: _selectedDevice == '其他' ? '自定义动作名称' : '动作名称',
+              ),
             ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _setsController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: '组数'),
+              onChanged: (_) => setState(() {}), // 动态更新每组次数输入框
+            ),
+            const SizedBox(height: 8),
+            // 自定义每组次数
+            _buildRepsPerSetInput(),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -582,22 +638,80 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
         ElevatedButton(
-          onPressed: () {
-            if (_selectedDevice == null || _movementController.text.isEmpty) return;
-            widget.onAdd(_PlanExerciseItem(
-              device: _selectedDevice!,
-              movement: _movementController.text,
-              sets: int.tryParse(_setsController.text) ?? 4,
-              reps: int.tryParse(_repsController.text) ?? 12,
-              weight: double.tryParse(_weightController.text) ?? 0,
-              restSeconds: int.tryParse(_restController.text) ?? 60,
-            ));
-            Navigator.pop(context);
-          },
+          onPressed: _onAdd,
           child: const Text('添加'),
         ),
       ],
     );
+  }
+
+  /// 构建每组次数输入框
+  Widget _buildRepsPerSetInput() {
+    final sets = int.tryParse(_setsController.text) ?? 0;
+    if (sets <= 0) {
+      return TextField(
+        controller: _repsController,
+        keyboardType: TextInputType.number,
+        decoration: const InputDecoration(labelText: '每组次数（统一）'),
+      );
+    }
+
+    // 解析现有的每组次数
+    final currentReps = _repsController.text.split(',').map((s) => int.tryParse(s.trim()) ?? 0).toList();
+    // 确保列表长度与组数一致
+    while (currentReps.length < sets) {
+      currentReps.add(currentReps.isNotEmpty ? currentReps.last : 12);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('每组次数（用逗号分隔，如: 12,10,8,6）', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const SizedBox(height: 4),
+        TextField(
+          controller: _repsController,
+          decoration: InputDecoration(
+            labelText: '每组次数',
+            hintText: List.generate(sets, (i) => currentReps.length > i ? currentReps[i] : 12).join(','),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _onAdd() {
+    if (_selectedDevice == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请选择器械')));
+      return;
+    }
+
+    final movement = _movementController.text.trim();
+    if (movement.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入动作名称')));
+      return;
+    }
+
+    final sets = int.tryParse(_setsController.text) ?? 4;
+    final repsList = _repsController.text
+        .split(',')
+        .map((s) => int.tryParse(s.trim()) ?? 0)
+        .where((r) => r > 0)
+        .toList();
+
+    // 如果没有输入每组次数，使用默认值
+    final defaultReps = int.tryParse(_repsController.text) ?? 12;
+    final finalRepsList = repsList.isEmpty ? List.generate(sets, (_) => defaultReps) : repsList;
+
+    widget.onAdd(_PlanExerciseItem(
+      device: _selectedDevice!,
+      movement: movement,
+      sets: sets,
+      reps: finalRepsList.isNotEmpty ? finalRepsList.first : defaultReps, // 兼容旧字段
+      repsList: finalRepsList,
+      weight: double.tryParse(_weightController.text) ?? 0,
+      restSeconds: int.tryParse(_restController.text) ?? 60,
+    ));
+    Navigator.pop(context);
   }
 }
 
@@ -639,12 +753,29 @@ class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> 
               itemCount: widget.exercises.length,
               itemBuilder: (context, index) {
                 final e = widget.exercises[index];
+                // 解析每组次数列表
+                List<int> repsList = [];
+                if (e.targetRepsList != null && e.targetRepsList!.isNotEmpty) {
+                  try {
+                    final str = e.targetRepsList!.replaceAll('[', '').replaceAll(']', '');
+                    repsList = str.split(',').map((s) => int.tryParse(s.trim()) ?? 0).where((r) => r > 0).toList();
+                  } catch (_) {
+                    repsList = [];
+                  }
+                }
+                if (repsList.isEmpty) {
+                  repsList = List.generate(e.targetSets, (_) => e.targetReps);
+                }
+                final repsDisplay = repsList.length <= 3 
+                    ? repsList.join('/') 
+                    : '${repsList.take(3).join('/')}...';
+
                 return Card(
                   child: CheckboxListTile(
                     value: _completed[index] ?? false,
                     onChanged: (v) => setState(() => _completed[index] = v ?? false),
                     title: Text(e.movement),
-                    subtitle: Text('${e.device} · 目标: ${e.targetSets}组 x ${e.targetReps}次 · ${e.targetWeight ?? 0}kg'),
+                    subtitle: Text('${e.device} · 目标: ${e.targetSets}组 · $repsDisplay次 · ${e.targetWeight ?? 0}kg'),
                     secondary: _completed[index] == true ? const Icon(Icons.check_circle, color: Colors.green) : const Icon(Icons.circle_outlined),
                   ),
                 );
@@ -754,7 +885,7 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
   List<String> get _currentExerciseList {
     switch (_selectedType) {
       case 'aerobic': return AppConstants.aerobicExercises;
-      case 'anaerobic': return AppConstants.strengthDevices;
+      case 'anaerobic': return _deviceList; // 使用新的器械列表
       case 'endurance': return AppConstants.enduranceTypes;
       default: return AppConstants.aerobicExercises;
     }

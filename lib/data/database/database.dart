@@ -73,7 +73,8 @@ class TrainingPlanExercises extends Table {
   TextColumn get device => text()(); // 器械类型
   TextColumn get movement => text()(); // 动作名称
   IntColumn get targetSets => integer()(); // 目标组数
-  IntColumn get targetReps => integer()(); // 目标次数
+  IntColumn get targetReps => integer()(); // 目标次数（保留兼容）
+  TextColumn get targetRepsList => text().nullable()(); // 每组次数列表，JSON格式如 "[12,10,8,6]"
   RealColumn get targetWeight => real().nullable()(); // 目标重量
   IntColumn get restSeconds => integer().nullable()(); // 休息时间
   TextColumn get trainingType => text().withDefault(const Constant('strength'))(); // strength/endurance
