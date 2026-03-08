@@ -26,7 +26,7 @@ class BodyMeasurementListScreen extends ConsumerWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const BodyMeasurementFilterScreen(),
+                  builder: (context) => BodyMeasurementFilterScreen(),
                 ),
               );
             },

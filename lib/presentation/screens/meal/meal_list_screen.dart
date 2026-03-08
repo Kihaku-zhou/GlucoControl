@@ -28,7 +28,7 @@ class MealListScreen extends ConsumerWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MealFilterScreen(),
+                  builder: (context) => MealFilterScreen(),
                 ),
               );
             },

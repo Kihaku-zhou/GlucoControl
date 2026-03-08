@@ -27,10 +27,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: Row(
         children: [
           // 汉堡菜单按钮
-          DrawerButton(
-            style: DrawerButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.onSurface,
-            ),
+          IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
           Expanded(child: _buildCurrentScreen()),
         ],
