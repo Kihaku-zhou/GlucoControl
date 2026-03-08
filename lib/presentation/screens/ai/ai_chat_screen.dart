@@ -20,6 +20,10 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
   bool _isLoading = false;
   int? _currentConversationId;
   String _currentTitle = '新对话';
+  
+  // 健康数据缓存（不显示在对话框中）
+  Map<String, dynamic>? _healthDataCache;
+  DateTime? _healthDataFetchTime;
 
   @override
   void initState() {
@@ -111,11 +115,23 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
         'content': m.content,
       }).toList();
 
+      // 如果有缓存的健康数据，在系统提示中加入（不显示给用户）
+      String systemPrompt = '你是一位专业的糖尿病健康管理助手，擅长分析血糖数据、饮食和运动的关系，并给出科学的建议。请用中文回复。';
+      if (_healthDataCache != null && _healthDataCache!['summary'] != null) {
+        systemPrompt += '\n\n用户最近的健康数据摘要：\n${_healthDataCache!['summary']}';
+      }
+      
+      // 构建消息（将系统提示加入第一条）
+      final List<Map<String, String>> allMessages = [
+        {'role': 'system', 'content': systemPrompt},
+        ...messages,
+      ];
+
       // 添加当前用户消息
       messages.add({'role': 'user', 'content': message});
 
       // 调用 AI
-      final response = await aiService.chat(messages);
+      final response = await aiService.chat(allMessages);
 
       // 保存 AI 回复
       await db.insertAIMessage(
@@ -166,14 +182,11 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
     });
   }
 
-  /// 获取并分析健康数据
+  /// 获取并缓存健康数据（不显示在对话框中）
   Future<void> _fetchAndAnalyzeHealthData() async {
     final db = ref.read(databaseProvider);
     final prefs = ref.read(sharedPreferencesProvider);
-    
-    final apiUrl = prefs.getString('ai_api_url') ?? '';
     final apiKey = prefs.getString('ai_api_key') ?? '';
-    final model = prefs.getString('ai_model') ?? 'gpt-3.5-turbo';
     
     if (apiKey.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -183,7 +196,7 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('正在获取健康数据...')),
+      const SnackBar(content: Text('正在加载健康数据...')),
     );
 
     try {
@@ -208,7 +221,7 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
         DateTime.now(),
       );
 
-      // 构建数据摘要
+      // 构建数据摘要（用于 API 调用，不显示在界面）
       final summary = StringBuffer();
       summary.writeln('【血糖记录】共${bloodSugarRecords.length}条:');
       if (bloodSugarRecords.isNotEmpty) {
@@ -228,65 +241,39 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
       
       summary.writeln('\n【饮食记录】共${mealRecords.length}条');
 
-      // 保存为用户消息
-      final dataMessage = '请分析以下我的健康数据，并给出建议：\n\n${summary.toString()}';
+      // 缓存数据
+      _healthDataCache = {
+        'bloodSugar': bloodSugarRecords.map((r) => {
+          'recordedAt': r.recordedAt.toString(),
+          'value': r.value,
+          'unit': r.unit,
+          'type': r.type,
+        }).toList(),
+        'exercise': exerciseRecords.map((r) => {
+          'startedAt': r.startedAt.toString(),
+          'type': r.type,
+          'name': r.name,
+          'duration': r.duration,
+          'calories': r.calories,
+        }).toList(),
+        'meal': mealRecords.map((r) => {
+          'recordedAt': r.recordedAt.toString(),
+          'type': r.type,
+        }).toList(),
+        'summary': summary.toString(),
+      };
+      _healthDataFetchTime = DateTime.now();
       
-      if (_currentConversationId != null) {
-        await db.insertAIMessage(
-          AIMessagesCompanion.insert(
-            conversationId: _currentConversationId!,
-            role: 'user',
-            content: dataMessage,
-            createdAt: DateTime.now(),
-          ),
-        );
-        
-        // 调用 AI 分析
-        final aiService = AIAnalysisService();
-        aiService.init(AIConfig(
-          apiUrl: apiUrl,
-          apiKey: apiKey,
-          model: model,
-          enabled: true,
-        ));
-        
-        final result = await aiService.analyzeBloodSugarTrend(
-          bloodSugarRecords: bloodSugarRecords.map((r) => {
-            'recordedAt': r.recordedAt.toString(),
-            'value': r.value,
-            'unit': r.unit,
-            'type': r.type,
-          }).toList(),
-          exerciseRecords: exerciseRecords.map((r) => {
-            'startedAt': r.startedAt.toString(),
-            'type': r.type,
-            'name': r.name,
-            'duration': r.duration,
-            'calories': r.calories,
-          }).toList(),
-          mealRecords: mealRecords.map((r) => {
-            'recordedAt': r.recordedAt.toString(),
-            'type': r.type,
-          }).toList(),
-        );
-        
-        String aiResponse;
-        if (result != null) {
-          aiResponse = result.summary;
-          if (result.suggestions.isNotEmpty) {
-            aiResponse += '\n\n建议:\n${result.suggestions.map((s) => '- $s').join('\n')}';
-          }
-        } else {
-          aiResponse = '数据已加载，但 AI 分析失败。请手动查看以上数据后问我问题。';
-        }
-        
-        // 保存 AI 回复
-        await db.insertAIMessage(
-          AIMessagesCompanion.insert(
-            conversationId: _currentConversationId!,
-            role: 'assistant',
-            content: aiResponse,
-            createdAt: DateTime.now(),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('已加载 ${bloodSugarRecords.length} 条血糖、${exerciseRecords.length} 条运动、${mealRecords.length} 条饮食记录。现在可以问我健康相关问题！')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('获取数据失败: $e')),
+      );
+    }
+  }
+}
           ),
         );
         
