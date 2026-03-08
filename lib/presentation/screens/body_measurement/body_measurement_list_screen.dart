@@ -96,7 +96,7 @@ class BodyMeasurementListScreen extends ConsumerWidget {
         onPressed: () => _showAddMeasurementDialog(context, ref),
         child: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 

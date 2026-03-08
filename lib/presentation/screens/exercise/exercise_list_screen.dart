@@ -139,7 +139,7 @@ class ExerciseListScreen extends ConsumerWidget {
         onPressed: () => _showQuickAddMenu(context, ref),
         child: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 

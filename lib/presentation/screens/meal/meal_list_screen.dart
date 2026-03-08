@@ -90,7 +90,7 @@ class MealListScreen extends ConsumerWidget {
         onPressed: () => _showAddMealDialog(context, ref),
         child: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 

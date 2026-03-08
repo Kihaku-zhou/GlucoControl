@@ -27,25 +27,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       key: _scaffoldKey,
       drawer: _buildDrawer(context),
       body: _buildCurrentScreen(),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton(
-            heroTag: 'menu',
-            mini: true,
-            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-            tooltip: '菜单',
-            child: const Icon(Icons.menu),
-          ),
-          const SizedBox(height: 8),
-          FloatingActionButton(
-            heroTag: 'add',
-            mini: true,
-            onPressed: () => _showQuickAddMenu(context),
-            tooltip: '添加记录',
-            child: const Icon(Icons.add),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'menu',
+        mini: true,
+        onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        tooltip: '菜单',
+        child: const Icon(Icons.menu),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       bottomNavigationBar: BottomNavigationWidget(
