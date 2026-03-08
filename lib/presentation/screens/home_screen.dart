@@ -97,9 +97,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             title: const Text('设置'),
             onTap: () {
               Navigator.pop(context);
-              setState(() {
-                _currentIndex = 4;
-              });
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsMainScreen(),
+                ),
+              );
             },
           ),
           ListTile(
