@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/database/database_providers.dart';
 
@@ -98,7 +99,7 @@ class WebDAVService {
       await _ensureDirectory('/glucocontrol');
 
       final response = await _dio?.put(
-        '/glucocontrol/$fileName',
+        '/app/$fileName',
         data: content,
         options: Options(
           headers: {
@@ -118,7 +119,7 @@ class WebDAVService {
   Future<String?> downloadData(String fileName) async {
     try {
       final response = await _dio?.get(
-        '/glucocontrol/$fileName',
+        '/app/$fileName',
         options: Options(
           responseType: ResponseType.plain,
         ),
@@ -138,7 +139,7 @@ class WebDAVService {
   Future<List<String>> listFiles() async {
     try {
       final response = await _dio?.request(
-        '/glucocontrol/',
+        '/app/',
         options: Options(
           headers: {
             'Depth': '1',
@@ -155,7 +156,7 @@ class WebDAVService {
         final matches = regex.allMatches(content ?? '');
         for (final match in matches) {
           final path = match.group(1) ?? '';
-          if (path.isNotEmpty && path != '/glucocontrol/') {
+          if (path.isNotEmpty && path != '/app/') {
             files.add(path.split('/').last);
           }
         }
@@ -171,7 +172,7 @@ class WebDAVService {
   /// 删除文件
   Future<bool> deleteFile(String fileName) async {
     try {
-      final response = await _dio?.delete('/glucocontrol/$fileName');
+      final response = await _dio?.delete('/app/$fileName');
       return response?.statusCode == 200 || response?.statusCode == 204;
     } catch (e) {
       debugPrint('WebDAV 删除失败: $e');
@@ -193,6 +194,7 @@ class WebDAVService {
     required List<Map<String, dynamic>> bloodSugarRecords,
     required List<Map<String, dynamic>> exerciseRecords,
     required List<Map<String, dynamic>> mealRecords,
+    Map<String, dynamic>? settings,
   }) {
     return {
       'version': '1.0',
@@ -200,6 +202,7 @@ class WebDAVService {
       'bloodSugarRecords': bloodSugarRecords,
       'exerciseRecords': exerciseRecords,
       'mealRecords': mealRecords,
+      'settings': settings ?? {},
     };
   }
 }
@@ -261,10 +264,32 @@ class SyncManager {
         'note': r.note,
       }).toList();
 
+      // 获取设置数据（包括 AI API 配置）
+      final prefs = await SharedPreferences.getInstance();
+      final settings = <String, dynamic>{};
+      
+      // AI 相关设置
+      settings['ai_enabled'] = prefs.getBool('ai_enabled');
+      settings['ai_api_url'] = prefs.getString('ai_api_url');
+      settings['ai_api_key'] = prefs.getString('ai_api_key');
+      settings['ai_model'] = prefs.getString('ai_model');
+      
+      // 血糖目标设置
+      settings['blood_sugar_min'] = prefs.getDouble('blood_sugar_min');
+      settings['blood_sugar_max'] = prefs.getDouble('blood_sugar_max');
+      settings['blood_sugar_target'] = prefs.getDouble('blood_sugar_target');
+      
+      // 运动目标设置
+      settings['exercise_goal_minutes'] = prefs.getInt('exercise_goal_minutes');
+      
+      // 主题设置
+      settings['theme_mode'] = prefs.getString('theme_mode');
+
       final data = _webDAVService.exportAllData(
         bloodSugarRecords: bloodSugarData,
         exerciseRecords: exerciseData,
         mealRecords: mealData,
+        settings: settings,
       );
 
       final jsonStr = jsonEncode(data);

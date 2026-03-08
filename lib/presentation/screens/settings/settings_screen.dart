@@ -643,6 +643,28 @@ class _WebDAVSettingsScreenState extends ConsumerState<WebDAVSettingsScreen> {
   }
 }
 
+/// AI API 提供商配置
+class AIProvider {
+  final String name;
+  final String apiUrl;
+  final String defaultModel;
+
+  const AIProvider({
+    required this.name,
+    required this.apiUrl,
+    required this.defaultModel,
+  });
+}
+
+/// AI 提供商列表
+const aiProviders = [
+  AIProvider(name: 'OpenAI', apiUrl: 'https://api.openai.com/v1/chat/completions', defaultModel: 'gpt-3.5-turbo'),
+  AIProvider(name: 'DeepSeek', apiUrl: 'https://api.deepseek.com/v1/chat/completions', defaultModel: 'deepseek-chat'),
+  AIProvider(name: 'SiliconFlow', apiUrl: 'https://api.siliconflow.cn/v1/chat/completions', defaultModel: 'Qwen/Qwen2.5-7B-Instruct'),
+  AIProvider(name: 'MiniMax', apiUrl: 'https://api.minimax.chat/v1/text/chatcompletion_v2', defaultModel: 'abab6.5s-chat'),
+  AIProvider(name: 'Kimi', apiUrl: 'https://api.moonshot.cn/v1/chat/completions', defaultModel: 'kimi-k2.5'),
+];
+
 /// AI API 设置页面
 class AIApiSettingsScreen extends ConsumerStatefulWidget {
   const AIApiSettingsScreen({super.key});
@@ -657,6 +679,7 @@ class _AIApiSettingsScreenState extends ConsumerState<AIApiSettingsScreen> {
   final _modelController = TextEditingController(text: 'gpt-3.5-turbo');
   bool _obscureKey = true;
   bool _isEnabled = false;
+  String? _selectedProvider;
 
   @override
   void initState() {
@@ -671,6 +694,15 @@ class _AIApiSettingsScreenState extends ConsumerState<AIApiSettingsScreen> {
       _apiKeyController.text = prefs.getString('ai_api_key') ?? '';
       _modelController.text = prefs.getString('ai_model') ?? 'gpt-3.5-turbo';
       _isEnabled = prefs.getBool('ai_enabled') ?? false;
+      
+      // 根据 URL 匹配提供商
+      final savedUrl = _apiUrlController.text;
+      for (final provider in aiProviders) {
+        if (provider.apiUrl == savedUrl) {
+          _selectedProvider = provider.name;
+          break;
+        }
+      }
     });
   }
 
@@ -680,6 +712,16 @@ class _AIApiSettingsScreenState extends ConsumerState<AIApiSettingsScreen> {
     _apiKeyController.dispose();
     _modelController.dispose();
     super.dispose();
+  }
+
+  void _onProviderChanged(String? providerName) {
+    if (providerName == null) return;
+    final provider = aiProviders.firstWhere((p) => p.name == providerName);
+    setState(() {
+      _selectedProvider = providerName;
+      _apiUrlController.text = provider.apiUrl;
+      _modelController.text = provider.defaultModel;
+    });
   }
 
   @override
@@ -701,6 +743,21 @@ class _AIApiSettingsScreenState extends ConsumerState<AIApiSettingsScreen> {
                 _isEnabled = value;
               });
             },
+          ),
+          const SizedBox(height: 16),
+          
+          // 提供商选择
+          DropdownButtonFormField<String>(
+            value: _selectedProvider,
+            decoration: const InputDecoration(
+              labelText: 'AI 提供商',
+              prefixIcon: Icon(Icons.cloud),
+            ),
+            items: aiProviders.map((p) => DropdownMenuItem(
+              value: p.name,
+              child: Text(p.name),
+            )).toList(),
+            onChanged: _onProviderChanged,
           ),
           const SizedBox(height: 16),
           
