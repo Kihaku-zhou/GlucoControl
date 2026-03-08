@@ -760,27 +760,27 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
     return [
       TextField(controller: _setsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组数'), onChanged: (_) => setState(() {})),
       const SizedBox(height: 8),
-      _buildRepsPerSetInput(), // 和力量训练一样，支持自定义每组次数
+      _buildRepsPerSetInput(label: '每组时长（如: 30,25,20,15）', hint: '秒'),
     ];
   }
 
-  Widget _buildRepsPerSetInput() {
+  Widget _buildRepsPerSetInput({String label = '每组次数（如: 12,10,8,6）', String hint = '次'}) {
     final sets = int.tryParse(_setsController.text) ?? 0;
     if (sets <= 0) {
-      return TextField(controller: _repsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '每组次数（统一）'));
+      return TextField(controller: _repsController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: label, hintText: hint));
     }
-    final currentReps = _repsController.text.split(',').map((s) => int.tryParse(s.trim()) ?? 0).toList();
+    final currentReps = _repsController.text.split(RegExp(r'[,\s]+')).map((s) => int.tryParse(s.trim()) ?? 0).toList();
     while (currentReps.length < sets) {
       currentReps.add(currentReps.isNotEmpty ? currentReps.last : 12);
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('每组次数（用逗号分隔，如: 12,10,8,6）', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         const SizedBox(height: 4),
         TextField(
           controller: _repsController,
-          decoration: InputDecoration(labelText: '每组次数', hintText: List.generate(sets, (i) => currentReps.length > i ? currentReps[i] : 12).join(',')),
+          decoration: InputDecoration(labelText: label.split('（').first, hintText: currentReps.join(', ')),
         ),
       ],
     );
@@ -964,7 +964,7 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
   final _powerController = TextEditingController();
   final _setsController = TextEditingController();
   final _weightController = TextEditingController();
-  final _secondsController = TextEditingController();
+  final _repsController = TextEditingController(); // 每组次数/时长
   final _caloriesController = TextEditingController();
   final _noteController = TextEditingController();
 
@@ -989,7 +989,7 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
       if (t['power'] != null) _powerController.text = t['power'].toString();
       if (t['sets'] != null) _setsController.text = t['sets'].toString();
       if (t['weight'] != null) _weightController.text = t['weight'].toString();
-      if (t['seconds'] != null) _secondsController.text = t['seconds'].toString();
+      if (t['reps'] != null) _repsController.text = t['reps'].toString();
     }
   }
 
@@ -1002,7 +1002,7 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
     _powerController.dispose();
     _setsController.dispose();
     _weightController.dispose();
-    _secondsController.dispose();
+    _repsController.dispose();
     _caloriesController.dispose();
     _noteController.dispose();
     super.dispose();
@@ -1083,21 +1083,23 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
                 if (_selectedType == 'anaerobic') ...[
                   Row(
                     children: [
-                      Expanded(child: TextFormField(controller: _setsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组数（可选）'))),
+                      Expanded(child: TextFormField(controller: _setsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组数'))),
                       const SizedBox(width: 16),
-                      Expanded(child: TextFormField(controller: _weightController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: '重量（可选）', suffixText: 'kg'))),
+                      Expanded(child: TextFormField(controller: _weightController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: '重量', suffixText: 'kg'))),
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  _buildRepsInput('每组次数（如: 12,10,8,6）'),
                   const SizedBox(height: 16),
                 ],
                 if (_selectedType == 'endurance') ...[
                   Row(
                     children: [
-                      Expanded(child: TextFormField(controller: _setsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组数（可选）'))),
-                      const SizedBox(width: 16),
-                      Expanded(child: TextFormField(controller: _secondsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '每组时长', suffixText: '秒'))),
+                      Expanded(child: TextFormField(controller: _setsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组数'))),
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  _buildRepsInput('每组时长（如: 30,25,20,15）', isSeconds: true),
                   const SizedBox(height: 16),
                 ],
                 TextFormField(controller: _caloriesController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '消耗卡路里（可选）', suffixText: 'kcal')),
@@ -1128,23 +1130,84 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
     );
   }
 
+  /// 构建每组次数/时长输入框
+  Widget _buildRepsInput(String hint, {bool isSeconds = false}) {
+    final sets = int.tryParse(_setsController.text) ?? 0;
+    if (sets <= 0) {
+      return TextFormField(
+        controller: _repsController,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          labelText: isSeconds ? '每组时长' : '每组次数',
+          hintText: isSeconds ? '如: 30,25,20,15' : '如: 12,10,8,6',
+          suffixText: isSeconds ? '秒' : '次',
+        ),
+      );
+    }
+
+    // 解析现有的每组值
+    final currentValues = _parseRepsList(_repsController.text);
+    while (currentValues.length < sets) {
+      currentValues.add(currentValues.isNotEmpty ? currentValues.last : (isSeconds ? 30 : 12));
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          isSeconds ? '每组时长（用逗号或空格分隔，如: 30,25,20,15）' : '每组次数（用逗号或空格分隔，如: 12,10,8,6）',
+          style: const TextStyle(fontSize: 12, color: Colors.grey),
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          controller: _repsController,
+          decoration: InputDecoration(
+            labelText: isSeconds ? '每组时长' : '每组次数',
+            hintText: currentValues.join(', '),
+            suffixText: isSeconds ? '秒' : '次',
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 解析逗号或空格分隔的列表
+  List<int> _parseRepsList(String text) {
+    if (text.isEmpty) return [];
+    return text.split(RegExp(r'[,\s]+')).map((s) => int.tryParse(s.trim()) ?? 0).where((r) => r > 0).toList();
+  }
+
   Future<void> _saveRecord() async {
     if (!_formKey.currentState!.validate()) return;
 
     try {
       final db = ref.read(databaseProvider);
-      final duration = int.parse(_durationController.text);
+      var duration = int.tryParse(_durationController.text) ?? 30;
       
       double? distance, elevation, power, weight;
       int? sets, seconds, calories;
+      String? repsListJson;
 
       if (_distanceController.text.isNotEmpty) distance = double.tryParse(_distanceController.text);
       if (_elevationController.text.isNotEmpty) elevation = double.tryParse(_elevationController.text);
       if (_powerController.text.isNotEmpty) power = double.tryParse(_powerController.text);
       if (_setsController.text.isNotEmpty) sets = int.tryParse(_setsController.text);
       if (_weightController.text.isNotEmpty) weight = double.tryParse(_weightController.text);
-      if (_secondsController.text.isNotEmpty) seconds = int.tryParse(_secondsController.text);
       if (_caloriesController.text.isNotEmpty) calories = int.tryParse(_caloriesController.text);
+
+      // 解析每组次数/时长列表
+      final repsList = _parseRepsList(_repsController.text);
+      if (repsList.isNotEmpty) {
+        repsListJson = '[${repsList.join(",")}]';
+        // 使用第一组作为默认秒数
+        seconds = repsList.first;
+      }
+      
+      // 计算总时长（耐力训练）
+      if (_selectedType == 'endurance' && sets != null && seconds != null) {
+        duration = (sets * seconds) ~/ 60;
+        if (duration < 1) duration = 1;
+      }
       
       final startedAt = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, _selectedTime.hour, _selectedTime.minute);
       final endedAt = startedAt.add(Duration(minutes: duration));
