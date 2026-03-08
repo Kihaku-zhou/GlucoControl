@@ -65,13 +65,23 @@ class WebDAVService {
   void init(WebDAVConfig config) {
     _config = config;
     debugPrint('WebDAV init - server: ${config.server}');
+    
+    // 坚果云需要特殊处理
+    final isJianguoyun = config.server.contains('jianguoyun');
+    
     _dio = Dio(BaseOptions(
       baseUrl: config.server,
-      headers: {
-        'Authorization': 'Basic ${base64Encode(utf8.encode('${config.username}:${config.password}'))}',
-      },
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
+    ));
+    
+    //坚果云使用 Basic Auth，但在请求时添加
+    _dio?.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        final credentials = base64Encode(utf8.encode('${config.username}:${config.password}'));
+        options.headers['Authorization'] = 'Basic $credentials';
+        return handler.next(options);
+      },
     ));
   }
 
