@@ -60,10 +60,19 @@ class AIAnalysisService {
   /// 初始化 AI 服务
   void init(AIConfig config) {
     _config = config;
+    
+    // 提取 baseUrl（去掉 /v1/chat/completions 等后缀）
+    String baseUrl = config.apiUrl;
+    if (baseUrl.contains('/v1/chat/completions')) {
+      baseUrl = baseUrl.replaceAll('/v1/chat/completions', '');
+    } else if (baseUrl.contains('/v1/text/chatcompletion_v2')) {
+      baseUrl = baseUrl.replaceAll('/v1/text/chatcompletion_v2', '');
+    }
+    
+    debugPrint('AI Service init - baseUrl: $baseUrl, model: ${config.model}');
+    
     _dio = Dio(BaseOptions(
-      baseUrl: config.apiUrl.contains('v1/chat/completions') 
-          ? config.apiUrl.replaceAll('/v1/chat/completions', '')
-          : config.apiUrl,
+      baseUrl: baseUrl,
       headers: {
         'Authorization': 'Bearer ${config.apiKey}',
         'Content-Type': 'application/json',

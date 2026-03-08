@@ -64,6 +64,7 @@ class WebDAVService {
   /// 初始化 WebDAV 服务
   void init(WebDAVConfig config) {
     _config = config;
+    debugPrint('WebDAV init - server: ${config.server}');
     _dio = Dio(BaseOptions(
       baseUrl: config.server,
       headers: {
