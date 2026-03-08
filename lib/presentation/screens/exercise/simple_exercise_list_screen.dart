@@ -375,7 +375,7 @@ class _TrainingPlanEditSheetState extends ConsumerState<_TrainingPlanEditSheet> 
         return parts.join(' · ');
       case 'endurance':
         final repsStr = e.repsList.length <= 3 ? e.repsList.join('/') : '${e.repsList.take(3).join('/')}...';
-        return '耐力 · ${e.sets}组 x ${e.seconds}秒 · 休息${e.restSeconds}秒';
+        return '耐力 · ${e.sets}组 x $repsStr次';
       case 'strength':
       default:
         final repsStr = e.repsList.length <= 3 ? e.repsList.join('/') : '${e.repsList.take(3).join('/')}...';
@@ -758,15 +758,9 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
 
   List<Widget> _buildEnduranceFields() {
     return [
-      Row(
-        children: [
-          Expanded(child: TextField(controller: _setsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组数'))),
-          const SizedBox(width: 8),
-          Expanded(child: TextField(controller: _secondsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '每组时长', suffixText: '秒'))),
-        ],
-      ),
+      TextField(controller: _setsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组数'), onChanged: (_) => setState(() {})),
       const SizedBox(height: 8),
-      TextField(controller: _restController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组间休息（可选）', suffixText: '秒')),
+      _buildRepsPerSetInput(), // 和力量训练一样，支持自定义每组次数
     ];
   }
 
@@ -845,7 +839,7 @@ class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> 
       case 'aerobic':
         return '有氧 · ${e.targetSets}分钟';
       case 'endurance':
-        return '耐力 · ${e.targetSets}组 x ${e.targetReps}秒';
+        return '耐力 · ${e.targetSets}组 x $repsDisplay次';
       case 'strength':
       default:
         return '${e.device} · 目标: ${e.targetSets}组 · $repsDisplay次 · ${e.targetWeight ?? 0}kg';
@@ -926,12 +920,8 @@ class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> 
           : e.trainingType == 'endurance' ? 'endurance' 
           : 'anaerobic';
       
-      // 解析每组次数获取总时长（耐力）
+      // 默认时长
       int duration = 30;
-      if (e.trainingType == 'endurance' && e.targetReps > 0) {
-        duration = (e.targetSets * e.targetReps) ~/ 60;
-        if (duration < 1) duration = 1;
-      }
 
       await db.insertExerciseRecord(ExerciseRecordsCompanion.insert(
         type: exerciseType,
@@ -939,7 +929,6 @@ class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> 
         duration: duration,
         sets: drift.Value(e.targetSets),
         weight: drift.Value(e.targetWeight),
-        seconds: drift.Value(e.trainingType == 'endurance' ? e.targetReps : null),
         calories: drift.Value(null),
         startedAt: now,
         endedAt: now.add(Duration(minutes: duration)),
