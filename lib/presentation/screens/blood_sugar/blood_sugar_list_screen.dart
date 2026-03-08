@@ -41,18 +41,6 @@ class BloodSugarListScreen extends ConsumerWidget {
             tooltip: '每周报告',
           ),
           IconButton(
-            icon: const Icon(Icons.psychology),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AIAnalysisScreen(),
-                ),
-              );
-            },
-            tooltip: 'AI 分析',
-          ),
-          IconButton(
             icon: const Icon(Icons.bar_chart),
             onPressed: () {
               Navigator.push(

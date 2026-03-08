@@ -24,7 +24,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: _buildDrawer(context),
-      body: _buildCurrentScreen(),
+      body: Row(
+        children: [
+          // 汉堡菜单按钮
+          DrawerButton(
+            style: DrawerButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          Expanded(child: _buildCurrentScreen()),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationWidget(
         currentIndex: _currentIndex,
         onTap: (index) {
