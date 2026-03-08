@@ -23,16 +23,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('GlucoControl'),
-        centerTitle: true,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-      ),
       drawer: _buildDrawer(context),
       body: _buildCurrentScreen(),
       bottomNavigationBar: BottomNavigationWidget(
@@ -132,8 +122,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         return const BodyMeasurementListScreen();
       case 3:
         return const MealListScreen();
-      case 4:
-        return const SettingsMainScreen();
       default:
         return const Center(child: Text('页面不存在'));
     }

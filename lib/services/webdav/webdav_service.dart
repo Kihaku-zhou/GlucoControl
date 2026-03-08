@@ -99,7 +99,7 @@ class WebDAVService {
       await _ensureDirectory('/glucocontrol');
 
       final response = await _dio?.put(
-        '/app/$fileName',
+        '/glucocontrol/$fileName',
         data: content,
         options: Options(
           headers: {
@@ -119,7 +119,7 @@ class WebDAVService {
   Future<String?> downloadData(String fileName) async {
     try {
       final response = await _dio?.get(
-        '/app/$fileName',
+        '/glucocontrol/$fileName',
         options: Options(
           responseType: ResponseType.plain,
         ),
@@ -139,7 +139,7 @@ class WebDAVService {
   Future<List<String>> listFiles() async {
     try {
       final response = await _dio?.request(
-        '/app/',
+        '/glucocontrol/',
         options: Options(
           headers: {
             'Depth': '1',
@@ -156,7 +156,7 @@ class WebDAVService {
         final matches = regex.allMatches(content ?? '');
         for (final match in matches) {
           final path = match.group(1) ?? '';
-          if (path.isNotEmpty && path != '/app/') {
+          if (path.isNotEmpty && path != '/glucocontrol/') {
             files.add(path.split('/').last);
           }
         }
@@ -172,7 +172,7 @@ class WebDAVService {
   /// 删除文件
   Future<bool> deleteFile(String fileName) async {
     try {
-      final response = await _dio?.delete('/app/$fileName');
+      final response = await _dio?.delete('/glucocontrol/$fileName');
       return response?.statusCode == 200 || response?.statusCode == 204;
     } catch (e) {
       debugPrint('WebDAV 删除失败: $e');

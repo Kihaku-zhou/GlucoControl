@@ -33,10 +33,6 @@ class BottomNavigationWidget extends StatelessWidget {
           icon: Icon(Icons.restaurant),
           label: '饮食',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.settings),
-          label: '设置',
-        ),
       ],
     );
   }
