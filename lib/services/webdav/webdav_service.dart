@@ -93,6 +93,12 @@ class WebDAVService {
       return response?.statusCode == 207; // 207 Multi-Status 表示成功
     } catch (e) {
       debugPrint('WebDAV 连接测试失败: $e');
+      if (e is DioException) {
+        debugPrint('DioError type: ${e.type}');
+        debugPrint('DioError message: ${e.message}');
+        debugPrint('DioError response: ${e.response}');
+        debugPrint('DioError request: ${e.requestOptions}');
+      }
       return false;
     }
   }
