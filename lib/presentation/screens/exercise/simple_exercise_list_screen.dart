@@ -91,6 +91,7 @@ class SimpleExerciseListScreen extends ConsumerWidget {
         onPressed: () => _showAddExerciseDialog(context, ref),
         child: const Icon(Icons.add),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
   }
 
