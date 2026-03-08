@@ -41,6 +41,14 @@ dev_dependencies:
   build_runner: any
   drift_dev: any
   freezed: any
+  flutter_launcher_icons: any
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/app_icon.jpg"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/app_icon.jpg"
 
 flutter:
   uses-material-design: true
