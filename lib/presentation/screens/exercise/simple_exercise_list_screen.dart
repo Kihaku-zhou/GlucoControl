@@ -913,4 +913,12 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
 
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('运动记录已保存')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('保存失败: $e')));
+      }
+    }
+  }
+}
