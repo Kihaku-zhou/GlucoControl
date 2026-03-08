@@ -24,7 +24,8 @@ class BloodSugarListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('血糖记录'),
+        title: const Text('血糖记录', textAlign: TextAlign.center),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary),
@@ -61,18 +62,6 @@ class BloodSugarListScreen extends ConsumerWidget {
               );
             },
             tooltip: '筛选',
-          ),
-          IconButton(
-            icon: const Icon(Icons.trending_up),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BloodSugarTrendScreen(),
-                ),
-              );
-            },
-            tooltip: '血糖趋势',
           ),
         ],
       ),

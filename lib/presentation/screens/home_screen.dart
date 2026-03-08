@@ -19,14 +19,16 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       drawer: _buildDrawer(context),
       body: _buildCurrentScreen(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Scaffold.of(context).openDrawer(),
+        onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         tooltip: '菜单',
         child: const Icon(Icons.menu),
       ),
