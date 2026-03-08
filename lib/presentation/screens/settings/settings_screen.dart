@@ -648,15 +648,23 @@ class _WebDAVSettingsScreenState extends ConsumerState<WebDAVSettingsScreen> {
     );
 
     try {
+      String server = _serverController.text.trim();
+      if (!server.endsWith('/')) {
+        server += '/';
+      }
+      
       final webdavService = WebDAVService();
       webdavService.init(WebDAVConfig(
-        server: _serverController.text,
+        server: server,
         username: _usernameController.text,
         password: _passwordController.text,
         enabled: true,
       ));
 
+      debugPrint('Testing WebDAV connection to: $server');
+      
       final success = await webdavService.testConnection();
+      debugPrint('WebDAV test result: $success');
       
       if (mounted) {
         if (success) {

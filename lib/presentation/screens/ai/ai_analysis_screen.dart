@@ -89,6 +89,10 @@ class _AIAnalysisScreenState extends ConsumerState<AIAnalysisScreen> {
         'type': r.type,
       }).toList();
 
+      debugPrint('AI Analysis - Blood sugar records: ${bloodSugarData.length}');
+      debugPrint('AI Analysis - Exercise records: ${exerciseRecords.length}');
+      debugPrint('AI Analysis - Meal records: ${mealRecords.length}');
+
       final exerciseData = exerciseRecords.map((r) => {
         'startedAt': r.startedAt.toString().substring(0, 16),
         'type': r.type,
@@ -108,6 +112,8 @@ class _AIAnalysisScreenState extends ConsumerState<AIAnalysisScreen> {
         exerciseRecords: exerciseData,
         mealRecords: mealData,
       );
+
+      debugPrint('AI Analysis result: $result');
 
       setState(() {
         _result = result;
