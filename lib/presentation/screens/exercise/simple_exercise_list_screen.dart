@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../core/constants.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
+import '../../../services/auto_sync_service.dart';
 import 'exercise_filter_screen.dart';
 
 /// 简化版运动记录列表页面
@@ -1243,6 +1244,9 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
       ));
 
       ref.invalidate(exerciseRecordsProvider);
+      
+      // 触发自动同步
+      _triggerAutoSync();
 
       if (mounted) {
         Navigator.pop(context);
@@ -1253,5 +1257,10 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('保存失败: $e')));
       }
     }
+  }
+  
+  /// 触发自动同步
+  Future<void> _triggerAutoSync() async {
+    await triggerAutoSync(ref);
   }
 }

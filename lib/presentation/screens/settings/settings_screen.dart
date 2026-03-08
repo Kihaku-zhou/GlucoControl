@@ -506,6 +506,7 @@ class _WebDAVSettingsScreenState extends ConsumerState<WebDAVSettingsScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isEnabled = false;
+  bool _autoSync = true; // 默认开启自动同步
 
   @override
   void initState() {
@@ -520,6 +521,7 @@ class _WebDAVSettingsScreenState extends ConsumerState<WebDAVSettingsScreen> {
       _usernameController.text = prefs.getString('webdav_username') ?? '';
       _passwordController.text = prefs.getString('webdav_password') ?? '';
       _isEnabled = prefs.getBool('webdav_enabled') ?? false;
+      _autoSync = prefs.getBool('webdav_auto_sync') ?? true;
     });
   }
 
@@ -550,6 +552,19 @@ class _WebDAVSettingsScreenState extends ConsumerState<WebDAVSettingsScreen> {
                 _isEnabled = value;
               });
             },
+          ),
+          const SizedBox(height: 8),
+          
+          // 自动同步开关
+          SwitchListTile(
+            title: const Text('自动同步'),
+            subtitle: const Text('添加/修改记录后自动同步'),
+            value: _autoSync,
+            onChanged: _isEnabled ? (value) {
+              setState(() {
+                _autoSync = value;
+              });
+            } : null,
           ),
           const SizedBox(height: 16),
           
@@ -631,6 +646,7 @@ class _WebDAVSettingsScreenState extends ConsumerState<WebDAVSettingsScreen> {
     await prefs.setString('webdav_username', _usernameController.text);
     await prefs.setString('webdav_password', _passwordController.text);
     await prefs.setBool('webdav_enabled', _isEnabled);
+    await prefs.setBool('webdav_auto_sync', _autoSync);
     
     ref.read(webdavEnabledProvider.notifier).state = _isEnabled;
     
