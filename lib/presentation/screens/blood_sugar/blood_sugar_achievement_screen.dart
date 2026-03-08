@@ -217,7 +217,7 @@ class BloodSugarAchievementScreen extends ConsumerWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: unlocked ? color.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.2),
+            color: unlocked ? color.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

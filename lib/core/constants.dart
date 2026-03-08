@@ -8,6 +8,17 @@ class AppConstants {
   static double mmollToMgdl(double mmol) => mmol * 18.0182;
   // 兼容旧代码
   static double mmolLToMgDl(double value) => mmollToMgdl(value);
+  static double mgDlToMmolL(double value) => mgdlToMmoll(value);
+  
+  // HbA1c 计算 (mg/dL)
+  static double calculateHbA1c(double avgBloodSugar) {
+    return (46.7 + avgBloodSugar) / 28.7;
+  }
+  
+  // 根据 HbA1c 计算平均血糖
+  static double calculateAvgBloodSugar(double hba1c) {
+    return hba1c * 28.7 - 46.7;
+  }
   
   // 血糖安全范围 (mg/dL)
   static const double defaultSafeMin = 70.0;

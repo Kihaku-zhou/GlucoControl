@@ -115,7 +115,7 @@ class _MealRecordTile extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: _getMealTypeColor(record.type).withValues(alpha: 0.2),
+            color: _getMealTypeColor(record.type).withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

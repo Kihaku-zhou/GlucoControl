@@ -152,7 +152,7 @@ class BloodSugarStatsScreen extends ConsumerWidget {
     }
 
     return Card(
-      color: tirColor.withValues(alpha: 0.1),
+      color: tirColor.withOpacity(0.1),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

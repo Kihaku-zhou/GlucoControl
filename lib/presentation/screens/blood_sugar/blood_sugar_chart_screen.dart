@@ -308,13 +308,13 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
           getDrawingHorizontalLine: (value) {
             if ((value - safeMin).abs() < 0.1 || (value - safeMax).abs() < 0.1) {
               return FlLine(
-                color: Colors.orange.withValues(alpha: 0.5),
+                color: Colors.orange.withOpacity(0.5),
                 strokeWidth: 2,
                 dashArray: [5, 5],
               );
             }
             return FlLine(
-              color: Colors.grey.withValues(alpha: 0.2),
+              color: Colors.grey.withOpacity(0.2),
               strokeWidth: 1,
             );
           },
@@ -383,7 +383,7 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blue.withValues(alpha: 0.1),
+              color: Colors.blue.withOpacity(0.1),
             ),
           ),
         ],
@@ -391,7 +391,7 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
           horizontalLines: [
             HorizontalLine(
               y: safeMin,
-              color: Colors.orange.withValues(alpha: 0.5),
+              color: Colors.orange.withOpacity(0.5),
               strokeWidth: 2,
               dashArray: [5, 5],
               label: HorizontalLineLabel(
@@ -403,7 +403,7 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
             ),
             HorizontalLine(
               y: safeMax,
-              color: Colors.orange.withValues(alpha: 0.5),
+              color: Colors.orange.withOpacity(0.5),
               strokeWidth: 2,
               dashArray: [5, 5],
               label: HorizontalLineLabel(

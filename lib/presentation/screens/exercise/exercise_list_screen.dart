@@ -54,7 +54,7 @@ class ExerciseListScreen extends ConsumerWidget {
           // 训练计划提示条
           if (selectedPlan != null)
             Container(
-              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+              color: Theme.of(context).primaryColor.withOpacity(0.1),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
@@ -360,7 +360,7 @@ class _ExerciseRecordTile extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: isAerobic ? Colors.blue.withValues(alpha: 0.2) : Colors.orange.withValues(alpha: 0.2),
+            color: isAerobic ? Colors.blue.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -542,7 +542,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.1),
+                      color: Colors.green.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(

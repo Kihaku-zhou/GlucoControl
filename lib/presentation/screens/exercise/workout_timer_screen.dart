@@ -242,7 +242,7 @@ class _WorkoutTimerScreenState extends ConsumerState<WorkoutTimerScreen> {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.2),
+                        color: Colors.orange.withOpacity(0.2),
                         shape: BoxShape.circle,
                       ),
                       child: Column(
@@ -271,7 +271,7 @@ class _WorkoutTimerScreenState extends ConsumerState<WorkoutTimerScreen> {
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withValues(alpha: 0.2),
+                          color: Colors.blue.withOpacity(0.2),
                           shape: BoxShape.circle,
                         ),
                         child: Column(
@@ -290,7 +290,7 @@ class _WorkoutTimerScreenState extends ConsumerState<WorkoutTimerScreen> {
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.green.withValues(alpha: 0.2),
+                          color: Colors.green.withOpacity(0.2),
                           shape: BoxShape.circle,
                         ),
                         child: Column(

@@ -334,7 +334,7 @@ class _BloodSugarRecordTile extends ConsumerWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.2),
+            color: color.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Center(

@@ -234,7 +234,7 @@ class _BodyMeasurementTile extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: Colors.purple.withValues(alpha: 0.2),
+            color: Colors.purple.withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(
@@ -470,7 +470,7 @@ class _AddBodyMeasurementSheetState extends ConsumerState<AddBodyMeasurementShee
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withValues(alpha: 0.1),
+                      color: Colors.blue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -1020,7 +1020,7 @@ class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChar
                           dotData: const FlDotData(show: true),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: (metricInfo['color'] as Color).withValues(alpha: 0.2),
+                            color: (metricInfo['color'] as Color).withOpacity(0.2),
                           ),
                         ),
                       ],
