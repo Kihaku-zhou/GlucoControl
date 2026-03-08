@@ -32,7 +32,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         tooltip: '菜单',
         child: const Icon(Icons.menu),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: BottomNavigationWidget(
         currentIndex: _currentIndex,
         onTap: (index) {

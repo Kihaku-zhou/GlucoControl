@@ -172,7 +172,7 @@ class BloodSugarListScreen extends ConsumerWidget {
         onPressed: () => _showQuickAddMenu(context, ref),
         child: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 

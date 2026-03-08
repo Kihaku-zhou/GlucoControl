@@ -101,22 +101,25 @@ class WebDAVService {
         debugPrint('WebDAV: _dio is null, not initialized');
         return false;
       }
+      // 使用 PROPFIND 方法（标准 WebDAV 方法）
       final response = await _dio?.request(
         '/',
         options: Options(
+          method: 'PROPFIND',
           headers: {
             'Depth': '0',
           },
         ),
       );
-      return response?.statusCode == 207; // 207 Multi-Status 表示成功
+      // 207 Multi-Status 表示成功
+      debugPrint('WebDAV test response: ${response?.statusCode}');
+      return response?.statusCode == 207;
     } catch (e) {
       debugPrint('WebDAV 连接测试失败: $e');
       if (e is DioException) {
         debugPrint('DioError type: ${e.type}');
         debugPrint('DioError message: ${e.message}');
-        debugPrint('DioError response: ${e.response}');
-        debugPrint('DioError request: ${e.requestOptions}');
+        debugPrint('DioError response: ${e.response?.statusCode}');
       }
       return false;
     }
