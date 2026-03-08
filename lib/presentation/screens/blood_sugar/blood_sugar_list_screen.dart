@@ -212,6 +212,7 @@ class BloodSugarListScreen extends ConsumerWidget {
       );
       
       ref.invalidate(bloodSugarRecordsProvider);
+      triggerAutoSync(ref);
       
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -391,6 +392,7 @@ class _BloodSugarRecordTile extends ConsumerWidget {
                       final db = ref.read(databaseProvider);
                       await db.deleteBloodSugarRecord(record.id);
                       ref.invalidate(bloodSugarRecordsProvider);
+                      triggerAutoSync(ref);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('记录已删除')),
@@ -703,6 +705,7 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
 
       // 刷新列表
       ref.invalidate(bloodSugarRecordsProvider);
+      triggerAutoSync(ref);
       debugPrint('Invalidated provider');
 
       if (mounted) {
