@@ -166,6 +166,159 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
     });
   }
 
+  /// 获取并分析健康数据
+  Future<void> _fetchAndAnalyzeHealthData() async {
+    final db = ref.read(databaseProvider);
+    final prefs = ref.read(sharedPreferencesProvider);
+    
+    final apiUrl = prefs.getString('ai_api_url') ?? '';
+    final apiKey = prefs.getString('ai_api_key') ?? '';
+    final model = prefs.getString('ai_model') ?? 'gpt-3.5-turbo';
+    
+    if (apiKey.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('请先在设置中配置 AI API')),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('正在获取健康数据...')),
+    );
+
+    try {
+      // 获取最近30天的数据
+      final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
+      
+      // 获取血糖记录
+      final bloodSugarRecords = await db.getBloodSugarRecordsByDateRange(
+        thirtyDaysAgo,
+        DateTime.now(),
+      );
+      
+      // 获取运动记录
+      final exerciseRecords = await db.getExerciseRecordsByDateRange(
+        thirtyDaysAgo,
+        DateTime.now(),
+      );
+      
+      // 获取饮食记录
+      final mealRecords = await db.getMealRecordsByDateRange(
+        thirtyDaysAgo,
+        DateTime.now(),
+      );
+      
+      // 获取体测记录
+      final bodyRecords = await db.getBodyMeasurementRecordsByDateRange(
+        thirtyDaysAgo,
+        DateTime.now(),
+      );
+
+      // 构建数据摘要
+      final summary = StringBuffer();
+      summary.writeln('【血糖记录】共${bloodSugarRecords.length}条:');
+      if (bloodSugarRecords.isNotEmpty) {
+        final avg = bloodSugarRecords.map((r) => r.value).reduce((a, b) => a + b) / bloodSugarRecords.length;
+        summary.writeln('- 平均血糖: ${avg.toStringAsFixed(1)} ${bloodSugarRecords.first.unit}');
+        summary.writeln('- 最高: ${bloodSugarRecords.map((r) => r.value).reduce((a, b) => a > b ? a : b)}');
+        summary.writeln('- 最低: ${bloodSugarRecords.map((r) => r.value).reduce((a, b) => a < b ? a : b)}');
+      }
+      
+      summary.writeln('\n【运动记录】共${exerciseRecords.length}条:');
+      if (exerciseRecords.isNotEmpty) {
+        final totalDuration = exerciseRecords.map((r) => r.duration).reduce((a, b) => a + b);
+        final totalCalories = exerciseRecords.where((r) => r.calories != null).map((r) => r.calories!).fold(0, (a, b) => a + b);
+        summary.writeln('- 总时长: $totalDuration 分钟');
+        summary.writeln('- 总消耗: $totalCalories kcal');
+      }
+      
+      summary.writeln('\n【饮食记录】共${mealRecords.length}条');
+      summary.writeln('\n【体测记录】共${bodyRecords.length}条');
+      if (bodyRecords.isNotEmpty) {
+        final latest = bodyRecords.first;
+        summary.writeln('- 最新体重: ${latest.weight} kg');
+        if (latest.bodyFat != null) {
+          summary.writeln('- 体脂率: ${latest.bodyFat}%');
+        }
+      }
+
+      // 保存为用户消息
+      final dataMessage = '请分析以下我的健康数据，并给出建议：\n\n${summary.toString()}';
+      
+      if (_currentConversationId != null) {
+        await db.insertAIMessage(
+          AIMessagesCompanion.insert(
+            conversationId: _currentConversationId!,
+            role: 'user',
+            content: dataMessage,
+            createdAt: DateTime.now(),
+          ),
+        );
+        
+        // 调用 AI 分析
+        final aiService = AIAnalysisService();
+        aiService.init(AIConfig(
+          apiUrl: apiUrl,
+          apiKey: apiKey,
+          model: model,
+          enabled: true,
+        ));
+        
+        final result = await aiService.analyzeBloodSugarTrend(
+          bloodSugarRecords: bloodSugarRecords.map((r) => {
+            'recordedAt': r.recordedAt.toString(),
+            'value': r.value,
+            'unit': r.unit,
+            'type': r.type,
+          }).toList(),
+          exerciseRecords: exerciseRecords.map((r) => {
+            'startedAt': r.startedAt.toString(),
+            'type': r.type,
+            'name': r.name,
+            'duration': r.duration,
+            'calories': r.calories,
+          }).toList(),
+          mealRecords: mealRecords.map((r) => {
+            'recordedAt': r.recordedAt.toString(),
+            'type': r.type,
+          }).toList(),
+        );
+        
+        String aiResponse;
+        if (result != null) {
+          aiResponse = result.summary;
+          if (result.suggestions.isNotEmpty) {
+            aiResponse += '\n\n建议:\n${result.suggestions.map((s) => '- $s').join('\n')}';
+          }
+        } else {
+          aiResponse = '数据已加载，但 AI 分析失败。请手动查看以上数据后问我问题。';
+        }
+        
+        // 保存 AI 回复
+        await db.insertAIMessage(
+          AIMessagesCompanion.insert(
+            conversationId: _currentConversationId!,
+            role: 'assistant',
+            content: aiResponse,
+            createdAt: DateTime.now(),
+          ),
+        );
+        
+        // 刷新消息列表
+        ref.invalidate(aiMessagesProvider(_currentConversationId!));
+        _scrollToBottom();
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('已加载 ${bloodSugarRecords.length} 条血糖、${exerciseRecords.length} 条运动、${mealRecords.length} 条饮食记录')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('获取数据失败: $e')),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _messageController.dispose();
@@ -183,6 +336,11 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
       appBar: AppBar(
         title: Text(_currentTitle),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.analytics),
+            onPressed: () => _fetchAndAnalyzeHealthData(),
+            tooltip: '分析健康数据',
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: _createNewConversation,
