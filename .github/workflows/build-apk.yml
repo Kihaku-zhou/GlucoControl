@@ -3,6 +3,8 @@ name: Build APK
 on:
   push:
     branches: [master]
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -29,17 +31,29 @@ jobs:
       - run: flutter analyze
       
       - run: flutter build apk --debug
-        
-      - name: Upload APK
+      
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug.apk
           path: build/app/outputs/flutter-apk/app-debug.apk
           
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+      # Release 构建（仅在 tag 推送时）
+      - name: Build Release APK
         if: startsWith(github.ref, 'refs/tags/')
+        run: flutter build apk --release
+        
+      - name: Upload Release APK
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
         with:
-          files: build/app/outputs/flutter-apk/app-debug.apk
+          name: app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/app/outputs/flutter-apk/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
