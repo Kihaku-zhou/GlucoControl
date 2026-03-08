@@ -27,12 +27,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       key: _scaffoldKey,
       drawer: _buildDrawer(context),
       body: _buildCurrentScreen(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        tooltip: '菜单',
-        child: const Icon(Icons.menu),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'menu',
+            mini: true,
+            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+            tooltip: '菜单',
+            child: const Icon(Icons.menu),
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton(
+            heroTag: 'add',
+            mini: true,
+            onPressed: () => _showQuickAddMenu(context),
+            tooltip: '添加记录',
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       bottomNavigationBar: BottomNavigationWidget(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -119,6 +134,51 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  void _showQuickAddMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.monitor_heart),
+              title: const Text('血糖记录'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _currentIndex = 0);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.fitness_center),
+              title: const Text('运动记录'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _currentIndex = 1);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.straighten),
+              title: const Text('体测记录'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _currentIndex = 2);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.restaurant),
+              title: const Text('饮食记录'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _currentIndex = 3);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
