@@ -323,7 +323,7 @@ class _TrainingPlanListSheet extends ConsumerWidget {
                         ),
                         onTap: () async {
                           final db = ref.read(databaseProvider);
-                          final exercises = await db.getExercisesByPlanId(plan.id).get();
+                          final exercises = await db.getExercisesByPlanId(plan.id);
                           onSelectPlan(plan, exercises);
                         },
                       ),
@@ -378,7 +378,7 @@ class _TrainingPlanEditSheetState extends ConsumerState<_TrainingPlanEditSheet> 
   Future<void> _loadExercises() async {
     if (widget.plan == null) return;
     final db = ref.read(databaseProvider);
-    final exercises = await db.getExercisesByPlanId(widget.plan!.id).get();
+    final exercises = await db.getExercisesByPlanId(widget.plan!.id);
     setState(() {
       _exercises = exercises.map((e) => _PlanExerciseItem(
         device: e.device,
@@ -602,7 +602,7 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
 }
 
 /// 计划动作列表 - 快速记录
-class _PlanExerciseListSheet extends StatefulWidget {
+class _PlanExerciseListSheet extends ConsumerStatefulWidget {
   final TrainingPlan plan;
   final List<TrainingPlanExercise> exercises;
   const _PlanExerciseListSheet({required this.plan, required this.exercises});
