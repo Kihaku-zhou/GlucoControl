@@ -132,9 +132,11 @@ class WebDAVService {
         debugPrint('WebDAV: _dio is null, not initialized');
         return false;
       }
+      
       // 确保目录存在
       await _ensureDirectory('/glucocontrol');
 
+      debugPrint('WebDAV uploading: $fileName');
       final response = await _dio?.put(
         '/glucocontrol/$fileName',
         data: content,
@@ -145,9 +147,13 @@ class WebDAVService {
         ),
       );
       
+      debugPrint('WebDAV upload response: ${response?.statusCode}');
       return response?.statusCode == 200 || response?.statusCode == 201;
     } catch (e) {
       debugPrint('WebDAV 上传失败: $e');
+      if (e is DioException) {
+        debugPrint('DioError: ${e.type} - ${e.message}');
+      }
       return false;
     }
   }
@@ -220,9 +226,17 @@ class WebDAVService {
   /// 确保目录存在
   Future<void> _ensureDirectory(String path) async {
     try {
-      await _dio?.request(path);
+      // 使用 MKCOL 方法创建目录
+      await _dio?.request(
+        path,
+        options: Options(
+          method: 'MKCOL',
+        ),
+      );
+      debugPrint('WebDAV created directory: $path');
     } catch (e) {
       // 目录可能已存在，忽略错误
+      debugPrint('WebDAV directory may already exist: $path');
     }
   }
 
