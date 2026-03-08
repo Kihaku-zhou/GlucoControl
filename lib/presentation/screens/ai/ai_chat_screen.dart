@@ -273,24 +273,6 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
       );
     }
   }
-}
-          ),
-        );
-        
-        // 刷新消息列表
-        ref.invalidate(aiMessagesProvider(_currentConversationId!));
-        _scrollToBottom();
-      }
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('已加载 ${bloodSugarRecords.length} 条血糖、${exerciseRecords.length} 条运动、${mealRecords.length} 条饮食记录')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('获取数据失败: $e')),
-      );
-    }
-  }
 
   @override
   void dispose() {
