@@ -21,6 +21,18 @@ class BodyMeasurementListScreen extends ConsumerWidget {
         title: const Text('体测记录'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BodyMeasurementFilterScreen(),
+                ),
+              );
+            },
+            tooltip: '筛选',
+          ),
+          IconButton(
             icon: const Icon(Icons.analytics),
             onPressed: () {
               Navigator.push(

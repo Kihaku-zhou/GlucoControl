@@ -21,6 +21,20 @@ class MealListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('饮食记录'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MealFilterScreen(),
+                ),
+              );
+            },
+            tooltip: '筛选',
+          ),
+        ],
       ),
       body: recordsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

@@ -9,9 +9,7 @@ import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
 import 'blood_sugar_chart_screen.dart';
 import 'weekly_report_screen.dart';
-import 'blood_sugar_stats_screen.dart';
 import 'blood_sugar_filter_screen.dart';
-import 'blood_sugar_achievement_screen.dart';
 import 'blood_sugar_trend_screen.dart';
 import '../ai/ai_analysis_screen.dart';
 
@@ -53,18 +51,6 @@ class BloodSugarListScreen extends ConsumerWidget {
             tooltip: '血糖图表',
           ),
           IconButton(
-            icon: const Icon(Icons.analytics),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BloodSugarStatsScreen(),
-                ),
-              );
-            },
-            tooltip: '血糖统计',
-          ),
-          IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
               Navigator.push(
@@ -75,18 +61,6 @@ class BloodSugarListScreen extends ConsumerWidget {
               );
             },
             tooltip: '筛选',
-          ),
-          IconButton(
-            icon: const Icon(Icons.emoji_events),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BloodSugarAchievementScreen(),
-                ),
-              );
-            },
-            tooltip: '血糖成就',
           ),
           IconButton(
             icon: const Icon(Icons.trending_up),

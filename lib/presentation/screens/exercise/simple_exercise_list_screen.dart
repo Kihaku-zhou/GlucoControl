@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../core/constants.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
+import 'exercise_filter_screen.dart';
 
 /// 简化版运动记录列表页面
 class SimpleExerciseListScreen extends ConsumerWidget {
@@ -19,6 +20,18 @@ class SimpleExerciseListScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('运动记录'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ExerciseFilterScreen(),
+                ),
+              );
+            },
+            tooltip: '筛选',
+          ),
           IconButton(
             icon: const Icon(Icons.fitness_center),
             onPressed: () => _showTemplateManager(context, ref),
