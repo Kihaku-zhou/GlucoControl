@@ -9,6 +9,7 @@ import 'meal/meal_list_screen.dart';
 import 'settings/settings_screen.dart';
 import 'body_measurement/body_measurement_list_screen.dart';
 import 'ai/ai_chat_screen.dart';
+import 'ai/ai_analysis_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -79,8 +80,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.psychology),
+            title: const Text('AI 健康分析'),
+            subtitle: const Text('智能分析血糖、运动、饮食'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AIAnalysisScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.chat),
             title: const Text('AI 健康助手'),
-            subtitle: const Text('智能问答与健康分析'),
+            subtitle: const Text('智能问答'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
