@@ -207,12 +207,6 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
         thirtyDaysAgo,
         DateTime.now(),
       );
-      
-      // 获取体测记录
-      final bodyRecords = await db.getBodyMeasurementRecordsByDateRange(
-        thirtyDaysAgo,
-        DateTime.now(),
-      );
 
       // 构建数据摘要
       final summary = StringBuffer();
@@ -233,14 +227,6 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
       }
       
       summary.writeln('\n【饮食记录】共${mealRecords.length}条');
-      summary.writeln('\n【体测记录】共${bodyRecords.length}条');
-      if (bodyRecords.isNotEmpty) {
-        final latest = bodyRecords.first;
-        summary.writeln('- 最新体重: ${latest.weight} kg');
-        if (latest.bodyFat != null) {
-          summary.writeln('- 体脂率: ${latest.bodyFat}%');
-        }
-      }
 
       // 保存为用户消息
       final dataMessage = '请分析以下我的健康数据，并给出建议：\n\n${summary.toString()}';
