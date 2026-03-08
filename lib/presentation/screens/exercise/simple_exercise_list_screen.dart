@@ -365,6 +365,24 @@ class _TrainingPlanEditSheetState extends ConsumerState<_TrainingPlanEditSheet> 
   final _descController = TextEditingController();
   List<_PlanExerciseItem> _exercises = [];
 
+  /// 格式化动作显示
+  String _formatExerciseItem(_PlanExerciseItem e) {
+    switch (e.type) {
+      case 'aerobic':
+        final parts = <String>['有氧', '${e.duration}分钟'];
+        if (e.distance != null && e.distance! > 0) parts.add('${e.distance}km');
+        if (e.elevation != null && e.elevation! > 0) parts.add('${e.elevation}m');
+        return parts.join(' · ');
+      case 'endurance':
+        final repsStr = e.repsList.length <= 3 ? e.repsList.join('/') : '${e.repsList.take(3).join('/')}...';
+        return '耐力 · ${e.sets}组 x ${e.seconds}秒 · 休息${e.restSeconds}秒';
+      case 'strength':
+      default:
+        final repsStr = e.repsList.length <= 3 ? e.repsList.join('/') : '${e.repsList.take(3).join('/')}...';
+        return '器械: ${e.device} · ${e.sets}组 x $repsStr次 · ${e.weight}kg · 休息${e.restSeconds}秒';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -385,19 +403,18 @@ class _TrainingPlanEditSheetState extends ConsumerState<_TrainingPlanEditSheet> 
         List<int> repsList = [];
         if (e.targetRepsList != null && e.targetRepsList!.isNotEmpty) {
           try {
-            // 去掉方括号，按逗号分割
             final str = e.targetRepsList!.replaceAll('[', '').replaceAll(']', '');
             repsList = str.split(',').map((s) => int.tryParse(s.trim()) ?? 0).where((r) => r > 0).toList();
           } catch (_) {
             repsList = [];
           }
         }
-        // 如果没有解析到每组次数，使用默认的 targetReps
         if (repsList.isEmpty) {
           repsList = List.generate(e.targetSets, (_) => e.targetReps);
         }
 
         return _PlanExerciseItem(
+          type: e.trainingType,
           device: e.device,
           movement: e.movement,
           sets: e.targetSets,
@@ -457,7 +474,7 @@ class _TrainingPlanEditSheetState extends ConsumerState<_TrainingPlanEditSheet> 
                             IconButton(icon: const Icon(Icons.delete, size: 20), onPressed: () => setState(() => _exercises.removeAt(i))),
                           ],
                         ),
-                        Text('器械: ${e.device} · ${e.sets}组 · ${e.repsList.join('/')}次 · ${e.weight}kg · 休息${e.restSeconds}秒'),
+                        Text(_formatExerciseItem(e)),
                       ],
                     ),
                   ),
@@ -520,6 +537,7 @@ class _TrainingPlanEditSheetState extends ConsumerState<_TrainingPlanEditSheet> 
         targetRepsList: drift.Value(repsListJson),
         targetWeight: drift.Value(e.weight > 0 ? e.weight : null),
         restSeconds: drift.Value(e.restSeconds),
+        trainingType: drift.Value(e.type),
         orderIndex: drift.Value(i),
       ));
     }
@@ -530,15 +548,21 @@ class _TrainingPlanEditSheetState extends ConsumerState<_TrainingPlanEditSheet> 
 }
 
 class _PlanExerciseItem {
+  String type; // strength, aerobic, endurance
   String device;
   String movement;
   int sets;
-  int reps; // 保留兼容，默认次数
-  List<int> repsList; // 每组次数列表
+  int reps;
+  List<int> repsList;
   double weight;
   int restSeconds;
+  int duration; // 有氧时长（分钟）
+  double? distance; // 有氧距离
+  double? elevation; // 有氧爬升
+  int? seconds; // 耐力每组时长
 
   _PlanExerciseItem({
+    required this.type,
     required this.device,
     required this.movement,
     required this.sets,
@@ -546,6 +570,10 @@ class _PlanExerciseItem {
     required this.repsList,
     required this.weight,
     required this.restSeconds,
+    this.duration = 30,
+    this.distance,
+    this.elevation,
+    this.seconds,
   });
 }
 
@@ -557,8 +585,8 @@ class _AddExerciseDialog extends StatefulWidget {
   State<_AddExerciseDialog> createState() => _AddExerciseDialogState();
 }
 
-/// 器械列表 - 高位下拉机、划船机、外展机、内收机、俯卧腿弯举、倒蹬、推胸 + 其他
-const _deviceList = [
+/// 力量训练器械列表
+const _strengthDeviceList = [
   '高位下拉机',
   '划船机',
   '外展机',
@@ -569,22 +597,75 @@ const _deviceList = [
   '其他',
 ];
 
+/// 有氧训练列表
+const _aerobicExerciseList = [
+  '跑步',
+  '步行',
+  '骑行',
+  '登山',
+  '椭圆机',
+  '室内单车',
+  '游泳',
+  '跳绳',
+  '划船机',
+  '其他',
+];
+
+/// 耐力训练列表
+const _enduranceExerciseList = [
+  '波比跳',
+  '平板支撑',
+  '登山跑',
+  '深蹲跳',
+  '开合跳',
+  '高抬腿',
+  '高位下拉悬垂',
+  '其他',
+];
+
 class _AddExerciseDialogState extends State<_AddExerciseDialog> {
-  String? _selectedDevice;
+  String _selectedType = 'strength';
+  String? _selectedExercise;
   final _movementController = TextEditingController();
+  final _durationController = TextEditingController(text: '30');
+  final _distanceController = TextEditingController();
+  final _elevationController = TextEditingController();
   final _setsController = TextEditingController(text: '4');
   final _repsController = TextEditingController(text: '12');
   final _weightController = TextEditingController(text: '0');
   final _restController = TextEditingController(text: '60');
+  final _secondsController = TextEditingController(text: '60');
 
   @override
   void dispose() {
     _movementController.dispose();
+    _durationController.dispose();
+    _distanceController.dispose();
+    _elevationController.dispose();
     _setsController.dispose();
     _repsController.dispose();
     _weightController.dispose();
     _restController.dispose();
+    _secondsController.dispose();
     super.dispose();
+  }
+
+  List<String> get _currentExerciseList {
+    switch (_selectedType) {
+      case 'strength': return _strengthDeviceList;
+      case 'aerobic': return _aerobicExerciseList;
+      case 'endurance': return _enduranceExerciseList;
+      default: return _strengthDeviceList;
+    }
+  }
+
+  String get _exerciseLabel {
+    switch (_selectedType) {
+      case 'strength': return '器械';
+      case 'aerobic': return '有氧项目';
+      case 'endurance': return '耐力项目';
+      default: return '项目';
+    }
   }
 
   @override
@@ -594,75 +675,110 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            SegmentedButton<String>(
+              segments: const [
+                ButtonSegment(value: 'strength', label: Text('力量'), icon: Icon(Icons.fitness_center)),
+                ButtonSegment(value: 'aerobic', label: Text('有氧'), icon: Icon(Icons.directions_run)),
+                ButtonSegment(value: 'endurance', label: Text('耐力'), icon: Icon(Icons.timer)),
+              ],
+              selected: {_selectedType},
+              onSelectionChanged: (value) => setState(() {
+                _selectedType = value.first;
+                _selectedExercise = null;
+                _movementController.clear();
+              }),
+            ),
+            const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _selectedDevice,
-              decoration: const InputDecoration(labelText: '器械'),
-              items: _deviceList.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+              value: _selectedExercise,
+              decoration: InputDecoration(labelText: _exerciseLabel),
+              items: _currentExerciseList.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
               onChanged: (v) => setState(() {
-                _selectedDevice = v;
-                // 选择"其他"时清空动作名称
-                if (v == '其他') {
-                  _movementController.clear();
-                }
+                _selectedExercise = v;
+                if (v == '其他') _movementController.clear();
               }),
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _movementController,
-              decoration: InputDecoration(
-                labelText: _selectedDevice == '其他' ? '自定义动作名称' : '动作名称',
+            if (_selectedExercise == '其他')
+              TextField(
+                controller: _movementController,
+                decoration: InputDecoration(labelText: _selectedType == 'strength' ? '自定义器械名称' : '自定义动作名称'),
               ),
-            ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _setsController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: '组数'),
-              onChanged: (_) => setState(() {}), // 动态更新每组次数输入框
-            ),
-            const SizedBox(height: 8),
-            // 自定义每组次数
-            _buildRepsPerSetInput(),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(child: TextField(controller: _weightController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '重量(kg)'))),
-                const SizedBox(width: 8),
-                Expanded(child: TextField(controller: _restController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '休息(秒)'))),
-              ],
-            ),
+            ..._buildTypeSpecificFields(),
           ],
         ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
-        ElevatedButton(
-          onPressed: _onAdd,
-          child: const Text('添加'),
-        ),
+        ElevatedButton(onPressed: _onAdd, child: const Text('添加')),
       ],
     );
   }
 
-  /// 构建每组次数输入框
+  List<Widget> _buildTypeSpecificFields() {
+    switch (_selectedType) {
+      case 'strength': return _buildStrengthFields();
+      case 'aerobic': return _buildAerobicFields();
+      case 'endurance': return _buildEnduranceFields();
+      default: return [];
+    }
+  }
+
+  List<Widget> _buildStrengthFields() {
+    return [
+      TextField(controller: _setsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组数'), onChanged: (_) => setState(() {})),
+      const SizedBox(height: 8),
+      _buildRepsPerSetInput(),
+      const SizedBox(height: 8),
+      Row(
+        children: [
+          Expanded(child: TextField(controller: _weightController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '重量(kg)'))),
+          const SizedBox(width: 8),
+          Expanded(child: TextField(controller: _restController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '休息(秒)'))),
+        ],
+      ),
+    ];
+  }
+
+  List<Widget> _buildAerobicFields() {
+    final isOutdoor = _selectedExercise == '跑步' || _selectedExercise == '骑行' || _selectedExercise == '登山';
+    return [
+      TextField(controller: _durationController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '时长', suffixText: '分钟')),
+      if (isOutdoor) ...[
+        const SizedBox(height: 8),
+        TextField(controller: _distanceController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '距离（可选）', suffixText: '公里')),
+        const SizedBox(height: 8),
+        TextField(controller: _elevationController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '爬升（可选）', suffixText: '米')),
+      ],
+    ];
+  }
+
+  List<Widget> _buildEnduranceFields() {
+    return [
+      Row(
+        children: [
+          Expanded(child: TextField(controller: _setsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组数'))),
+          const SizedBox(width: 8),
+          Expanded(child: TextField(controller: _secondsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '每组时长', suffixText: '秒'))),
+        ],
+      ),
+      const SizedBox(height: 8),
+      TextField(controller: _restController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '组间休息（可选）', suffixText: '秒')),
+    ];
+  }
+
   Widget _buildRepsPerSetInput() {
     final sets = int.tryParse(_setsController.text) ?? 0;
     if (sets <= 0) {
-      return TextField(
-        controller: _repsController,
-        keyboardType: TextInputType.number,
-        decoration: const InputDecoration(labelText: '每组次数（统一）'),
-      );
+      return TextField(controller: _repsController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '每组次数（统一）'));
     }
-
-    // 解析现有的每组次数
     final currentReps = _repsController.text.split(',').map((s) => int.tryParse(s.trim()) ?? 0).toList();
-    // 确保列表长度与组数一致
     while (currentReps.length < sets) {
       currentReps.add(currentReps.isNotEmpty ? currentReps.last : 12);
     }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -670,46 +786,40 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
         const SizedBox(height: 4),
         TextField(
           controller: _repsController,
-          decoration: InputDecoration(
-            labelText: '每组次数',
-            hintText: List.generate(sets, (i) => currentReps.length > i ? currentReps[i] : 12).join(','),
-          ),
+          decoration: InputDecoration(labelText: '每组次数', hintText: List.generate(sets, (i) => currentReps.length > i ? currentReps[i] : 12).join(',')),
         ),
       ],
     );
   }
 
   void _onAdd() {
-    if (_selectedDevice == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请选择器械')));
+    if (_selectedExercise == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请选择项目')));
       return;
     }
-
-    final movement = _movementController.text.trim();
-    if (movement.isEmpty) {
+    final name = _selectedExercise == '其他' ? _movementController.text.trim() : _selectedExercise!;
+    if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入动作名称')));
       return;
     }
-
-    final sets = int.tryParse(_setsController.text) ?? 4;
-    final repsList = _repsController.text
-        .split(',')
-        .map((s) => int.tryParse(s.trim()) ?? 0)
-        .where((r) => r > 0)
-        .toList();
-
-    // 如果没有输入每组次数，使用默认值
+    final sets = int.tryParse(_setsController.text) ?? 1;
+    final repsList = _repsController.text.split(',').map((s) => int.tryParse(s.trim()) ?? 0).where((r) => r > 0).toList();
     final defaultReps = int.tryParse(_repsController.text) ?? 12;
     final finalRepsList = repsList.isEmpty ? List.generate(sets, (_) => defaultReps) : repsList;
 
     widget.onAdd(_PlanExerciseItem(
-      device: _selectedDevice!,
-      movement: movement,
+      type: _selectedType,
+      device: name,
+      movement: name,
       sets: sets,
-      reps: finalRepsList.isNotEmpty ? finalRepsList.first : defaultReps, // 兼容旧字段
+      reps: finalRepsList.isNotEmpty ? finalRepsList.first : defaultReps,
       repsList: finalRepsList,
       weight: double.tryParse(_weightController.text) ?? 0,
       restSeconds: int.tryParse(_restController.text) ?? 60,
+      duration: int.tryParse(_durationController.text) ?? 30,
+      distance: double.tryParse(_distanceController.text),
+      elevation: double.tryParse(_elevationController.text),
+      seconds: int.tryParse(_secondsController.text),
     ));
     Navigator.pop(context);
   }
@@ -727,6 +837,20 @@ class _PlanExerciseListSheet extends ConsumerStatefulWidget {
 
 class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> {
   final Map<int, bool> _completed = {};
+
+  /// 格式化动作显示（快速记录页面）
+  String _formatExerciseDisplay(TrainingPlanExercise e, String repsDisplay) {
+    final type = e.trainingType;
+    switch (type) {
+      case 'aerobic':
+        return '有氧 · ${e.targetSets}分钟';
+      case 'endurance':
+        return '耐力 · ${e.targetSets}组 x ${e.targetReps}秒';
+      case 'strength':
+      default:
+        return '${e.device} · 目标: ${e.targetSets}组 · $repsDisplay次 · ${e.targetWeight ?? 0}kg';
+    }
+  }
 
   @override
   void initState() {
@@ -775,7 +899,7 @@ class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> 
                     value: _completed[index] ?? false,
                     onChanged: (v) => setState(() => _completed[index] = v ?? false),
                     title: Text(e.movement),
-                    subtitle: Text('${e.device} · 目标: ${e.targetSets}组 · $repsDisplay次 · ${e.targetWeight ?? 0}kg'),
+                    subtitle: Text(_formatExerciseDisplay(e, repsDisplay)),
                     secondary: _completed[index] == true ? const Icon(Icons.check_circle, color: Colors.green) : const Icon(Icons.circle_outlined),
                   ),
                 );
@@ -797,15 +921,28 @@ class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> 
       final e = widget.exercises[i];
       if (_completed[i] != true) continue;
 
+      // 根据训练类型保存运动记录
+      final exerciseType = e.trainingType == 'aerobic' ? 'aerobic' 
+          : e.trainingType == 'endurance' ? 'endurance' 
+          : 'anaerobic';
+      
+      // 解析每组次数获取总时长（耐力）
+      int duration = 30;
+      if (e.trainingType == 'endurance' && e.targetReps > 0) {
+        duration = (e.targetSets * e.targetReps) ~/ 60;
+        if (duration < 1) duration = 1;
+      }
+
       await db.insertExerciseRecord(ExerciseRecordsCompanion.insert(
-        type: 'anaerobic',
+        type: exerciseType,
         name: e.movement,
-        duration: 30,
+        duration: duration,
         sets: drift.Value(e.targetSets),
         weight: drift.Value(e.targetWeight),
+        seconds: drift.Value(e.trainingType == 'endurance' ? e.targetReps : null),
         calories: drift.Value(null),
         startedAt: now,
-        endedAt: now.add(const Duration(minutes: 30)),
+        endedAt: now.add(Duration(minutes: duration)),
         createdAt: now,
       ));
     }
@@ -884,10 +1021,10 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
 
   List<String> get _currentExerciseList {
     switch (_selectedType) {
-      case 'aerobic': return AppConstants.aerobicExercises;
-      case 'anaerobic': return _deviceList; // 使用新的器械列表
-      case 'endurance': return AppConstants.enduranceTypes;
-      default: return AppConstants.aerobicExercises;
+      case 'aerobic': return _aerobicExerciseList;
+      case 'anaerobic': return _strengthDeviceList;
+      case 'endurance': return _enduranceExerciseList;
+      default: return _aerobicExerciseList;
     }
   }
 
