@@ -24,16 +24,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: _buildDrawer(context),
-      body: Row(
-        children: [
-          // 汉堡菜单按钮
-          IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-          Expanded(child: _buildCurrentScreen()),
-        ],
+      body: _buildCurrentScreen(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Scaffold.of(context).openDrawer(),
+        tooltip: '菜单',
+        child: const Icon(Icons.menu),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       bottomNavigationBar: BottomNavigationWidget(
         currentIndex: _currentIndex,
         onTap: (index) {
