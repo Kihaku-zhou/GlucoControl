@@ -351,6 +351,9 @@ class SyncManager {
       if (success) {
         _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.success;
         _ref.read(lastSyncTimeProvider.notifier).state = DateTime.now();
+        // 保存上次同步时间到本地
+        final prefs = _ref.read(sharedPreferencesProvider);
+        await prefs.setString('webdav_last_sync', DateTime.now().toIso8601String());
         return true;
       } else {
         _ref.read(webdavSyncStateProvider.notifier).state = WebDAVSyncState.error;
