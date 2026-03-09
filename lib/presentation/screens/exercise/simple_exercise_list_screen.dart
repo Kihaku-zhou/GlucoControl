@@ -771,8 +771,13 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
 
   List<Widget> _buildAerobicFields() {
     final isOutdoor = _selectedExercise == '跑步' || _selectedExercise == '骑行' || _selectedExercise == '登山';
+    final isIndoor = _selectedExercise == '椭圆机' || _selectedExercise == '室内单车' || _selectedExercise == '划船机';
     return [
       TextField(controller: _durationController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '时长', suffixText: '分钟')),
+      if (isIndoor) ...[
+        const SizedBox(height: 8),
+        TextField(controller: _powerController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '平均功率（可选）', suffixText: '瓦')),
+      ],
       if (isOutdoor) ...[
         const SizedBox(height: 8),
         TextField(controller: _distanceController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '距离（可选）', suffixText: '公里')),
