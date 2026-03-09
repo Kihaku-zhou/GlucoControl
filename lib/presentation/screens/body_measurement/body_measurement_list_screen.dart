@@ -8,6 +8,7 @@ import 'dart:io';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
 import '../../../services/body_image_service.dart';
+import '../../../widgets/main_drawer.dart';
 import 'body_measurement_filter_screen.dart';
 
 /// 体测记录列表页面

@@ -656,6 +656,7 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
   final _durationController = TextEditingController(text: '30');
   final _distanceController = TextEditingController();
   final _elevationController = TextEditingController();
+  final _powerController = TextEditingController();
   final _setsController = TextEditingController(text: '4');
   final _repsController = TextEditingController(text: '12');
   final _weightController = TextEditingController(text: '0');
@@ -668,6 +669,7 @@ class _AddExerciseDialogState extends State<_AddExerciseDialog> {
     _durationController.dispose();
     _distanceController.dispose();
     _elevationController.dispose();
+    _powerController.dispose();
     _setsController.dispose();
     _repsController.dispose();
     _weightController.dispose();
