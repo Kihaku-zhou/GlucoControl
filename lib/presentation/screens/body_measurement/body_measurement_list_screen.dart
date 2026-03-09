@@ -290,7 +290,7 @@ class _BodyMeasurementTile extends StatelessWidget {
                 child: Icon(Icons.photo, color: Colors.grey),
               ),
             PopupMenuButton(
-          itemBuilder: (context) => [
+              itemBuilder: (context) => [
             const PopupMenuItem(
               value: 'edit',
               child: Row(
