@@ -149,8 +149,27 @@ class SimpleExerciseListScreen extends ConsumerWidget {
     final timeFormat = DateFormat('HH:mm');
     final details = _getRecordDetails(record);
     
-    // 力量训练不显示时长
-    final durationText = record.type == 'anaerobic' ? '' : ' · ${record.duration}分钟';
+    // 力量训练显示每组次数
+    String repsText = '';
+    if (record.repsList != null && record.repsList!.isNotEmpty) {
+      final repsStr = record.repsList!.length <= 3 
+          ? record.repsList! 
+          : '${record.repsList!.split(',').take(3).join(',')}...';
+      repsText = ' · $repsStr次/组';
+    }
+    
+    // 力量训练不显示时长，显示容量
+    String durationText = '';
+    if (record.type == 'anaerobic') {
+      // 显示重量和容量
+      if (record.weight != null && record.weight! > 0) {
+        final volume = (record.weight! * (record.sets ?? 1) * (int.tryParse(record.repsList?.split(',').first ?? '0') ?? 0));
+        durationText = ' · ${record.weight}kg';
+        if (volume > 0) durationText += ' · 容量:${volume}kg';
+      }
+    } else {
+      durationText = ' · ${record.duration}分钟';
+    }
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -160,8 +179,68 @@ class SimpleExerciseListScreen extends ConsumerWidget {
           child: Icon(typeIcon, color: Colors.white, size: 20),
         ),
         title: Text(record.name),
-        subtitle: Text('$typeText$durationText · ${timeFormat.format(record.startedAt)}${details.isNotEmpty ? ' · $details' : ''}'),
-        trailing: record.calories != null ? Text('${record.calories} kcal') : null,
+        subtitle: Text('$typeText$durationText$repsText · ${timeFormat.format(record.startedAt)}${details.isNotEmpty ? ' · $details' : ''}'),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (record.calories != null) 
+              Text('${record.calories} kcal'),
+            const SizedBox(width: 8),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 20),
+                      SizedBox(width: 8),
+                      Text('编辑'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 20, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('删除', style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
+              ],
+              onSelected: (value) async {
+                if (value == 'edit') {
+                  _showEditExerciseDialog(context, ref, record);
+                } else if (value == 'delete') {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('确认删除'),
+                      content: const Text('确定要删除这条运动记录吗？'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('取消'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('删除', style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true && context.mounted) {
+                    final db = ref.read(databaseProvider);
+                    await db.deleteExerciseRecord(record.id);
+                    ref.invalidate(exerciseRecordsProvider);
+                  }
+                }
+              },
+            ),
+          ],
+        ),
         onTap: () => _showRecordDetail(context, ref, record),
       ),
     );
@@ -277,6 +356,15 @@ class SimpleExerciseListScreen extends ConsumerWidget {
 
   void _showAddExerciseDialog(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(context: context, isScrollControlled: true, builder: (context) => const ExerciseAddSheet());
+  }
+
+  /// 编辑运动记录
+  void _showEditExerciseDialog(BuildContext context, WidgetRef ref, ExerciseRecord record) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => ExerciseAddSheet(editRecord: record),
+    );
   }
 }
 
@@ -1020,7 +1108,8 @@ class ExerciseAddSheet extends ConsumerStatefulWidget {
   final String? initialType;
   final String? initialName;
   final Map<String, dynamic>? template;
-  const ExerciseAddSheet({super.key, this.initialType, this.initialName, this.template});
+  final ExerciseRecord? editRecord; // 编辑模式
+  const ExerciseAddSheet({super.key, this.initialType, this.initialName, this.template, this.editRecord});
 
   @override
   ConsumerState<ExerciseAddSheet> createState() => _ExerciseAddSheetState();
@@ -1047,7 +1136,24 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialType != null) {
+    // 编辑模式：加载已有记录数据
+    if (widget.editRecord != null) {
+      final r = widget.editRecord!;
+      _nameController.text = r.name;
+      _selectedType = r.type;
+      _selectedExercise = r.name;
+      _durationController.text = r.duration.toString();
+      _distanceController.text = r.distance?.toString() ?? '';
+      _elevationController.text = r.elevation?.toString() ?? '';
+      _powerController.text = r.power?.toString() ?? '';
+      _setsController.text = r.sets?.toString() ?? '';
+      _weightController.text = r.weight?.toString() ?? '';
+      _repsController.text = r.repsList ?? '';
+      _caloriesController.text = r.calories?.toString() ?? '';
+      _noteController.text = r.note ?? '';
+      _selectedTime = TimeOfDay.fromDateTime(r.startedAt);
+      _selectedDate = r.startedAt;
+    } else if (widget.initialType != null) {
       _selectedType = widget.initialType!;
       _selectedExercise = widget.initialName;
       _nameController.text = widget.initialName ?? '';
@@ -1269,7 +1375,7 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
       // 解析每组次数/时长列表
       final repsList = _parseRepsList(_repsController.text);
       if (repsList.isNotEmpty) {
-        repsListJson = '[${repsList.join(",")}]';
+        repsListJson = repsList.join(','); // 保存为逗号分隔的字符串
         // 使用第一组作为默认秒数
         seconds = repsList.first;
       }
@@ -1284,21 +1390,49 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
       final endedAt = startedAt.add(Duration(minutes: duration));
       final name = _selectedExercise ?? _nameController.text;
 
-      await db.insertExerciseRecord(ExerciseRecordsCompanion.insert(
-        type: _selectedType,
-        name: name,
-        duration: duration,
-        distance: drift.Value(distance),
-        elevation: drift.Value(elevation),
-        power: drift.Value(power),
-        sets: drift.Value(sets),
-        weight: drift.Value(weight),
-        seconds: drift.Value(seconds),
-        calories: drift.Value(calories),
-        startedAt: startedAt,
-        endedAt: endedAt,
-        createdAt: DateTime.now(),
-      ));
+      // 编辑模式：更新记录
+      if (widget.editRecord != null) {
+        final updatedRecord = ExerciseRecord(
+          id: widget.editRecord!.id,
+          type: _selectedType,
+          name: name,
+          duration: duration,
+          distance: distance,
+          elevation: elevation,
+          power: power,
+          sets: sets,
+          weight: weight,
+          seconds: seconds,
+          repsList: repsListJson,
+          calories: calories,
+          heartRateAvg: widget.editRecord!.heartRateAvg,
+          heartRateMax: widget.editRecord!.heartRateMax,
+          note: _noteController.text.isNotEmpty ? _noteController.text : null,
+          startedAt: startedAt,
+          endedAt: endedAt,
+          createdAt: widget.editRecord!.createdAt,
+        );
+        await db.updateExerciseRecord(updatedRecord);
+      } else {
+        // 新增模式
+        await db.insertExerciseRecord(ExerciseRecordsCompanion.insert(
+          type: _selectedType,
+          name: name,
+          duration: duration,
+          distance: drift.Value(distance),
+          elevation: drift.Value(elevation),
+          power: drift.Value(power),
+          sets: drift.Value(sets),
+          weight: drift.Value(weight),
+          seconds: drift.Value(seconds),
+          repsList: drift.Value(repsListJson),
+          calories: drift.Value(calories),
+          note: drift.Value(_noteController.text.isNotEmpty ? _noteController.text : null),
+          startedAt: startedAt,
+          endedAt: endedAt,
+          createdAt: DateTime.now(),
+        ));
+      }
 
       ref.invalidate(exerciseRecordsProvider);
       
@@ -1307,7 +1441,7 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
 
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('运动记录已保存')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.editRecord != null ? '运动记录已更新' : '运动记录已保存')));
       }
     } catch (e) {
       if (mounted) {

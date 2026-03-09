@@ -311,7 +311,7 @@ class SyncManager {
         'id': r.id,
         'type': r.type,
         'recordedAt': r.recordedAt.toIso8601String(),
-        'imagePath': r.imagePath,
+        'imagePaths': r.imagePaths,
         'note': r.note,
       }).toList();
 

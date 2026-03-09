@@ -160,7 +160,7 @@ class _MealRecordTile extends StatelessWidget {
               Text(record.note!, maxLines: 1, overflow: TextOverflow.ellipsis),
           ],
         ),
-        trailing: record.imagePath != null
+        trailing: record.imagePaths != null && record.imagePaths!.isNotEmpty
             ? const Icon(Icons.photo, color: Colors.grey)
             : null,
         onTap: () => _showRecordDetail(context, record),
@@ -192,17 +192,36 @@ class _MealRecordTile extends StatelessWidget {
             const SizedBox(height: 24),
             _buildDetailRow('餐次', _getMealTypeText(record.type)),
             _buildDetailRow('记录时间', dateFormat.format(record.recordedAt)),
-            if (record.imagePath != null && record.imagePath!.isNotEmpty) ...[
+            if (record.imagePaths != null && record.imagePaths!.isNotEmpty) ...[
               const Text('图片', style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.file(
-                  File(record.imagePath!),
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const Text('图片加载失败'),
+              SizedBox(
+                height: 200,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: record.imagePaths!.split(',').length,
+                  itemBuilder: (context, index) {
+                    final paths = record.imagePaths!.split(',');
+                    final imagePath = paths[index].trim();
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          File(imagePath),
+                          width: 200,
+                          height: 200,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            width: 200,
+                            height: 200,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.broken_image, color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -300,8 +319,8 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
   DateTime _selectedDate = DateTime.now();
   final List<FoodItemInput> _foodItems = [];
   
-  // 图片相关
-  String? _imagePath;
+  // 图片相关 - 支持多张
+  List<String> _imagePaths = [];
   final ImagePicker _picker = ImagePicker();
   final MealImageService _imageService = MealImageService();
 
@@ -323,23 +342,43 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
     super.dispose();
   }
 
-  /// 选择图片来源
+  /// 选择图片来源 - 支持多选
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? pickedFile = await _picker.pickImage(
-        source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 70,
-      );
-      
-      if (pickedFile != null) {
-        // 保存并压缩图片
-        final savedPath = await _imageService.saveCompressedImage(pickedFile);
-        if (savedPath != null && mounted) {
-          setState(() {
-            _imagePath = savedPath;
-          });
+      if (source == ImageSource.gallery) {
+        // 相册支持多选
+        final List<XFile> pickedFiles = await _picker.pickMultiImage(
+          maxWidth: 1024,
+          maxHeight: 1024,
+          imageQuality: 70,
+        );
+        
+        if (pickedFiles.isNotEmpty && mounted) {
+          for (final pickedFile in pickedFiles) {
+            final savedPath = await _imageService.saveCompressedImage(pickedFile);
+            if (savedPath != null) {
+              setState(() {
+                _imagePaths.add(savedPath);
+              });
+            }
+          }
+        }
+      } else {
+        // 拍照只选一张
+        final XFile? pickedFile = await _picker.pickImage(
+          source: source,
+          maxWidth: 1024,
+          maxHeight: 1024,
+          imageQuality: 70,
+        );
+        
+        if (pickedFile != null) {
+          final savedPath = await _imageService.saveCompressedImage(pickedFile);
+          if (savedPath != null && mounted) {
+            setState(() {
+              _imagePaths.add(savedPath);
+            });
+          }
         }
       }
     } catch (e) {
@@ -347,48 +386,14 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
     }
   }
 
-  /// 显示图片选择对话框
-  void _showImagePicker() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('拍照'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('从相册选择'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-            if (_imagePath != null)
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('删除图片', style: TextStyle(color: Colors.red)),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    _imagePath = null;
-                  });
-                },
-              ),
-          ],
-        ),
-      ),
-    );
+  /// 删除某张图片
+  void _removeImage(int index) {
+    setState(() {
+      _imagePaths.removeAt(index);
+    });
   }
 
-  /// 构建图片选择器
+  /// 构建图片选择器 - 支持多张图片
   Widget _buildImagePicker() {
     return GestureDetector(
       onTap: _showImagePicker,
@@ -399,34 +404,40 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey[300]!),
         ),
-        child: _imagePath != null
-            ? Stack(
-                fit: StackFit.expand,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.file(
-                      File(_imagePath!),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.black54,
-                      radius: 16,
-                      child: IconButton(
-                        icon: const Icon(Icons.close, size: 16, color: Colors.white),
-                        onPressed: () {
-                          setState(() {
-                            _imagePath = null;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                ],
+        child: _imagePaths.isNotEmpty
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _imagePaths.length,
+                  itemBuilder: (context, index) {
+                    return Stack(
+                      children: [
+                        Image.file(
+                          File(_imagePaths[index]),
+                          width: 180,
+                          height: 180,
+                          fit: BoxFit.cover,
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: GestureDetector(
+                            onTap: () => _removeImage(index),
+                            child: CircleAvatar(
+                              backgroundColor: Colors.black54,
+                              radius: 16,
+                              child: IconButton(
+                                icon: const Icon(Icons.close, size: 16, color: Colors.white),
+                                onPressed: () => _removeImage(index),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -434,7 +445,7 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
                   Icon(Icons.add_a_photo, size: 48, color: Colors.grey[400]),
                   const SizedBox(height: 8),
                   Text('点击添加图片', style: TextStyle(color: Colors.grey[600])),
-                  Text('(图片将自动压缩)', style: TextStyle(fontSize: 12, color: Colors.grey[400])),
+                  Text('(图片将自动压缩，可添加多张)', style: TextStyle(fontSize: 12, color: Colors.grey[400])),
                 ],
               ),
       ),
@@ -637,7 +648,7 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
       MealRecordsCompanion.insert(
         type: _selectedType,
         recordedAt: recordedAt,
-        imagePath: drift.Value(_imagePath),
+        imagePaths: drift.Value(_imagePaths.isNotEmpty ? _imagePaths.join(',') : null),
         note: drift.Value(_noteController.text.isNotEmpty ? _noteController.text : null),
         createdAt: DateTime.now(),
       ),

@@ -281,7 +281,15 @@ class _BodyMeasurementTile extends StatelessWidget {
               Text('腰臀比: ${record.waistHipRatio?.toStringAsFixed(2) ?? "-"}'),
           ],
         ),
-        trailing: PopupMenuButton(
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (record.imagePath != null && record.imagePath!.isNotEmpty)
+              const Padding(
+                padding: EdgeInsets.only(right: 8),
+                child: Icon(Icons.photo, color: Colors.grey),
+              ),
+            PopupMenuButton(
           itemBuilder: (context) => [
             const PopupMenuItem(
               value: 'edit',
@@ -1200,6 +1208,25 @@ class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChar
               _buildDetailRow('腰围', '${record.waist} cm'),
             if (record.hip != null)
               _buildDetailRow('臀围', '${record.hip} cm'),
+            if (record.imagePath != null && record.imagePath!.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              const Text('图片', style: TextStyle(color: Colors.grey, fontSize: 14)),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.file(
+                  File(record.imagePath!),
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 200,
+                    color: Colors.grey[300],
+                    child: const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 48)),
+                  ),
+                ),
+              ),
+            ],
             if (record.note != null && record.note!.isNotEmpty)
               _buildDetailRow('备注', record.note!),
             const SizedBox(height: 24),

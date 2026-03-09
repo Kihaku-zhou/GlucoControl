@@ -57,7 +57,7 @@ class DataExportService {
         'id': meal.id,
         'type': meal.type,
         'recorded_at': meal.recordedAt.toIso8601String(),
-        'image_path': meal.imagePath,
+        'image_paths': meal.imagePaths,
         'note': meal.note,
         'created_at': meal.createdAt.toIso8601String(),
         'foods': foods.map((f) => {
@@ -170,7 +170,7 @@ class DataExportService {
             MealRecordsCompanion.insert(
               type: record['type'] as String,
               recordedAt: DateTime.parse(record['recorded_at'] as String),
-              imagePath: drift.Value(record['image_path'] as String?),
+              imagePaths: drift.Value(record['image_paths'] as String?),
               note: drift.Value(record['note'] as String?),
               createdAt: DateTime.now(),
             ),

@@ -34,6 +34,7 @@ class ExerciseRecords extends Table {
   IntColumn get sets => integer().nullable()(); // 组数
   RealColumn get weight => real().nullable()(); // 重量(kg)
   IntColumn get seconds => integer().nullable()(); // 耐力训练时长(秒)
+  TextColumn get repsList => text().nullable()(); // 每组次数，逗号分隔，如 "12,10,8,6"
   IntColumn get calories => integer().nullable()();
   IntColumn get heartRateAvg => integer().nullable()();
   IntColumn get heartRateMax => integer().nullable()();
@@ -109,7 +110,7 @@ class MealRecords extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get type => text()(); // breakfast, lunch, dinner, snack
   DateTimeColumn get recordedAt => dateTime()();
-  TextColumn get imagePath => text().nullable()();
+  TextColumn get imagePaths => text().nullable()(); // 多张图片，逗号分隔
   TextColumn get note => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
 }
