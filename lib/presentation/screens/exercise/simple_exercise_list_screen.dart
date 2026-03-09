@@ -862,6 +862,8 @@ class _PlanExerciseListSheet extends ConsumerStatefulWidget {
 
 class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> {
   final Map<int, bool> _completed = {};
+  TimeOfDay _selectedTime = TimeOfDay.now();
+  DateTime _selectedDate = DateTime.now();
 
   /// 格式化动作显示（快速记录页面）
   String _formatExerciseDisplay(TrainingPlanExercise e, String repsDisplay) {
@@ -895,6 +897,41 @@ class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> 
         children: [
           Text(widget.plan.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           if (widget.plan.description != null) Text(widget.plan.description!, style: const TextStyle(color: Colors.grey)),
+          const SizedBox(height: 8),
+          // 时间选择
+          Row(
+            children: [
+              TextButton.icon(
+                onPressed: () async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: _selectedDate,
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime.now(),
+                  );
+                  if (date != null) {
+                    setState(() => _selectedDate = date);
+                  }
+                },
+                icon: const Icon(Icons.calendar_today, size: 18),
+                label: Text('${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2,'0')}-${_selectedDate.day.toString().padLeft(2,'0')}'),
+              ),
+              const SizedBox(width: 8),
+              TextButton.icon(
+                onPressed: () async {
+                  final time = await showTimePicker(
+                    context: context,
+                    initialTime: _selectedTime,
+                  );
+                  if (time != null) {
+                    setState(() => _selectedTime = time);
+                  }
+                },
+                icon: const Icon(Icons.access_time, size: 18),
+                label: Text('${_selectedTime.hour.toString().padLeft(2,'0')}:${_selectedTime.minute.toString().padLeft(2,'0')}'),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           Expanded(
             child: ListView.builder(
@@ -940,7 +977,8 @@ class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> 
 
   Future<void> _saveAll() async {
     final db = ref.read(databaseProvider);
-    final now = DateTime.now();
+    // 使用选择的日期时间
+    final startedAt = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, _selectedTime.hour, _selectedTime.minute);
 
     for (var i = 0; i < widget.exercises.length; i++) {
       final e = widget.exercises[i];
@@ -961,9 +999,9 @@ class _PlanExerciseListSheetState extends ConsumerState<_PlanExerciseListSheet> 
         sets: drift.Value(e.targetSets),
         weight: drift.Value(e.targetWeight),
         calories: drift.Value(null),
-        startedAt: now,
-        endedAt: now.add(Duration(minutes: duration)),
-        createdAt: now,
+        startedAt: startedAt,
+        endedAt: startedAt.add(Duration(minutes: duration)),
+        createdAt: DateTime.now(),
       ));
     }
 

@@ -377,6 +377,10 @@ class _AddBodyMeasurementSheetState extends ConsumerState<AddBodyMeasurementShee
   
   // 其他
   final _noteController = TextEditingController();
+  final _imageController = TextEditingController();
+  
+  // 图片服务
+  final BodyImageService _imageService = BodyImageService();
   
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
@@ -717,6 +721,46 @@ class _AddBodyMeasurementSheetState extends ConsumerState<AddBodyMeasurementShee
                 ),
                 const SizedBox(height: 16),
 
+                // 图片
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          final path = await _imageService.pickAndCompressImage();
+                          if (path != null) {
+                            setState(() {
+                              _imageController.text = path;
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.photo_library),
+                        label: const Text('选择图片'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          final path = await _imageService.takePhoto();
+                          if (path != null) {
+                            setState(() {
+                              _imageController.text = path;
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.camera_alt),
+                        label: const Text('拍照'),
+                      ),
+                    ),
+                  ],
+                ),
+                if (_imageController.text.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  const Text('已选择图片', style: TextStyle(color: Colors.green)),
+                ],
+                const SizedBox(height: 16),
+
                 // 日期时间选择
                 Row(
                   children: [
@@ -847,6 +891,7 @@ class _AddBodyMeasurementSheetState extends ConsumerState<AddBodyMeasurementShee
           bmi: drift.Value(bmi),
           waistHipRatio: drift.Value(waistHipRatio),
           note: drift.Value(_noteController.text.isNotEmpty ? _noteController.text : null),
+          imagePath: drift.Value(_imageController.text.isNotEmpty ? _imageController.text : null),
           measuredAt: measuredAt,
           createdAt: DateTime.now(),
         ),
@@ -872,6 +917,7 @@ class _AddBodyMeasurementSheetState extends ConsumerState<AddBodyMeasurementShee
           bmi: drift.Value(bmi),
           waistHipRatio: drift.Value(waistHipRatio),
           note: drift.Value(_noteController.text.isNotEmpty ? _noteController.text : null),
+          imagePath: drift.Value(_imageController.text.isNotEmpty ? _imageController.text : null),
           measuredAt: measuredAt,
           createdAt: DateTime.now(),
         ),
