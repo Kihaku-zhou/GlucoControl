@@ -411,9 +411,9 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
                           height: 24,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(Icons.send),
+                      : const Icon(Icons.send, color: Colors.white),
                   onPressed: _isLoading ? null : _sendMessage,
-                  color: Theme.of(context).primaryColor,
+                  color: Colors.white,
                 ),
               ],
             ),

@@ -29,8 +29,8 @@ class BottomNavigationWidget extends StatelessWidget {
           label: '运动',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.add_circle, size: 32),
-          label: '添加',
+          icon: Icon(Icons.psychology, size: 28),
+          label: 'AI',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.straighten),

@@ -31,8 +31,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         currentIndex: _currentIndex,
         onTap: (index) {
           if (index == 2) {
-            // 中间按钮 - 添加记录
-            _showQuickAddMenu(context);
+            // 中间按钮 - AI 对话
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AIChatScreen(),
+              ),
+            );
           } else {
             setState(() {
               _currentIndex = index < 2 ? index : index - 1;
