@@ -30,6 +30,11 @@ class SimpleExerciseListScreen extends ConsumerWidget {
         title: const Text('运动记录'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.fitness_center),
+            onPressed: () => _showTemplateManager(context, ref),
+            tooltip: '训练计划',
+          ),
+          IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
               Navigator.push(
@@ -40,11 +45,6 @@ class SimpleExerciseListScreen extends ConsumerWidget {
               );
             },
             tooltip: '筛选',
-          ),
-          IconButton(
-            icon: const Icon(Icons.fitness_center),
-            onPressed: () => _showTemplateManager(context, ref),
-            tooltip: '训练计划',
           ),
         ],
       ),
