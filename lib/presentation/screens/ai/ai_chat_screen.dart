@@ -297,6 +297,32 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
         if (totalAerobicIntensity > 0) {
           summary.writeln('- 有氧训练总功率: ${totalAerobicIntensity.toStringAsFixed(0)} W');
         }
+        
+        // 列出每条运动记录详情
+        summary.writeln('\n详细记录:');
+        for (final r in exerciseRecords.take(20)) {
+          final typeStr = r.type == 'aerobic' ? '有氧' : r.type == 'anaerobic' ? '力量' : '耐力';
+          final timeStr = DateFormat('MM/dd HH:mm').format(r.startedAt);
+          String detail = '$timeStr $typeStr ${r.name} ${r.duration}分钟';
+          if (r.type == 'anaerobic') {
+            // 力量训练详情
+            final repsStr = r.repsList ?? '';
+            final sets = r.sets ?? 0;
+            detail += ' ${sets}组';
+            if (repsStr.isNotEmpty) detail += ' x $repsStr次';
+            if (r.weight != null && r.weight! > 0) detail += ' ${r.weight}kg';
+          } else if (r.type == 'aerobic') {
+            // 有氧训练详情
+            if (r.power != null && r.power! > 0) detail += ' ${r.power}W';
+            if (r.distance != null && r.distance! > 0) detail += ' ${r.distance}km';
+            if (r.elevation != null && r.elevation! > 0) detail += ' 爬升${r.elevation}m';
+          }
+          if (r.calories != null && r.calories! > 0) detail += ' ${r.calories}kcal';
+          summary.writeln('- $detail');
+        }
+        if (exerciseRecords.length > 20) {
+          summary.writeln('... 还有 ${exerciseRecords.length - 20} 条记录');
+        }
       }
       
       summary.writeln('\n【饮食记录】共${mealRecords.length}条');
@@ -311,20 +337,31 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
       
       summary.writeln('\n【体测记录】共${recentBodyMeasurements.length}条');
       if (recentBodyMeasurements.isNotEmpty) {
-        final latest = recentBodyMeasurements.last;
-        summary.writeln('- 最新: ${DateFormat('yyyy/MM/dd').format(latest.measuredAt)}');
-        if (latest.weight != null) summary.writeln('  体重: ${latest.weight}kg');
-        if (latest.bodyFat != null) summary.writeln('  体脂: ${latest.bodyFat}%');
-        if (latest.bmi != null) summary.writeln('  BMI: ${latest.bmi!.toStringAsFixed(1)}');
-        // 有图片的体测记录
-        final bodyWithImages = recentBodyMeasurements.where((m) => m.imagePath != null && m.imagePath!.isNotEmpty).toList();
-        if (bodyWithImages.isNotEmpty) {
-          summary.writeln('有图片的体测记录: ${bodyWithImages.length}条');
-          for (final m in bodyWithImages.take(3)) {
-            summary.writeln('- ${DateFormat('MM/dd').format(m.measuredAt)}: ${m.imagePath}');
+        // 列出每条体测记录详情
+        for (final m in recentBodyMeasurements.reversed.take(20)) {
+          final timeStr = DateFormat('yyyy/MM/dd').format(m.measuredAt);
+          String detail = '$timeStr';
+          if (m.weight != null) detail += ' 体重${m.weight}kg';
+          if (m.bodyFat != null) detail += ' 体脂${m.bodyFat}%';
+          if (m.bmi != null) detail += ' BMI${m.bmi!.toStringAsFixed(1)}';
+          if (m.muscleMass != null) detail += ' 肌肉${m.muscleMass}kg';
+          if (m.waist != null) detail += ' 腰围${m.waist}cm';
+          if (m.hip != null) detail += ' 臀围${m.hip}cm';
+          if (m.chest != null) detail += ' 胸围${m.chest}cm';
+          if (m.armLeft != null || m.armRight != null) {
+            detail += ' 臂围${m.armLeft ?? '-'}/${m.armRight ?? '-'}cm';
           }
+          if (m.thighLeft != null || m.thighRight != null) {
+            detail += ' 大腿${m.thighLeft ?? '-'}/${m.thighRight ?? '-'}cm';
+          }
+          if (m.imagePath != null && m.imagePath!.isNotEmpty) {
+            detail += ' 📷有图片';
+          }
+          summary.writeln('- $detail');
         }
-      }
+        if (recentBodyMeasurements.length > 20) {
+          summary.writeln('... 还有 ${recentBodyMeasurements.length - 20} 条记录');
+        }
       }
       
       summary.writeln('\n【饮食记录】共${mealRecords.length}条');
