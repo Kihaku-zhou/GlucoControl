@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
@@ -22,6 +24,10 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
   int? _currentConversationId;
   String _currentTitle = '新对话';
   String? _lastUserMessage; // 上一次用户发送的消息，用于重新回答
+  
+  // 图片上传
+  final ImagePicker _imagePicker = ImagePicker();
+  List<XFile> _uploadedImages = []; // 上传的图片
   
   // 健康数据缓存（不显示在对话框中）
   Map<String, dynamic>? _healthDataCache;
@@ -68,6 +74,57 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
     // 重新发送上一次的消息
     _messageController.text = _lastUserMessage!;
     await _sendMessage();
+  }
+
+  /// 选择图片上传
+  Future<void> _pickImage() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('拍照'),
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? image = await _imagePicker.pickImage(source: ImageSource.camera);
+                if (image != null) {
+                  setState(() {
+                    _uploadedImages.add(image);
+                  });
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('从相册选择'),
+              onTap: () async {
+                Navigator.pop(context);
+                final List<XFile> images = await _imagePicker.pickMultiImage();
+                if (images.isNotEmpty) {
+                  setState(() {
+                    _uploadedImages.addAll(images);
+                  });
+                }
+              },
+            ),
+            if (_uploadedImages.isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('清除图片', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _uploadedImages.clear();
+                  });
+                },
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _sendMessage() async {
@@ -163,8 +220,18 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
         ...messages,
       ];
 
+      // 构建用户消息，如果有图片则附加图片信息
+      String userMessageContent = message;
+      if (_uploadedImages.isNotEmpty) {
+        userMessageContent += '\n\n【上传的图片】\n';
+        for (int i = 0; i < _uploadedImages.length; i++) {
+          userMessageContent += '图片 ${i + 1}: ${_uploadedImages[i].path}\n';
+        }
+        userMessageContent += '\n请分析这些图片中的内容（如饮食照片、身体照片等）。';
+      }
+      
       // 添加当前用户消息
-      messages.add({'role': 'user', 'content': message});
+      messages.add({'role': 'user', 'content': userMessageContent});
 
       // 调用 AI
       final response = await aiService.chat(allMessages);
@@ -202,6 +269,10 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
     } finally {
       setState(() {
         _isLoading = false;
+        // 发送成功后清空图片
+        if (_messageController.text.isEmpty) {
+          _uploadedImages.clear();
+        }
       });
     }
   }
@@ -549,6 +620,66 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
             ),
             child: Row(
               children: [
+                // 图片上传按钮或已上传图片预览
+                if (_uploadedImages.isNotEmpty)
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      margin: const EdgeInsets.only(right: 8),
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              File(_uploadedImages.first.path),
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          if (_uploadedImages.length > 1)
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '+${_uploadedImages.length}',
+                                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                                ),
+                              ),
+                            ),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: () => setState(() => _uploadedImages.clear()),
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.close, size: 12, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  IconButton(
+                    icon: const Icon(Icons.add_photo_alternate),
+                    onPressed: _pickImage,
+                    tooltip: '添加图片',
+                  ),
                 Expanded(
                   child: TextField(
                     controller: _messageController,

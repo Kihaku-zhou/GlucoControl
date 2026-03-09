@@ -755,21 +755,26 @@ class AIProvider {
   final String name;
   final String apiUrl;
   final String defaultModel;
+  final bool supportsVision; // 是否支持视觉/图像识别
 
   const AIProvider({
     required this.name,
     required this.apiUrl,
     required this.defaultModel,
+    this.supportsVision = false,
   });
 }
 
 /// AI 提供商列表
 const aiProviders = [
   AIProvider(name: 'OpenAI', apiUrl: 'https://api.openai.com/v1/chat/completions', defaultModel: 'gpt-3.5-turbo'),
+  AIProvider(name: 'OpenAI (Vision)', apiUrl: 'https://api.openai.com/v1/chat/completions', defaultModel: 'gpt-4o', supportsVision: true),
   AIProvider(name: 'DeepSeek', apiUrl: 'https://api.deepseek.com/v1/chat/completions', defaultModel: 'deepseek-chat'),
   AIProvider(name: 'SiliconFlow', apiUrl: 'https://api.siliconflow.cn/v1/chat/completions', defaultModel: 'Qwen/Qwen2.5-7B-Instruct'),
+  AIProvider(name: 'SiliconFlow (视觉)', apiUrl: 'https://api.siliconflow.cn/v1/chat/completions', defaultModel: 'Qwen/Qwen2-VL-72B-Instruct', supportsVision: true),
   AIProvider(name: 'MiniMax', apiUrl: 'https://api.minimax.chat/v1/text/chatcompletion_v2', defaultModel: 'abab6.5s-chat'),
   AIProvider(name: 'Kimi', apiUrl: 'https://api.moonshot.cn/v1/chat/completions', defaultModel: 'kimi-k2.5'),
+  AIProvider(name: 'Kimi (视觉)', apiUrl: 'https://api.moonshot.cn/v1/chat/completions', defaultModel: 'kimi-k2.5-vision-preview', supportsVision: true),
 ];
 
 /// AI API 设置页面
@@ -902,17 +907,30 @@ class _AIApiSettingsScreenState extends ConsumerState<AIApiSettingsScreen> {
           // 模型选择
           TextField(
             controller: _modelController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: '模型',
               hintText: 'gpt-3.5-turbo',
-              prefixIcon: Icon(Icons.psychology),
+              prefixIcon: const Icon(Icons.psychology),
+              suffixIcon: _selectedProvider != null && aiProviders.any((p) => p.name == _selectedProvider && p.supportsVision)
+                  ? const Tooltip(
+                      message: '支持图像识别',
+                      child: Icon(Icons.image, color: Colors.green, size: 20),
+                    )
+                  : null,
             ),
           ),
           const SizedBox(height: 8),
           
-          const Text(
-            '支持 OpenAI 兼容的 API（如 OpenAI、SiliconFlow、DeepSeek 等）',
-            style: TextStyle(color: Colors.grey, fontSize: 12),
+          Text(
+            _selectedProvider != null && aiProviders.any((p) => p.name == _selectedProvider && p.supportsVision)
+                ? '✓ 当前选择支持图像识别，可上传图片进行分析'
+                : '支持 OpenAI 兼容的 API（如 OpenAI、SiliconFlow、DeepSeek 等）',
+            style: TextStyle(
+              color: _selectedProvider != null && aiProviders.any((p) => p.name == _selectedProvider && p.supportsVision) 
+                  ? Colors.green 
+                  : Colors.grey, 
+              fontSize: 12,
+            ),
           ),
           const SizedBox(height: 24),
           
