@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -276,41 +278,95 @@ class AIAnalysisService {
   }
 
   /// 聊天（通用对话）
-  Future<String> chat(List<Map<String, String>> messages) async {
+  /// [messages] 消息列表
+  /// [images] 可选的要发送的图片文件路径列表
+  Future<String> chat(List<Map<String, String>> messages, {List<String>? images}) async {
     if (!isInitialized) {
       throw Exception('AI 服务未初始化');
     }
 
     try {
+      // 检查是否需要使用视觉模型
+      final isVisionModel = _config!.model.toLowerCase().contains('vision') ||
+          _config!.model.toLowerCase().contains('vl') ||
+          _config!.model.toLowerCase().contains('4o') ||
+          _config!.model.toLowerCase().contains('k2.5');
+      
       // 转换消息格式
-      final apiMessages = messages.map((m) => {
-        'role': m['role'],
-        'content': m['content'],
-      }).toList();
-
+      List<dynamic> apiMessages = [];
+      
       // 添加系统提示
-      final systemMessages = [
-        {
-          'role': 'system',
-          'content': '''你是 GlucoControl 健康助手，专门帮助用户管理血糖、健康和运动。
+      apiMessages.add({
+        'role': 'system',
+        'content': '''你是 GlucoControl 健康助手，专门帮助用户管理血糖、健康和运动。
 你可以回答关于：
 - 血糖监测和控制
 - 饮食建议
 - 运动计划
 - 健康数据分析
+- 分析用户上传的图片
 
-请用中文回答，保持友好和专业。''',
-        },
-        ...apiMessages,
-      ];
+请用中文回答，保持友好和专业。如果用户上传了图片，请仔细分析图片内容并给出建议。''',
+      });
+
+      // 处理消息
+      for (final m in messages) {
+        if (m['role'] == 'user' && images != null && images.isNotEmpty && isVisionModel) {
+          // 用户消息包含图片 - 使用多模态格式
+          final content = <dynamic>[];
+          
+          // 添加文本
+          content.add({
+            'type': 'text',
+            'text': m['content'] ?? '',
+          });
+          
+          // 添加图片
+          for (final imagePath in images) {
+            try {
+              final file = File(imagePath);
+              if (await file.exists()) {
+                final bytes = await file.readAsBytes();
+                final base64Image = base64Encode(bytes);
+                // 检测图片类型
+                final extension = imagePath.split('.').last.toLowerCase();
+                String mimeType = 'image/jpeg';
+                if (extension == 'png') mimeType = 'image/png';
+                else if (extension == 'gif') mimeType = 'image/gif';
+                else if (extension == 'webp') mimeType = 'image/webp';
+                
+                content.add({
+                  'type': 'image_url',
+                  'image_url': {
+                    'url': 'data:$mimeType;base64,$base64Image',
+                  },
+                });
+              }
+            } catch (e) {
+              debugPrint('读取图片失败: $imagePath, $e');
+            }
+          }
+          
+          apiMessages.add({
+            'role': m['role'],
+            'content': content,
+          });
+        } else {
+          // 普通文本消息
+          apiMessages.add({
+            'role': m['role'],
+            'content': m['content'],
+          });
+        }
+      }
 
       final response = await _dio!.post(
         '/v1/chat/completions',
         data: {
           'model': _config!.model,
-          'messages': systemMessages,
+          'messages': apiMessages,
           'temperature': 0.7,
-          'max_tokens': 1000,
+          'max_tokens': 2000, // 增加 token 限制以支持图片分析
         },
       );
 

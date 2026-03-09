@@ -233,8 +233,14 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
       // 添加当前用户消息
       messages.add({'role': 'user', 'content': userMessageContent});
 
-      // 调用 AI
-      final response = await aiService.chat(allMessages);
+      // 获取图片路径列表（如果有）
+      List<String>? imagePaths;
+      if (_uploadedImages.isNotEmpty) {
+        imagePaths = _uploadedImages.map((f) => f.path).toList();
+      }
+
+      // 调用 AI（传递图片）
+      final response = await aiService.chat(allMessages, images: imagePaths);
 
       // 保存 AI 回复
       await db.insertAIMessage(
