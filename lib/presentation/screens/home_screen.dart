@@ -27,20 +27,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       key: _scaffoldKey,
       drawer: _buildDrawer(context),
       body: _buildCurrentScreen(),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'menu',
-        mini: true,
-        onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        tooltip: '菜单',
-        child: const Icon(Icons.menu),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       bottomNavigationBar: BottomNavigationWidget(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          if (index == 2) {
+            // 中间按钮 - 添加记录
+            _showQuickAddMenu(context);
+          } else {
+            setState(() {
+              _currentIndex = index < 2 ? index : index - 1;
+            });
+          }
         },
       ),
     );

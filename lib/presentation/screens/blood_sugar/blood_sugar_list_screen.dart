@@ -25,6 +25,12 @@ class BloodSugarListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         title: const Text('血糖记录', textAlign: TextAlign.center),
         centerTitle: true,
         actions: [
@@ -168,11 +174,9 @@ class BloodSugarListScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
         onPressed: () => _showQuickAddMenu(context, ref),
         child: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 

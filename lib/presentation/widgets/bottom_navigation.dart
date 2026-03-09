@@ -12,8 +12,11 @@ class BottomNavigationWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 调整索引：点击0,1对应原0,1；点击2(添加)单独处理；点击3,4对应原2,3
+    int adjustedIndex = currentIndex >= 2 ? currentIndex + 1 : currentIndex;
+    
     return BottomNavigationBar(
-      currentIndex: currentIndex,
+      currentIndex: adjustedIndex,
       onTap: onTap,
       type: BottomNavigationBarType.fixed,
       items: const [
@@ -24,6 +27,10 @@ class BottomNavigationWidget extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.fitness_center),
           label: '运动',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.add_circle, size: 32),
+          label: '添加',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.straighten),
