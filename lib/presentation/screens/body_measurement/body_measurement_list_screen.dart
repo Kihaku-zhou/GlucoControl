@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../widgets/main_drawer.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -18,6 +19,7 @@ class BodyMeasurementListScreen extends ConsumerWidget {
     final latestAsync = ref.watch(latestBodyMeasurementProvider);
 
     return Scaffold(
+      drawer: buildMainDrawer(context),
       drawer: buildMainDrawer(context),
     
       appBar: AppBar(
@@ -903,6 +905,7 @@ class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChar
     final recordsAsync = ref.watch(bodyMeasurementsProvider);
 
     return Scaffold(
+      drawer: buildMainDrawer(context),
       drawer: buildMainDrawer(context),
     
       appBar: AppBar(
