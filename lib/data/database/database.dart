@@ -99,6 +99,7 @@ class BodyMeasurements extends Table {
   RealColumn get bmi => real().nullable()(); // BMI (自动计算)
   RealColumn get waistHipRatio => real().nullable()(); // 腰臀比 (自动计算)
   TextColumn get note => text().nullable()(); // 备注
+  TextColumn get imagePath => text().nullable()(); // 图片路径
   DateTimeColumn get measuredAt => dateTime()(); // 测量时间
   DateTimeColumn get createdAt => dateTime()();
 }
