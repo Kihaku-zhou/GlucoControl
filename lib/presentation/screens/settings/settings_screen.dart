@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../data/database/database_providers.dart';
@@ -526,6 +527,46 @@ class _WebDAVSettingsScreenState extends ConsumerState<WebDAVSettingsScreen> {
     });
   }
 
+  /// 构建上次同步时间显示
+  Widget _buildLastSyncTime() {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final lastSync = prefs.getString('webdav_last_sync');
+    
+    if (lastSync == null || lastSync.isEmpty) {
+      return const Text(
+        '从未同步',
+        style: TextStyle(color: Colors.grey, fontSize: 12),
+      );
+    }
+    
+    try {
+      final syncTime = DateTime.parse(lastSync);
+      final now = DateTime.now();
+      final diff = now.difference(syncTime);
+      
+      String timeText;
+      if (diff.inMinutes < 1) {
+        timeText = '刚刚';
+      } else if (diff.inMinutes < 60) {
+        timeText = '${diff.inMinutes} 分钟前';
+      } else if (diff.inHours < 24) {
+        timeText = '${diff.inHours} 小时前';
+      } else {
+        timeText = '${diff.inDays} 天前';
+      }
+      
+      return Text(
+        '上次同步: $timeText (${DateFormat('yyyy-MM-dd HH:mm').format(syncTime)})',
+        style: const TextStyle(color: Colors.grey, fontSize: 12),
+      );
+    } catch (e) {
+      return Text(
+        '上次同步: $lastSync',
+        style: const TextStyle(color: Colors.grey, fontSize: 12),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _serverController.dispose();
@@ -567,6 +608,10 @@ class _WebDAVSettingsScreenState extends ConsumerState<WebDAVSettingsScreen> {
               });
             } : null,
           ),
+          const SizedBox(height: 8),
+          
+          // 上次同步时间
+          _buildLastSyncTime(),
           const SizedBox(height: 16),
           
           // 服务器地址
