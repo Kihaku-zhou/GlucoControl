@@ -8,6 +8,7 @@ import '../../../core/theme.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
 import '../../../services/auto_sync_service.dart';
+import '../../../widgets/main_drawer.dart';
 import 'blood_sugar_chart_screen.dart';
 import 'weekly_report_screen.dart';
 import 'blood_sugar_filter_screen.dart';
@@ -24,6 +25,7 @@ class BloodSugarListScreen extends ConsumerWidget {
     final currentUnit = ref.watch(bloodSugarUnitProvider);
 
     return Scaffold(
+      drawer: buildMainDrawer(context),
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(

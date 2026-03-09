@@ -18,6 +18,8 @@ class BodyMeasurementListScreen extends ConsumerWidget {
     final latestAsync = ref.watch(latestBodyMeasurementProvider);
 
     return Scaffold(
+      drawer: buildMainDrawer(context),
+    
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
@@ -901,6 +903,8 @@ class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChar
     final recordsAsync = ref.watch(bodyMeasurementsProvider);
 
     return Scaffold(
+      drawer: buildMainDrawer(context),
+    
       appBar: AppBar(
         title: const Text('体测趋势'),
         actions: [

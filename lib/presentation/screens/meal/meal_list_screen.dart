@@ -21,6 +21,8 @@ class MealListScreen extends ConsumerWidget {
     final recordsAsync = ref.watch(mealRecordsProvider);
 
     return Scaffold(
+      drawer: buildMainDrawer(context),
+    
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
