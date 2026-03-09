@@ -170,69 +170,107 @@ class _MealRecordTile extends StatelessWidget {
 
   void _showRecordDetail(BuildContext context, MealRecord record) {
     final dateFormat = DateFormat('yyyy年M月d日 HH:mm');
+    final db = ref.read(databaseProvider);
 
     showModalBottomSheet(
       context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(_getMealTypeIcon(record.type), color: Colors.orange),
-                const SizedBox(width: 8),
-                const Text(
-                  '饮食记录详情',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            _buildDetailRow('餐次', _getMealTypeText(record.type)),
-            _buildDetailRow('记录时间', dateFormat.format(record.recordedAt)),
-            if (record.imagePaths != null && record.imagePaths!.isNotEmpty) ...[
-              const Text('图片', style: TextStyle(color: Colors.grey)),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: record.imagePaths!.split(',').length,
-                  itemBuilder: (context, index) {
-                    final paths = record.imagePaths!.split(',');
-                    final imagePath = paths[index].trim();
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.file(
-                          File(imagePath),
-                          width: 200,
-                          height: 200,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            width: 200,
-                            height: 200,
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.broken_image, color: Colors.grey),
-                          ),
-                        ),
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        maxChildSize: 0.9,
+        minChildSize: 0.5,
+        expand: false,
+        builder: (context, scrollController) => FutureBuilder(
+          future: db.getFoodItemsByMealId(record.id),
+          builder: (context, snapshot) {
+            final foodItems = snapshot.data ?? [];
+            
+            return Container(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(_getMealTypeIcon(record.type), color: Colors.orange),
+                      const SizedBox(width: 8),
+                      const Text(
+                        '饮食记录详情',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                    );
-                  },
-                ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  _buildDetailRow('餐次', _getMealTypeText(record.type)),
+                  _buildDetailRow('记录时间', dateFormat.format(record.recordedAt)),
+                  if (record.imagePaths != null && record.imagePaths!.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    const Text('图片', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 200,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: record.imagePaths!.split(',').length,
+                        itemBuilder: (context, index) {
+                          final paths = record.imagePaths!.split(',');
+                          final imagePath = paths[index].trim();
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                File(imagePath),
+                                width: 200,
+                                height: 200,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  width: 200,
+                                  height: 200,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.broken_image, color: Colors.grey),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                  if (foodItems.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    const Text('食物', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+                    const SizedBox(height: 8),
+                    ...foodItems.map((food) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.restaurant, size: 16, color: Colors.grey),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text('${food.name} - ${food.amount}${food.unit}')),
+                          if (food.carbs != null) 
+                            Text('${food.carbs}g碳水', style: const TextStyle(color: Colors.orange, fontSize: 12)),
+                        ],
+                      ),
+                    )),
+                  ],
+                  if (record.note != null && record.note!.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildDetailRow('备注', record.note!),
+                  ],
+                  const Spacer(),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('关闭'),
+                    ),
+                  ),
+                ],
               ),
-            ],
-            if (record.note != null && record.note!.isNotEmpty)
-              _buildDetailRow('备注', record.note!),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('关闭'),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
