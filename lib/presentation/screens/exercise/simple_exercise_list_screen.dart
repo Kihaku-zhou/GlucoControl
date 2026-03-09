@@ -1,10 +1,10 @@
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
+import '../../../widgets/main_drawer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/constants.dart';
-import '../../../widgets/main_drawer.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
 import '../../../services/auto_sync_service.dart';
@@ -20,7 +20,6 @@ class SimpleExerciseListScreen extends ConsumerWidget {
 
     return Scaffold(
       drawer: buildMainDrawer(context),
-    
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
@@ -96,9 +95,11 @@ class SimpleExerciseListScreen extends ConsumerWidget {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddExerciseDialog(context, ref),
         child: const Icon(Icons.add),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 

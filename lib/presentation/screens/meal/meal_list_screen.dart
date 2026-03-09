@@ -23,8 +23,6 @@ class MealListScreen extends ConsumerWidget {
 
     return Scaffold(
       drawer: buildMainDrawer(context),
-      drawer: buildMainDrawer(context),
-    
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
@@ -96,9 +94,11 @@ class MealListScreen extends ConsumerWidget {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddMealDialog(context, ref),
         child: const Icon(Icons.add),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 

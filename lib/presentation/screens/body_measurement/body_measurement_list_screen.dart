@@ -20,8 +20,6 @@ class BodyMeasurementListScreen extends ConsumerWidget {
 
     return Scaffold(
       drawer: buildMainDrawer(context),
-      drawer: buildMainDrawer(context),
-    
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
@@ -102,9 +100,11 @@ class BodyMeasurementListScreen extends ConsumerWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddMeasurementDialog(context, ref),
         child: const Icon(Icons.add),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -905,9 +905,6 @@ class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChar
     final recordsAsync = ref.watch(bodyMeasurementsProvider);
 
     return Scaffold(
-      drawer: buildMainDrawer(context),
-      drawer: buildMainDrawer(context),
-    
       appBar: AppBar(
         title: const Text('体测趋势'),
         actions: [
