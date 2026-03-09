@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../screens/settings/settings_screen.dart';
-import '../screens/ai/ai_chat_screen.dart';
+import '../presentation/screens/settings/settings_screen.dart';
+import '../presentation/screens/ai/ai_chat_screen.dart';
 
 /// 创建主应用抽屉
 Drawer buildMainDrawer(BuildContext context) {
