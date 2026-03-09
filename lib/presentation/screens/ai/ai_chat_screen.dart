@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -20,6 +21,7 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
   bool _isLoading = false;
   int? _currentConversationId;
   String _currentTitle = '新对话';
+  String? _lastUserMessage; // 上一次用户发送的消息，用于重新回答
   
   // 健康数据缓存（不显示在对话框中）
   Map<String, dynamic>? _healthDataCache;
@@ -47,16 +49,34 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
     setState(() {
       _currentConversationId = id;
       _currentTitle = title;
+      _lastUserMessage = null; // 新对话时清空
     });
     
     // 刷新对话列表
     ref.invalidate(aiConversationsProvider);
   }
 
+  /// 重新回答上一个问题
+  Future<void> _regenerateResponse() async {
+    if (_lastUserMessage == null || _lastUserMessage!.isEmpty || _isLoading) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('没有可重新回答的消息')),
+      );
+      return;
+    }
+    
+    // 重新发送上一次的消息
+    _messageController.text = _lastUserMessage!;
+    await _sendMessage();
+  }
+
   Future<void> _sendMessage() async {
     final message = _messageController.text.trim();
     if (message.isEmpty || _isLoading) return;
 
+    // 保存用户消息，用于重新回答
+    _lastUserMessage = message;
+    
     _messageController.clear();
     
     // 添加用户消息到UI（临时）
@@ -425,26 +445,48 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
                     final message = messages[index];
                     final isUser = message.role == 'user';
                     
-                    return Align(
-                      alignment: isUser 
-                          ? Alignment.centerRight 
-                          : Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(12),
-                        constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * 0.75,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isUser 
-                              ? Theme.of(context).primaryColor 
-                              : Colors.grey[200],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          message.content,
-                          style: TextStyle(
-                            color: isUser ? Colors.white : Colors.black87,
+                    return GestureDetector(
+                      onLongPress: () {
+                        // 复制消息内容
+                        Clipboard.setData(ClipboardData(text: message.content));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('已复制到剪贴板'), duration: Duration(seconds: 1)),
+                        );
+                      },
+                      child: Align(
+                        alignment: isUser 
+                            ? Alignment.centerRight 
+                            : Alignment.centerLeft,
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.75,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isUser 
+                                ? Theme.of(context).colorScheme.primary 
+                                : Colors.grey[200],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                message.content,
+                                style: TextStyle(
+                                  color: isUser ? Colors.white : Colors.black87,
+                                ),
+                              ),
+                              if (!isUser)
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    '长按复制',
+                                    style: TextStyle(fontSize: 10, color: Colors.grey),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       ),
@@ -484,6 +526,16 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
+                // 重新回答按钮
+                IconButton(
+                  icon: Icon(
+                    Icons.refresh,
+                    color: _lastUserMessage != null && !_isLoading ? Colors.orange : Colors.grey,
+                  ),
+                  onPressed: _lastUserMessage != null && !_isLoading ? _regenerateResponse : null,
+                  tooltip: '重新回答',
+                ),
+                // 发送按钮
                 IconButton(
                   icon: _isLoading 
                       ? const SizedBox(
