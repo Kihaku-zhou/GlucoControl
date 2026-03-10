@@ -25,8 +25,8 @@ dependencies:
   file_picker: any
   path_provider: any
   permission_handler: any
-  flutter_local_notifications: any
-  timezone: any
+  # flutter_local_notifications: any  # 不需要系统通知
+  # timezone: any  # 仅用于通知
   go_router: any
   freezed_annotation: any
   intl: any
