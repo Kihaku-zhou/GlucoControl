@@ -292,27 +292,27 @@ class _BodyMeasurementTile extends StatelessWidget {
             PopupMenuButton(
               itemBuilder: (context) => [
                 const PopupMenuItem(
-              value: 'edit',
-              child: Row(
-                children: [
-                  Icon(Icons.edit),
-                  SizedBox(width: 8),
-                  Text('编辑'),
-                ],
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(Icons.delete, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('删除', style: TextStyle(color: Colors.red)),
-                ],
-              ),
-            ),
-          ],
-          onSelected: (value) async {
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit),
+                      SizedBox(width: 8),
+                      Text('编辑'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('删除', style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
+              ],
+              onSelected: (value) async {
             if (value == 'delete') {
               final confirm = await showDialog<bool>(
                 context: context,
