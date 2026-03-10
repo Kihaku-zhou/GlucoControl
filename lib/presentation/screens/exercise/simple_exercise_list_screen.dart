@@ -1392,6 +1392,7 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
 
       // 编辑模式：更新记录
       if (widget.editRecord != null) {
+        // 保留原有的 repsList（因为旧数据库可能没有这个列）
         final updatedRecord = ExerciseRecord(
           id: widget.editRecord!.id,
           type: _selectedType,
@@ -1403,7 +1404,7 @@ class _ExerciseAddSheetState extends ConsumerState<ExerciseAddSheet> {
           sets: sets,
           weight: weight,
           seconds: seconds,
-          repsList: repsListJson,
+          repsList: widget.editRecord!.repsList, // 保留原值
           calories: calories,
           heartRateAvg: widget.editRecord!.heartRateAvg,
           heartRateMax: widget.editRecord!.heartRateMax,

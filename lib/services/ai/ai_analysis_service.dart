@@ -79,8 +79,8 @@ class AIAnalysisService {
         'Authorization': 'Bearer ${config.apiKey}',
         'Content-Type': 'application/json',
       },
-      connectTimeout: const Duration(seconds: 60),
-      receiveTimeout: const Duration(seconds: 60),
+      connectTimeout: const Duration(seconds: 120),
+      receiveTimeout: const Duration(seconds: 180), // 图片上传需要更长时间
     ));
   }
 

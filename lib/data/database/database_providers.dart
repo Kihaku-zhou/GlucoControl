@@ -150,7 +150,7 @@ final mealRecordsByDateRangeProvider = FutureProvider.family<List<MealRecord>, D
 /// ==================== 设置 Providers ====================
 
 /// 血糖单位设置
-final bloodSugarUnitProvider = StateProvider<String>((ref) => 'mg/dL');
+final bloodSugarUnitProvider = StateProvider<String>((ref) => 'mmol/L');
 
 /// 血糖安全范围最小值
 final safeRangeMinProvider = StateProvider<double>((ref) => 70.0);

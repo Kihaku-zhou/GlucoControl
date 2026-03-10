@@ -56,25 +56,6 @@ class SettingsMainScreen extends ConsumerWidget {
               );
             },
           ),
-          const Divider(),
-
-          // 通知设置
-          _buildSectionHeader('提醒'),
-          ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text('测量提醒'),
-            subtitle: const Text('定时提醒测量血糖'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotificationSettingsScreen(),
-                ),
-              );
-            },
-          ),
-          const Divider(),
 
           // 运动目标
           _buildSectionHeader('运动目标'),
@@ -281,18 +262,14 @@ class BloodSugarUnitTile extends ConsumerWidget {
                   groupValue: currentUnit,
                   onChanged: (value) async {
                     if (value != currentUnit) {
-                      final db = ref.read(databaseProvider);
                       final prefs = ref.read(sharedPreferencesProvider);
-                      // 转换已有记录
-                      await db.convertBloodSugarUnit(currentUnit, value!);
-                      await prefs.setString('blood_sugar_unit', value);
+                      // 只切换显示单位，不转换数据
+                      await prefs.setString('blood_sugar_unit', value!);
                       ref.read(bloodSugarUnitProvider.notifier).state = value;
-                      // 刷新血糖记录
-                      ref.invalidate(bloodSugarRecordsProvider);
                       if (context.mounted) {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('血糖单位已切换')),
+                          const SnackBar(content: Text('血糖单位已切换（注意：已有数据不会自动转换）')),
                         );
                       }
                     } else {
@@ -306,18 +283,14 @@ class BloodSugarUnitTile extends ConsumerWidget {
                   groupValue: currentUnit,
                   onChanged: (value) async {
                     if (value != currentUnit) {
-                      final db = ref.read(databaseProvider);
                       final prefs = ref.read(sharedPreferencesProvider);
-                      // 转换已有记录
-                      await db.convertBloodSugarUnit(currentUnit, value!);
-                      await prefs.setString('blood_sugar_unit', value);
+                      // 只切换显示单位，不转换数据
+                      await prefs.setString('blood_sugar_unit', value!);
                       ref.read(bloodSugarUnitProvider.notifier).state = value;
-                      // 刷新血糖记录
-                      ref.invalidate(bloodSugarRecordsProvider);
                       if (context.mounted) {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('血糖单位已切换')),
+                          const SnackBar(content: Text('血糖单位已切换（注意：已有数据不会自动转换）')),
                         );
                       }
                     } else {
