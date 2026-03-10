@@ -12,7 +12,7 @@ part 'database.g.dart';
 class BloodSugarRecords extends Table {
   IntColumn get id => integer().autoIncrement()();
   RealColumn get value => real()();
-  TextColumn get unit => text().withDefault(const Constant('mg/dL'))();
+  TextColumn get unit => text().withDefault(const Constant('mmol/L'))(); // 存储单位
   TextColumn get type => text()(); // fasting, post_meal, custom
   DateTimeColumn get recordedAt => dateTime()();
   RealColumn get hoursAfterMeal => real().nullable()();

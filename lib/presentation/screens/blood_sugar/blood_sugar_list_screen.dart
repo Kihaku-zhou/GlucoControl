@@ -203,16 +203,11 @@ class BloodSugarListScreen extends ConsumerWidget {
       final db = ref.read(databaseProvider);
       final currentUnit = ref.read(bloodSugarUnitProvider);
       
-      // 转换为 mg/dL 存储
-      var mgDlValue = value;
-      if (currentUnit == 'mmol/L') {
-        mgDlValue = AppConstants.mmolLToMgDl(value);
-      }
-      
+      // 直接保存数值和单位，不转换
       await db.insertBloodSugarRecord(
         BloodSugarRecordsCompanion.insert(
-          value: mgDlValue,
-          unit: drift.Value(AppConstants.unitMgDl),
+          value: value,
+          unit: drift.Value(currentUnit), // 保存实际单位
           type: type,
           recordedAt: DateTime.now(),
           createdAt: DateTime.now(),
@@ -268,22 +263,19 @@ class _BloodSugarRecordTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsUnit = ref.watch(bloodSugarUnitProvider);
     
-    // 统一转换为 mg/dL（数据库存储的是 mg/dL）
-    double mgDlValue;
-    if (record.unit == 'mmol/L') {
-      mgDlValue = AppConstants.mmolLToMgDl(record.value);
-    } else {
-      mgDlValue = record.value;
-    }
-    
-    // 根据设置单位显示
+    // 每条记录有自己的单位，直接使用记录的单位显示
+    // 如果记录单位与设置单位不一致，进行转换
     double displayValue;
-    String displayUnit = settingsUnit;
-    if (settingsUnit == 'mmol/L') {
-      displayValue = AppTheme.mgdlToMmoll(mgDlValue);
+    if (settingsUnit == record.unit) {
+      displayValue = record.value;
+    } else if (settingsUnit == 'mmol/L' && record.unit == 'mg/dL') {
+      displayValue = AppTheme.mgdlToMmoll(record.value);
+    } else if (settingsUnit == 'mg/dL' && record.unit == 'mmol/L') {
+      displayValue = AppConstants.mmolLToMgDl(record.value);
     } else {
-      displayValue = mgDlValue;
+      displayValue = record.value;
     }
+    String displayUnit = settingsUnit;
     
     final color = AppTheme.getBloodSugarColor(displayValue, settingsUnit);
     final status = AppTheme.getBloodSugarStatus(displayValue, settingsUnit);
@@ -346,21 +338,18 @@ class _BloodSugarRecordTile extends ConsumerWidget {
     final timeFormat = DateFormat('yyyy年M月d日 HH:mm');
     final currentUnit = ref.watch(bloodSugarUnitProvider);
     
-    // 单位转换：先统一转为 mg/dL，再根据设置转换显示
-    double mgDlValue;
-    if (record.unit == 'mmol/L') {
-      mgDlValue = AppConstants.mmolLToMgDl(record.value);
-    } else {
-      mgDlValue = record.value;
-    }
-    
+    // 单位转换：直接使用记录的单位，根据设置转换显示
     double displayValue;
-    String displayUnit = currentUnit;
-    if (currentUnit == 'mmol/L') {
-      displayValue = AppTheme.mgdlToMmoll(mgDlValue);
+    if (currentUnit == record.unit) {
+      displayValue = record.value;
+    } else if (currentUnit == 'mmol/L' && record.unit == 'mg/dL') {
+      displayValue = AppTheme.mgdlToMmoll(record.value);
+    } else if (currentUnit == 'mg/dL' && record.unit == 'mmol/L') {
+      displayValue = AppConstants.mmolLToMgDl(record.value);
     } else {
-      displayValue = mgDlValue;
+      displayValue = record.value;
     }
+    String displayUnit = currentUnit;
     
     final color = AppTheme.getBloodSugarColor(displayValue, currentUnit);
 
@@ -684,11 +673,7 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
       var value = double.parse(_valueController.text);
       debugPrint('Parsed value: $value');
       
-      // 统一转换为 mg/dL 存储
-      if (_selectedUnit == AppConstants.unitMmolL) {
-        value = AppConstants.mmolLToMgDl(value);
-        debugPrint('Converted to mg/dL: $value');
-      }
+      // 不转换，直接保存数值和单位
       
       final recordedAt = DateTime(
         _selectedDate.year,
@@ -702,7 +687,7 @@ class _AddBloodSugarSheetState extends ConsumerState<AddBloodSugarSheet> {
       await db.insertBloodSugarRecord(
         BloodSugarRecordsCompanion.insert(
           value: value,
-          unit: drift.Value(AppConstants.unitMgDl),
+          unit: drift.Value(_selectedUnit), // 保存实际单位
           type: _selectedType,
           recordedAt: recordedAt,
           hoursAfterMeal: drift.Value(_hoursAfterMeal),
