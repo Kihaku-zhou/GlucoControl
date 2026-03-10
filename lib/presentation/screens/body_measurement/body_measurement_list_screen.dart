@@ -96,7 +96,7 @@ class BodyMeasurementListScreen extends ConsumerWidget {
                     final record = records[index];
                     return _BodyMeasurementTile(
       record: record,
-      onTap: () => _showBodyMeasurementDetail(context, record),
+      onTap: () => _showRecordDetail(context, record, ''),
     );
                   },
                 );

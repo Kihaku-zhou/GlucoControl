@@ -22,11 +22,11 @@ dependencies:
   # flutter_blue_plus: any  # 未使用
   dio: any
   image_picker: any
-  # file_picker: any  # 仅用于数据导入，可选保留
+  file_picker: any
   path_provider: any
   permission_handler: any
-  # flutter_local_notifications: any  # 已删除提醒功能
-  # timezone: any  # 仅用于通知
+  flutter_local_notifications: any
+  timezone: any
   go_router: any
   freezed_annotation: any
   intl: any
