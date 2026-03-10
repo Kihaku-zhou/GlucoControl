@@ -170,7 +170,7 @@ class _MealRecordTile extends StatelessWidget {
 
   void _showRecordDetail(BuildContext context, MealRecord record) {
     final dateFormat = DateFormat('yyyy年M月d日 HH:mm');
-    final db = ref.read(databaseProvider);
+    final db = ProviderScope.containerOf(context).read(databaseProvider);
 
     showModalBottomSheet(
       context: context,
@@ -183,7 +183,7 @@ class _MealRecordTile extends StatelessWidget {
         builder: (context, scrollController) => FutureBuilder(
           future: db.getFoodItemsByMealId(record.id),
           builder: (context, snapshot) {
-            final foodItems = snapshot.data ?? [];
+            final foodItems = (snapshot.data as List<FoodItem>?) ?? [];
             
             return Container(
               padding: const EdgeInsets.all(24),
