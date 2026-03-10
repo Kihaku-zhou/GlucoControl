@@ -94,7 +94,10 @@ class BodyMeasurementListScreen extends ConsumerWidget {
                   itemCount: records.length,
                   itemBuilder: (context, index) {
                     final record = records[index];
-                    return _BodyMeasurementTile(record: record);
+                    return _BodyMeasurementTile(
+      record: record,
+      onTap: () => _showBodyMeasurementDetail(context, record),
+    );
                   },
                 );
               },
@@ -246,8 +249,9 @@ class _MetricItem extends StatelessWidget {
 /// 体测记录列表项
 class _BodyMeasurementTile extends StatelessWidget {
   final BodyMeasurement record;
+  final VoidCallback? onTap;
 
-  const _BodyMeasurementTile({required this.record});
+  const _BodyMeasurementTile({required this.record, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -289,7 +293,9 @@ class _BodyMeasurementTile extends StatelessWidget {
                 padding: EdgeInsets.only(right: 8),
                 child: Icon(Icons.photo, color: Colors.grey),
               ),
-            PopupMenuButton(
+          ],
+        ),
+        onTap: onTap,
               itemBuilder: (context) => [
                 const PopupMenuItem(
                   value: 'edit',
