@@ -313,42 +313,43 @@ class _BodyMeasurementTile extends StatelessWidget {
                 ),
               ],
               onSelected: (value) async {
-            if (value == 'delete') {
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('确认删除'),
-                  content: const Text('确定要删除这条体测记录吗？'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('取消'),
+                if (value == 'delete') {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('确认删除'),
+                      content: const Text('确定要删除这条体测记录吗？'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('取消'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('删除', style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
                     ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('删除', style: TextStyle(color: Colors.red)),
-                    ),
-                  ],
-                ),
-              );
-              if (confirm == true) {
-                // 获取 ref 的方式
-                final container = ProviderScope.containerOf(context);
-                final db = container.read(databaseProvider);
-                await db.deleteBodyMeasurement(record.id);
-                container.invalidate(bodyMeasurementsProvider);
-                container.invalidate(latestBodyMeasurementProvider);
-              }
-            } else if (value == 'edit') {
-              if (context.mounted) {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (context) => AddBodyMeasurementSheet(measurement: record),
-                );
-              }
-            }
-          },
+                  );
+                  if (confirm == true) {
+                    final container = ProviderScope.containerOf(context);
+                    final db = container.read(databaseProvider);
+                    await db.deleteBodyMeasurement(record.id);
+                    container.invalidate(bodyMeasurementsProvider);
+                    container.invalidate(latestBodyMeasurementProvider);
+                  }
+                } else if (value == 'edit') {
+                  if (context.mounted) {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) => AddBodyMeasurementSheet(measurement: record),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
         ),
       ),
     );
