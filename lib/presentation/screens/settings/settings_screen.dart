@@ -760,10 +760,10 @@ class AIApiSettingsScreen extends ConsumerStatefulWidget {
 class _AIApiSettingsScreenState extends ConsumerState<AIApiSettingsScreen> {
   final _apiUrlController = TextEditingController(text: 'https://api.openai.com/v1/chat/completions');
   final _apiKeyController = TextEditingController();
-  final _modelController = TextEditingController(text: 'gpt-3.5-turbo');
+  final _modelController = TextEditingController(text: 'abab6.5s-chat');
   bool _obscureKey = true;
   bool _isEnabled = false;
-  String? _selectedProvider;
+  String? _selectedProvider = 'MiniMax';
 
   @override
   void initState() {
@@ -776,7 +776,7 @@ class _AIApiSettingsScreenState extends ConsumerState<AIApiSettingsScreen> {
     setState(() {
       _apiUrlController.text = prefs.getString('ai_api_url') ?? 'https://api.openai.com/v1/chat/completions';
       _apiKeyController.text = prefs.getString('ai_api_key') ?? '';
-      _modelController.text = prefs.getString('ai_model') ?? 'gpt-3.5-turbo';
+      _modelController.text = prefs.getString('ai_model') ?? 'abab6.5s-chat';
       _isEnabled = prefs.getBool('ai_enabled') ?? false;
       
       // 根据 URL 匹配提供商
