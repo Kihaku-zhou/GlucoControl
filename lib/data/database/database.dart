@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
+import 'health_samples_dao.dart';
+
 part 'database.g.dart';
 
 /// 血糖记录表
@@ -149,6 +151,41 @@ class AIMessages extends Table {
   DateTimeColumn get createdAt => dateTime()();
 }
 
+/// 外部健康样本表。
+///
+/// 存放从华为运动健康、Health Connect、硅基轻享、iGPSPORT、Keep、训记等来源
+/// 归一化后的记录。`(sourceId, kind, externalId)` 唯一，使重复导入幂等；
+/// 领域字段以 JSON 存放在 [payloadJson]，由 `lib/domain/health/health_records.dart`
+/// 中的类型化模型解释，从而在新增数据源时不必改动表结构。
+class ExternalHealthSamples extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get sourceId => text()(); // HealthSourceId.code
+  TextColumn get kind => text()(); // HealthSampleKind.code
+  TextColumn get externalId => text()(); // 源内稳定标识，用于幂等
+  DateTimeColumn get startAt => dateTime()();
+  DateTimeColumn get endAt => dateTime().nullable()();
+  TextColumn get title => text().nullable()();
+  TextColumn get originApp => text().nullable()(); // 数据最初由哪个应用产生
+  TextColumn get payloadJson => text()();
+  DateTimeColumn get ingestedAt => dateTime()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {sourceId, kind, externalId}
+      ];
+}
+
+/// 外部数据源的启用状态与同步结果。
+class HealthSourceStates extends Table {
+  TextColumn get sourceId => text()(); // HealthSourceId.code
+  BoolColumn get enabled => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
+  TextColumn get lastError => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {sourceId};
+}
+
 @DriftDatabase(tables: [
   BloodSugarRecords,
   ExerciseRecords,
@@ -161,12 +198,17 @@ class AIMessages extends Table {
   BodyMeasurements,
   AIConversations,
   AIMessages,
+  ExternalHealthSamples,
+  HealthSourceStates,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  /// 外部健康样本的读写入口。
+  late final HealthSamplesDao healthSamplesDao = HealthSamplesDao(this);
+
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -181,6 +223,11 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(trainingPlanExercises);
           // 创建体测记录表
           await m.createTable(bodyMeasurements);
+        }
+        if (from < 3) {
+          // 创建外部健康数据接入表
+          await m.createTable(externalHealthSamples);
+          await m.createTable(healthSourceStates);
         }
       },
     );

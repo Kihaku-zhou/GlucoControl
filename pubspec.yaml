@@ -1,47 +1,57 @@
 name: glucocontrol
-description: "Glucose Control App"
+description: "GlucoControl — 血糖管理为核心的多源健康数据聚合与 AI 分析应用"
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.2.0+3
 
 environment:
   sdk: ^3.5.0
 
 dependencies:
-  path: ^1.9.0
   flutter:
     sdk: flutter
+
+  # ---- 状态管理 ----
+  flutter_riverpod: ^2.6.1
+
+  # ---- 本地存储 ----
+  drift: ^2.28.2
+  sqlite3_flutter_libs: ^0.5.41
+  sqlite3: ^2.9.4
+  sqflite_common_ffi: ^2.3.4+4
+  shared_preferences: ^2.5.3
+  path_provider: ^2.1.5
+  path: ^1.9.0
+  uuid: ^4.5.3
+
+  # ---- 界面 ----
   cupertino_icons: ^1.0.8
-  flutter_riverpod: any
-  riverpod_annotation: any
-  drift: any
-  sqlite3_flutter_libs: any
-  sqflite_common_ffi: any
-  sqlite3: any
-  fl_chart: any
-  webdav_client: any
-  # flutter_blue_plus: any  # 未使用
-  dio: any
-  image_picker: any
-  file_picker: any
-  path_provider: any
-  permission_handler: any
-  # flutter_local_notifications: any  # 不需要系统通知
-  # timezone: any  # 仅用于通知
-  go_router: any
-  freezed_annotation: any
-  intl: any
-  uuid: any
-  shared_preferences: any
+  go_router: ^16.1.0
+  fl_chart: ^0.71.0
+  intl: ^0.20.2
+
+  # ---- 网络与备份 ----
+  dio: ^5.9.2
+  webdav_client: ^1.2.2
+
+  # ---- 外部健康数据接入（方案见 docs/DATA_SOURCES.md）----
+  health: ^13.1.3 # Android Health Connect 统一读写
+  csv: ^5.1.1 # Keep / 训记 / 硅基轻享 导出的 CSV
+  xml: ^6.5.0 # GPX / TCX 轨迹（iGPSPORT、Keep）
+  fit_tool: ^1.0.5 # FIT 活动文件（iGPSPORT 码表）
+  crypto: ^3.0.7 # 外部样本指纹，用于幂等去重
+
+  # ---- 媒体与权限 ----
+  image_picker: ^1.2.0
+  file_picker: ^10.3.10
+  permission_handler: ^12.0.1
 
 dev_dependencies:
-  path: ^1.9.0
   flutter_test:
     sdk: flutter
-  flutter_lints: any
-  build_runner: any
-  drift_dev: any
-  freezed: any
-  flutter_launcher_icons: any
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.15
+  drift_dev: ^2.28.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter_launcher_icons:
   android: true

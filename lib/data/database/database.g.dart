@@ -5029,6 +5029,798 @@ class AIMessagesCompanion extends UpdateCompanion<AIMessage> {
   }
 }
 
+class $ExternalHealthSamplesTable extends ExternalHealthSamples
+    with TableInfo<$ExternalHealthSamplesTable, ExternalHealthSample> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExternalHealthSamplesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _sourceIdMeta =
+      const VerificationMeta('sourceId');
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+      'source_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _externalIdMeta =
+      const VerificationMeta('externalId');
+  @override
+  late final GeneratedColumn<String> externalId = GeneratedColumn<String>(
+      'external_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _startAtMeta =
+      const VerificationMeta('startAt');
+  @override
+  late final GeneratedColumn<DateTime> startAt = GeneratedColumn<DateTime>(
+      'start_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _endAtMeta = const VerificationMeta('endAt');
+  @override
+  late final GeneratedColumn<DateTime> endAt = GeneratedColumn<DateTime>(
+      'end_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _originAppMeta =
+      const VerificationMeta('originApp');
+  @override
+  late final GeneratedColumn<String> originApp = GeneratedColumn<String>(
+      'origin_app', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _payloadJsonMeta =
+      const VerificationMeta('payloadJson');
+  @override
+  late final GeneratedColumn<String> payloadJson = GeneratedColumn<String>(
+      'payload_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ingestedAtMeta =
+      const VerificationMeta('ingestedAt');
+  @override
+  late final GeneratedColumn<DateTime> ingestedAt = GeneratedColumn<DateTime>(
+      'ingested_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        sourceId,
+        kind,
+        externalId,
+        startAt,
+        endAt,
+        title,
+        originApp,
+        payloadJson,
+        ingestedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'external_health_samples';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ExternalHealthSample> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(_sourceIdMeta,
+          sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta));
+    } else if (isInserting) {
+      context.missing(_sourceIdMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('external_id')) {
+      context.handle(
+          _externalIdMeta,
+          externalId.isAcceptableOrUnknown(
+              data['external_id']!, _externalIdMeta));
+    } else if (isInserting) {
+      context.missing(_externalIdMeta);
+    }
+    if (data.containsKey('start_at')) {
+      context.handle(_startAtMeta,
+          startAt.isAcceptableOrUnknown(data['start_at']!, _startAtMeta));
+    } else if (isInserting) {
+      context.missing(_startAtMeta);
+    }
+    if (data.containsKey('end_at')) {
+      context.handle(
+          _endAtMeta, endAt.isAcceptableOrUnknown(data['end_at']!, _endAtMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    }
+    if (data.containsKey('origin_app')) {
+      context.handle(_originAppMeta,
+          originApp.isAcceptableOrUnknown(data['origin_app']!, _originAppMeta));
+    }
+    if (data.containsKey('payload_json')) {
+      context.handle(
+          _payloadJsonMeta,
+          payloadJson.isAcceptableOrUnknown(
+              data['payload_json']!, _payloadJsonMeta));
+    } else if (isInserting) {
+      context.missing(_payloadJsonMeta);
+    }
+    if (data.containsKey('ingested_at')) {
+      context.handle(
+          _ingestedAtMeta,
+          ingestedAt.isAcceptableOrUnknown(
+              data['ingested_at']!, _ingestedAtMeta));
+    } else if (isInserting) {
+      context.missing(_ingestedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+        {sourceId, kind, externalId},
+      ];
+  @override
+  ExternalHealthSample map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExternalHealthSample(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      sourceId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_id'])!,
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      externalId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}external_id'])!,
+      startAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_at'])!,
+      endAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}end_at']),
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title']),
+      originApp: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}origin_app']),
+      payloadJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload_json'])!,
+      ingestedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}ingested_at'])!,
+    );
+  }
+
+  @override
+  $ExternalHealthSamplesTable createAlias(String alias) {
+    return $ExternalHealthSamplesTable(attachedDatabase, alias);
+  }
+}
+
+class ExternalHealthSample extends DataClass
+    implements Insertable<ExternalHealthSample> {
+  final int id;
+  final String sourceId;
+  final String kind;
+  final String externalId;
+  final DateTime startAt;
+  final DateTime? endAt;
+  final String? title;
+  final String? originApp;
+  final String payloadJson;
+  final DateTime ingestedAt;
+  const ExternalHealthSample(
+      {required this.id,
+      required this.sourceId,
+      required this.kind,
+      required this.externalId,
+      required this.startAt,
+      this.endAt,
+      this.title,
+      this.originApp,
+      required this.payloadJson,
+      required this.ingestedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['source_id'] = Variable<String>(sourceId);
+    map['kind'] = Variable<String>(kind);
+    map['external_id'] = Variable<String>(externalId);
+    map['start_at'] = Variable<DateTime>(startAt);
+    if (!nullToAbsent || endAt != null) {
+      map['end_at'] = Variable<DateTime>(endAt);
+    }
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    if (!nullToAbsent || originApp != null) {
+      map['origin_app'] = Variable<String>(originApp);
+    }
+    map['payload_json'] = Variable<String>(payloadJson);
+    map['ingested_at'] = Variable<DateTime>(ingestedAt);
+    return map;
+  }
+
+  ExternalHealthSamplesCompanion toCompanion(bool nullToAbsent) {
+    return ExternalHealthSamplesCompanion(
+      id: Value(id),
+      sourceId: Value(sourceId),
+      kind: Value(kind),
+      externalId: Value(externalId),
+      startAt: Value(startAt),
+      endAt:
+          endAt == null && nullToAbsent ? const Value.absent() : Value(endAt),
+      title:
+          title == null && nullToAbsent ? const Value.absent() : Value(title),
+      originApp: originApp == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originApp),
+      payloadJson: Value(payloadJson),
+      ingestedAt: Value(ingestedAt),
+    );
+  }
+
+  factory ExternalHealthSample.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExternalHealthSample(
+      id: serializer.fromJson<int>(json['id']),
+      sourceId: serializer.fromJson<String>(json['sourceId']),
+      kind: serializer.fromJson<String>(json['kind']),
+      externalId: serializer.fromJson<String>(json['externalId']),
+      startAt: serializer.fromJson<DateTime>(json['startAt']),
+      endAt: serializer.fromJson<DateTime?>(json['endAt']),
+      title: serializer.fromJson<String?>(json['title']),
+      originApp: serializer.fromJson<String?>(json['originApp']),
+      payloadJson: serializer.fromJson<String>(json['payloadJson']),
+      ingestedAt: serializer.fromJson<DateTime>(json['ingestedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'sourceId': serializer.toJson<String>(sourceId),
+      'kind': serializer.toJson<String>(kind),
+      'externalId': serializer.toJson<String>(externalId),
+      'startAt': serializer.toJson<DateTime>(startAt),
+      'endAt': serializer.toJson<DateTime?>(endAt),
+      'title': serializer.toJson<String?>(title),
+      'originApp': serializer.toJson<String?>(originApp),
+      'payloadJson': serializer.toJson<String>(payloadJson),
+      'ingestedAt': serializer.toJson<DateTime>(ingestedAt),
+    };
+  }
+
+  ExternalHealthSample copyWith(
+          {int? id,
+          String? sourceId,
+          String? kind,
+          String? externalId,
+          DateTime? startAt,
+          Value<DateTime?> endAt = const Value.absent(),
+          Value<String?> title = const Value.absent(),
+          Value<String?> originApp = const Value.absent(),
+          String? payloadJson,
+          DateTime? ingestedAt}) =>
+      ExternalHealthSample(
+        id: id ?? this.id,
+        sourceId: sourceId ?? this.sourceId,
+        kind: kind ?? this.kind,
+        externalId: externalId ?? this.externalId,
+        startAt: startAt ?? this.startAt,
+        endAt: endAt.present ? endAt.value : this.endAt,
+        title: title.present ? title.value : this.title,
+        originApp: originApp.present ? originApp.value : this.originApp,
+        payloadJson: payloadJson ?? this.payloadJson,
+        ingestedAt: ingestedAt ?? this.ingestedAt,
+      );
+  ExternalHealthSample copyWithCompanion(ExternalHealthSamplesCompanion data) {
+    return ExternalHealthSample(
+      id: data.id.present ? data.id.value : this.id,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      externalId:
+          data.externalId.present ? data.externalId.value : this.externalId,
+      startAt: data.startAt.present ? data.startAt.value : this.startAt,
+      endAt: data.endAt.present ? data.endAt.value : this.endAt,
+      title: data.title.present ? data.title.value : this.title,
+      originApp: data.originApp.present ? data.originApp.value : this.originApp,
+      payloadJson:
+          data.payloadJson.present ? data.payloadJson.value : this.payloadJson,
+      ingestedAt:
+          data.ingestedAt.present ? data.ingestedAt.value : this.ingestedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExternalHealthSample(')
+          ..write('id: $id, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('kind: $kind, ')
+          ..write('externalId: $externalId, ')
+          ..write('startAt: $startAt, ')
+          ..write('endAt: $endAt, ')
+          ..write('title: $title, ')
+          ..write('originApp: $originApp, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('ingestedAt: $ingestedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, sourceId, kind, externalId, startAt,
+      endAt, title, originApp, payloadJson, ingestedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExternalHealthSample &&
+          other.id == this.id &&
+          other.sourceId == this.sourceId &&
+          other.kind == this.kind &&
+          other.externalId == this.externalId &&
+          other.startAt == this.startAt &&
+          other.endAt == this.endAt &&
+          other.title == this.title &&
+          other.originApp == this.originApp &&
+          other.payloadJson == this.payloadJson &&
+          other.ingestedAt == this.ingestedAt);
+}
+
+class ExternalHealthSamplesCompanion
+    extends UpdateCompanion<ExternalHealthSample> {
+  final Value<int> id;
+  final Value<String> sourceId;
+  final Value<String> kind;
+  final Value<String> externalId;
+  final Value<DateTime> startAt;
+  final Value<DateTime?> endAt;
+  final Value<String?> title;
+  final Value<String?> originApp;
+  final Value<String> payloadJson;
+  final Value<DateTime> ingestedAt;
+  const ExternalHealthSamplesCompanion({
+    this.id = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.externalId = const Value.absent(),
+    this.startAt = const Value.absent(),
+    this.endAt = const Value.absent(),
+    this.title = const Value.absent(),
+    this.originApp = const Value.absent(),
+    this.payloadJson = const Value.absent(),
+    this.ingestedAt = const Value.absent(),
+  });
+  ExternalHealthSamplesCompanion.insert({
+    this.id = const Value.absent(),
+    required String sourceId,
+    required String kind,
+    required String externalId,
+    required DateTime startAt,
+    this.endAt = const Value.absent(),
+    this.title = const Value.absent(),
+    this.originApp = const Value.absent(),
+    required String payloadJson,
+    required DateTime ingestedAt,
+  })  : sourceId = Value(sourceId),
+        kind = Value(kind),
+        externalId = Value(externalId),
+        startAt = Value(startAt),
+        payloadJson = Value(payloadJson),
+        ingestedAt = Value(ingestedAt);
+  static Insertable<ExternalHealthSample> custom({
+    Expression<int>? id,
+    Expression<String>? sourceId,
+    Expression<String>? kind,
+    Expression<String>? externalId,
+    Expression<DateTime>? startAt,
+    Expression<DateTime>? endAt,
+    Expression<String>? title,
+    Expression<String>? originApp,
+    Expression<String>? payloadJson,
+    Expression<DateTime>? ingestedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sourceId != null) 'source_id': sourceId,
+      if (kind != null) 'kind': kind,
+      if (externalId != null) 'external_id': externalId,
+      if (startAt != null) 'start_at': startAt,
+      if (endAt != null) 'end_at': endAt,
+      if (title != null) 'title': title,
+      if (originApp != null) 'origin_app': originApp,
+      if (payloadJson != null) 'payload_json': payloadJson,
+      if (ingestedAt != null) 'ingested_at': ingestedAt,
+    });
+  }
+
+  ExternalHealthSamplesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? sourceId,
+      Value<String>? kind,
+      Value<String>? externalId,
+      Value<DateTime>? startAt,
+      Value<DateTime?>? endAt,
+      Value<String?>? title,
+      Value<String?>? originApp,
+      Value<String>? payloadJson,
+      Value<DateTime>? ingestedAt}) {
+    return ExternalHealthSamplesCompanion(
+      id: id ?? this.id,
+      sourceId: sourceId ?? this.sourceId,
+      kind: kind ?? this.kind,
+      externalId: externalId ?? this.externalId,
+      startAt: startAt ?? this.startAt,
+      endAt: endAt ?? this.endAt,
+      title: title ?? this.title,
+      originApp: originApp ?? this.originApp,
+      payloadJson: payloadJson ?? this.payloadJson,
+      ingestedAt: ingestedAt ?? this.ingestedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (externalId.present) {
+      map['external_id'] = Variable<String>(externalId.value);
+    }
+    if (startAt.present) {
+      map['start_at'] = Variable<DateTime>(startAt.value);
+    }
+    if (endAt.present) {
+      map['end_at'] = Variable<DateTime>(endAt.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (originApp.present) {
+      map['origin_app'] = Variable<String>(originApp.value);
+    }
+    if (payloadJson.present) {
+      map['payload_json'] = Variable<String>(payloadJson.value);
+    }
+    if (ingestedAt.present) {
+      map['ingested_at'] = Variable<DateTime>(ingestedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExternalHealthSamplesCompanion(')
+          ..write('id: $id, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('kind: $kind, ')
+          ..write('externalId: $externalId, ')
+          ..write('startAt: $startAt, ')
+          ..write('endAt: $endAt, ')
+          ..write('title: $title, ')
+          ..write('originApp: $originApp, ')
+          ..write('payloadJson: $payloadJson, ')
+          ..write('ingestedAt: $ingestedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $HealthSourceStatesTable extends HealthSourceStates
+    with TableInfo<$HealthSourceStatesTable, HealthSourceState> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HealthSourceStatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _sourceIdMeta =
+      const VerificationMeta('sourceId');
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+      'source_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _enabledMeta =
+      const VerificationMeta('enabled');
+  @override
+  late final GeneratedColumn<bool> enabled = GeneratedColumn<bool>(
+      'enabled', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("enabled" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _lastSyncedAtMeta =
+      const VerificationMeta('lastSyncedAt');
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+      'last_synced_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _lastErrorMeta =
+      const VerificationMeta('lastError');
+  @override
+  late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
+      'last_error', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [sourceId, enabled, lastSyncedAt, lastError];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'health_source_states';
+  @override
+  VerificationContext validateIntegrity(Insertable<HealthSourceState> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('source_id')) {
+      context.handle(_sourceIdMeta,
+          sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta));
+    } else if (isInserting) {
+      context.missing(_sourceIdMeta);
+    }
+    if (data.containsKey('enabled')) {
+      context.handle(_enabledMeta,
+          enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta));
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+          _lastSyncedAtMeta,
+          lastSyncedAt.isAcceptableOrUnknown(
+              data['last_synced_at']!, _lastSyncedAtMeta));
+    }
+    if (data.containsKey('last_error')) {
+      context.handle(_lastErrorMeta,
+          lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {sourceId};
+  @override
+  HealthSourceState map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HealthSourceState(
+      sourceId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_id'])!,
+      enabled: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}enabled'])!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_synced_at']),
+      lastError: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}last_error']),
+    );
+  }
+
+  @override
+  $HealthSourceStatesTable createAlias(String alias) {
+    return $HealthSourceStatesTable(attachedDatabase, alias);
+  }
+}
+
+class HealthSourceState extends DataClass
+    implements Insertable<HealthSourceState> {
+  final String sourceId;
+  final bool enabled;
+  final DateTime? lastSyncedAt;
+  final String? lastError;
+  const HealthSourceState(
+      {required this.sourceId,
+      required this.enabled,
+      this.lastSyncedAt,
+      this.lastError});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['source_id'] = Variable<String>(sourceId);
+    map['enabled'] = Variable<bool>(enabled);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<String>(lastError);
+    }
+    return map;
+  }
+
+  HealthSourceStatesCompanion toCompanion(bool nullToAbsent) {
+    return HealthSourceStatesCompanion(
+      sourceId: Value(sourceId),
+      enabled: Value(enabled),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
+      lastError: lastError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastError),
+    );
+  }
+
+  factory HealthSourceState.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HealthSourceState(
+      sourceId: serializer.fromJson<String>(json['sourceId']),
+      enabled: serializer.fromJson<bool>(json['enabled']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
+      lastError: serializer.fromJson<String?>(json['lastError']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'sourceId': serializer.toJson<String>(sourceId),
+      'enabled': serializer.toJson<bool>(enabled),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
+      'lastError': serializer.toJson<String?>(lastError),
+    };
+  }
+
+  HealthSourceState copyWith(
+          {String? sourceId,
+          bool? enabled,
+          Value<DateTime?> lastSyncedAt = const Value.absent(),
+          Value<String?> lastError = const Value.absent()}) =>
+      HealthSourceState(
+        sourceId: sourceId ?? this.sourceId,
+        enabled: enabled ?? this.enabled,
+        lastSyncedAt:
+            lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
+        lastError: lastError.present ? lastError.value : this.lastError,
+      );
+  HealthSourceState copyWithCompanion(HealthSourceStatesCompanion data) {
+    return HealthSourceState(
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      enabled: data.enabled.present ? data.enabled.value : this.enabled,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HealthSourceState(')
+          ..write('sourceId: $sourceId, ')
+          ..write('enabled: $enabled, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
+          ..write('lastError: $lastError')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(sourceId, enabled, lastSyncedAt, lastError);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HealthSourceState &&
+          other.sourceId == this.sourceId &&
+          other.enabled == this.enabled &&
+          other.lastSyncedAt == this.lastSyncedAt &&
+          other.lastError == this.lastError);
+}
+
+class HealthSourceStatesCompanion extends UpdateCompanion<HealthSourceState> {
+  final Value<String> sourceId;
+  final Value<bool> enabled;
+  final Value<DateTime?> lastSyncedAt;
+  final Value<String?> lastError;
+  final Value<int> rowid;
+  const HealthSourceStatesCompanion({
+    this.sourceId = const Value.absent(),
+    this.enabled = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  HealthSourceStatesCompanion.insert({
+    required String sourceId,
+    this.enabled = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : sourceId = Value(sourceId);
+  static Insertable<HealthSourceState> custom({
+    Expression<String>? sourceId,
+    Expression<bool>? enabled,
+    Expression<DateTime>? lastSyncedAt,
+    Expression<String>? lastError,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (sourceId != null) 'source_id': sourceId,
+      if (enabled != null) 'enabled': enabled,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
+      if (lastError != null) 'last_error': lastError,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  HealthSourceStatesCompanion copyWith(
+      {Value<String>? sourceId,
+      Value<bool>? enabled,
+      Value<DateTime?>? lastSyncedAt,
+      Value<String?>? lastError,
+      Value<int>? rowid}) {
+    return HealthSourceStatesCompanion(
+      sourceId: sourceId ?? this.sourceId,
+      enabled: enabled ?? this.enabled,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
+      lastError: lastError ?? this.lastError,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
+    }
+    if (enabled.present) {
+      map['enabled'] = Variable<bool>(enabled.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
+    if (lastError.present) {
+      map['last_error'] = Variable<String>(lastError.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HealthSourceStatesCompanion(')
+          ..write('sourceId: $sourceId, ')
+          ..write('enabled: $enabled, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
+          ..write('lastError: $lastError, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5049,6 +5841,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AIConversationsTable aIConversations =
       $AIConversationsTable(this);
   late final $AIMessagesTable aIMessages = $AIMessagesTable(this);
+  late final $ExternalHealthSamplesTable externalHealthSamples =
+      $ExternalHealthSamplesTable(this);
+  late final $HealthSourceStatesTable healthSourceStates =
+      $HealthSourceStatesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5064,7 +5860,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         trainingPlanExercises,
         bodyMeasurements,
         aIConversations,
-        aIMessages
+        aIMessages,
+        externalHealthSamples,
+        healthSourceStates
       ];
 }
 
@@ -8309,6 +9107,416 @@ typedef $$AIMessagesTableProcessedTableManager = ProcessedTableManager<
     (AIMessage, $$AIMessagesTableReferences),
     AIMessage,
     PrefetchHooks Function({bool conversationId})>;
+typedef $$ExternalHealthSamplesTableCreateCompanionBuilder
+    = ExternalHealthSamplesCompanion Function({
+  Value<int> id,
+  required String sourceId,
+  required String kind,
+  required String externalId,
+  required DateTime startAt,
+  Value<DateTime?> endAt,
+  Value<String?> title,
+  Value<String?> originApp,
+  required String payloadJson,
+  required DateTime ingestedAt,
+});
+typedef $$ExternalHealthSamplesTableUpdateCompanionBuilder
+    = ExternalHealthSamplesCompanion Function({
+  Value<int> id,
+  Value<String> sourceId,
+  Value<String> kind,
+  Value<String> externalId,
+  Value<DateTime> startAt,
+  Value<DateTime?> endAt,
+  Value<String?> title,
+  Value<String?> originApp,
+  Value<String> payloadJson,
+  Value<DateTime> ingestedAt,
+});
+
+class $$ExternalHealthSamplesTableFilterComposer
+    extends Composer<_$AppDatabase, $ExternalHealthSamplesTable> {
+  $$ExternalHealthSamplesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceId => $composableBuilder(
+      column: $table.sourceId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get externalId => $composableBuilder(
+      column: $table.externalId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startAt => $composableBuilder(
+      column: $table.startAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get endAt => $composableBuilder(
+      column: $table.endAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get originApp => $composableBuilder(
+      column: $table.originApp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get ingestedAt => $composableBuilder(
+      column: $table.ingestedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ExternalHealthSamplesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ExternalHealthSamplesTable> {
+  $$ExternalHealthSamplesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceId => $composableBuilder(
+      column: $table.sourceId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get externalId => $composableBuilder(
+      column: $table.externalId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startAt => $composableBuilder(
+      column: $table.startAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get endAt => $composableBuilder(
+      column: $table.endAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get originApp => $composableBuilder(
+      column: $table.originApp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get ingestedAt => $composableBuilder(
+      column: $table.ingestedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ExternalHealthSamplesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ExternalHealthSamplesTable> {
+  $$ExternalHealthSamplesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get externalId => $composableBuilder(
+      column: $table.externalId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startAt =>
+      $composableBuilder(column: $table.startAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endAt =>
+      $composableBuilder(column: $table.endAt, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get originApp =>
+      $composableBuilder(column: $table.originApp, builder: (column) => column);
+
+  GeneratedColumn<String> get payloadJson => $composableBuilder(
+      column: $table.payloadJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get ingestedAt => $composableBuilder(
+      column: $table.ingestedAt, builder: (column) => column);
+}
+
+class $$ExternalHealthSamplesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ExternalHealthSamplesTable,
+    ExternalHealthSample,
+    $$ExternalHealthSamplesTableFilterComposer,
+    $$ExternalHealthSamplesTableOrderingComposer,
+    $$ExternalHealthSamplesTableAnnotationComposer,
+    $$ExternalHealthSamplesTableCreateCompanionBuilder,
+    $$ExternalHealthSamplesTableUpdateCompanionBuilder,
+    (
+      ExternalHealthSample,
+      BaseReferences<_$AppDatabase, $ExternalHealthSamplesTable,
+          ExternalHealthSample>
+    ),
+    ExternalHealthSample,
+    PrefetchHooks Function()> {
+  $$ExternalHealthSamplesTableTableManager(
+      _$AppDatabase db, $ExternalHealthSamplesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExternalHealthSamplesTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExternalHealthSamplesTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExternalHealthSamplesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> sourceId = const Value.absent(),
+            Value<String> kind = const Value.absent(),
+            Value<String> externalId = const Value.absent(),
+            Value<DateTime> startAt = const Value.absent(),
+            Value<DateTime?> endAt = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<String?> originApp = const Value.absent(),
+            Value<String> payloadJson = const Value.absent(),
+            Value<DateTime> ingestedAt = const Value.absent(),
+          }) =>
+              ExternalHealthSamplesCompanion(
+            id: id,
+            sourceId: sourceId,
+            kind: kind,
+            externalId: externalId,
+            startAt: startAt,
+            endAt: endAt,
+            title: title,
+            originApp: originApp,
+            payloadJson: payloadJson,
+            ingestedAt: ingestedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String sourceId,
+            required String kind,
+            required String externalId,
+            required DateTime startAt,
+            Value<DateTime?> endAt = const Value.absent(),
+            Value<String?> title = const Value.absent(),
+            Value<String?> originApp = const Value.absent(),
+            required String payloadJson,
+            required DateTime ingestedAt,
+          }) =>
+              ExternalHealthSamplesCompanion.insert(
+            id: id,
+            sourceId: sourceId,
+            kind: kind,
+            externalId: externalId,
+            startAt: startAt,
+            endAt: endAt,
+            title: title,
+            originApp: originApp,
+            payloadJson: payloadJson,
+            ingestedAt: ingestedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ExternalHealthSamplesTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDatabase,
+        $ExternalHealthSamplesTable,
+        ExternalHealthSample,
+        $$ExternalHealthSamplesTableFilterComposer,
+        $$ExternalHealthSamplesTableOrderingComposer,
+        $$ExternalHealthSamplesTableAnnotationComposer,
+        $$ExternalHealthSamplesTableCreateCompanionBuilder,
+        $$ExternalHealthSamplesTableUpdateCompanionBuilder,
+        (
+          ExternalHealthSample,
+          BaseReferences<_$AppDatabase, $ExternalHealthSamplesTable,
+              ExternalHealthSample>
+        ),
+        ExternalHealthSample,
+        PrefetchHooks Function()>;
+typedef $$HealthSourceStatesTableCreateCompanionBuilder
+    = HealthSourceStatesCompanion Function({
+  required String sourceId,
+  Value<bool> enabled,
+  Value<DateTime?> lastSyncedAt,
+  Value<String?> lastError,
+  Value<int> rowid,
+});
+typedef $$HealthSourceStatesTableUpdateCompanionBuilder
+    = HealthSourceStatesCompanion Function({
+  Value<String> sourceId,
+  Value<bool> enabled,
+  Value<DateTime?> lastSyncedAt,
+  Value<String?> lastError,
+  Value<int> rowid,
+});
+
+class $$HealthSourceStatesTableFilterComposer
+    extends Composer<_$AppDatabase, $HealthSourceStatesTable> {
+  $$HealthSourceStatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get sourceId => $composableBuilder(
+      column: $table.sourceId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get enabled => $composableBuilder(
+      column: $table.enabled, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+      column: $table.lastSyncedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastError => $composableBuilder(
+      column: $table.lastError, builder: (column) => ColumnFilters(column));
+}
+
+class $$HealthSourceStatesTableOrderingComposer
+    extends Composer<_$AppDatabase, $HealthSourceStatesTable> {
+  $$HealthSourceStatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get sourceId => $composableBuilder(
+      column: $table.sourceId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get enabled => $composableBuilder(
+      column: $table.enabled, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+      column: $table.lastSyncedAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastError => $composableBuilder(
+      column: $table.lastError, builder: (column) => ColumnOrderings(column));
+}
+
+class $$HealthSourceStatesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HealthSourceStatesTable> {
+  $$HealthSourceStatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
+
+  GeneratedColumn<bool> get enabled =>
+      $composableBuilder(column: $table.enabled, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+      column: $table.lastSyncedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
+}
+
+class $$HealthSourceStatesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $HealthSourceStatesTable,
+    HealthSourceState,
+    $$HealthSourceStatesTableFilterComposer,
+    $$HealthSourceStatesTableOrderingComposer,
+    $$HealthSourceStatesTableAnnotationComposer,
+    $$HealthSourceStatesTableCreateCompanionBuilder,
+    $$HealthSourceStatesTableUpdateCompanionBuilder,
+    (
+      HealthSourceState,
+      BaseReferences<_$AppDatabase, $HealthSourceStatesTable, HealthSourceState>
+    ),
+    HealthSourceState,
+    PrefetchHooks Function()> {
+  $$HealthSourceStatesTableTableManager(
+      _$AppDatabase db, $HealthSourceStatesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HealthSourceStatesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$HealthSourceStatesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$HealthSourceStatesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> sourceId = const Value.absent(),
+            Value<bool> enabled = const Value.absent(),
+            Value<DateTime?> lastSyncedAt = const Value.absent(),
+            Value<String?> lastError = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              HealthSourceStatesCompanion(
+            sourceId: sourceId,
+            enabled: enabled,
+            lastSyncedAt: lastSyncedAt,
+            lastError: lastError,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String sourceId,
+            Value<bool> enabled = const Value.absent(),
+            Value<DateTime?> lastSyncedAt = const Value.absent(),
+            Value<String?> lastError = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              HealthSourceStatesCompanion.insert(
+            sourceId: sourceId,
+            enabled: enabled,
+            lastSyncedAt: lastSyncedAt,
+            lastError: lastError,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$HealthSourceStatesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $HealthSourceStatesTable,
+    HealthSourceState,
+    $$HealthSourceStatesTableFilterComposer,
+    $$HealthSourceStatesTableOrderingComposer,
+    $$HealthSourceStatesTableAnnotationComposer,
+    $$HealthSourceStatesTableCreateCompanionBuilder,
+    $$HealthSourceStatesTableUpdateCompanionBuilder,
+    (
+      HealthSourceState,
+      BaseReferences<_$AppDatabase, $HealthSourceStatesTable, HealthSourceState>
+    ),
+    HealthSourceState,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -8335,4 +9543,8 @@ class $AppDatabaseManager {
       $$AIConversationsTableTableManager(_db, _db.aIConversations);
   $$AIMessagesTableTableManager get aIMessages =>
       $$AIMessagesTableTableManager(_db, _db.aIMessages);
+  $$ExternalHealthSamplesTableTableManager get externalHealthSamples =>
+      $$ExternalHealthSamplesTableTableManager(_db, _db.externalHealthSamples);
+  $$HealthSourceStatesTableTableManager get healthSourceStates =>
+      $$HealthSourceStatesTableTableManager(_db, _db.healthSourceStates);
 }
