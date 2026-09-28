@@ -33,3 +33,7 @@ Thumbs.db
 
 # Test
 coverage/
+
+# 调试期临时输出
+_analyze*.txt
+_test_out.txt
