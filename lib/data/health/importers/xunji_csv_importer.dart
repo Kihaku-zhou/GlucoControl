@@ -84,8 +84,8 @@ class XunjiCsvImporter extends HealthFileImporterBase {
         final groups = <DateTime, _DayGroup>{};
         for (final row in table.dataRows) {
           builder.countRead();
-          final timeText = _timeText(table.match, row);
-          final time = parseDateTimeCell(timeText);
+          final timeTexts = timeCellTexts(table.match, row);
+          final time = combineDateTimeCells(timeTexts);
           if (time == null) {
             builder.countSkipped('缺少或无法解析的时间');
             continue;
@@ -125,21 +125,6 @@ class XunjiCsvImporter extends HealthFileImporterBase {
   CsvTable? _locate(List<int> bytes) {
     final rows = parseCsvRows(decodeImportText(headBytes(bytes)));
     return CsvTable.tryLocate(rows, _columns);
-  }
-
-  /// 把日期列与时间列拼成完整的时间文本。
-  ///
-  /// @param match 表头匹配结果。
-  /// @param row 数据行。
-  /// @returns 以空格连接的时间文本。
-  String _timeText(HeaderMatch match, List<String> row) {
-    final parts = <String>[];
-    for (final field in const <String>['time', 'date']) {
-      final value = match.cell(row, field);
-      if (value.isEmpty || parts.contains(value)) continue;
-      parts.add(value);
-    }
-    return parts.join(' ');
   }
 
   /// 把日期折算为幂等键使用的稳定文本。

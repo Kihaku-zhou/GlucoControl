@@ -148,6 +148,12 @@ class AIMessages extends Table {
   IntColumn get conversationId => integer().references(AIConversations, #id)();
   TextColumn get role => text()(); // user, assistant
   TextColumn get content => text()();
+
+  /// 本轮回答发生过的工具调用记录（JSON 数组）。
+  ///
+  /// 保留它是为了让「AI 查了什么数据才得出结论」在重启后仍可复核；为空表示
+  /// 该条消息没有触发工具调用（例如用户消息，或模型直接作答）。
+  TextColumn get toolTraceJson => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
 }
 
@@ -208,7 +214,7 @@ class AppDatabase extends _$AppDatabase {
   late final HealthSamplesDao healthSamplesDao = HealthSamplesDao(this);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -228,6 +234,10 @@ class AppDatabase extends _$AppDatabase {
           // 创建外部健康数据接入表
           await m.createTable(externalHealthSamples);
           await m.createTable(healthSourceStates);
+        }
+        if (from < 4) {
+          // AI 消息增加工具调用留痕
+          await m.addColumn(aIMessages, aIMessages.toolTraceJson);
         }
       },
     );

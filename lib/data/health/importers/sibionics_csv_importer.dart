@@ -83,8 +83,9 @@ class SibionicsCsvImporter extends HealthFileImporterBase {
         final samples = <HealthSample>[];
         for (final row in table.dataRows) {
           builder.countRead();
-          final timeText = _timeText(match, row);
-          final time = parseDateTimeCell(timeText);
+          final timeTexts = timeCellTexts(match, row);
+          final time = combineDateTimeCells(timeTexts);
+          final timeText = timeTexts.join(' ');
           if (time == null) {
             builder.countSkipped('缺少或无法解析的时间');
             continue;
@@ -151,24 +152,6 @@ class SibionicsCsvImporter extends HealthFileImporterBase {
   CsvTable? _locate(List<int> bytes) {
     final rows = parseCsvRows(decodeImportText(headBytes(bytes)));
     return CsvTable.tryLocate(rows, _columns);
-  }
-
-  /// 把日期列与时间列拼成完整的时间文本。
-  ///
-  /// `time` 列排在前面，保证 `2025-01-02 08:30` 这类已含时间的列不会被日期列截断；
-  /// 两列内容相同（同一列被匹配两次）时只取一份。
-  ///
-  /// @param match 表头匹配结果。
-  /// @param row 数据行。
-  /// @returns 以空格连接的时间文本。
-  String _timeText(HeaderMatch match, List<String> row) {
-    final parts = <String>[];
-    for (final field in const <String>['time', 'date']) {
-      final value = match.cell(row, field);
-      if (value.isEmpty || parts.contains(value)) continue;
-      parts.add(value);
-    }
-    return parts.join(' ');
   }
 
   /// 把导出的趋势列折算为 [GlucoseTrend]。

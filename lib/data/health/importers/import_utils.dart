@@ -163,7 +163,7 @@ String toHalfWidth(String text) {
 ///
 /// 处理顺序：去 BOM → 全角转半角 → 转小写 → 去掉括号内的单位 → 去掉空格与
 /// 常见分隔符。例如 `血糖(mmol/L)`、` 血糖 ( mmol/L )`、`血糖【mmol/L】`
-/// 都归一化为 `血糖`。
+/// 都归一化为 `血糖`；整个列名都写在括号里时（如 `【备注】`）保留括号内容。
 ///
 /// @param raw 原始列名。
 /// @returns 归一化后的列名；无法得到有效字符时返回空串。
@@ -173,8 +173,17 @@ String normalizeHeaderKey(String raw) {
     text = text.substring(1);
   }
   text = toHalfWidth(text).toLowerCase();
-  text = text.replaceAll(_bracketPattern, '');
 
+  final withoutUnits = _stripHeaderNoise(text.replaceAll(_bracketPattern, ''));
+  if (withoutUnits.isNotEmpty) return withoutUnits;
+  return _stripHeaderNoise(text);
+}
+
+/// 去掉表头里不影响列名识别的字符。
+///
+/// @param text 已转半角并小写的文本。
+/// @returns 去掉噪声字符后的文本。
+String _stripHeaderNoise(String text) {
   final buffer = StringBuffer();
   for (final rune in text.runes) {
     final char = String.fromCharCode(rune);
@@ -184,8 +193,8 @@ String normalizeHeaderKey(String raw) {
   return buffer.toString();
 }
 
-/// 括号及其内容：`(kg)`、`[km]`、`{min}`，支持未闭合。
-final RegExp _bracketPattern = RegExp(r'[({\[][^)}\]]*[)}\]]?');
+/// 括号及其内容：`(kg)`、`[km]`、`{min}`、`【mmol/L】`，支持未闭合。
+final RegExp _bracketPattern = RegExp(r'[({\[【][^)}\]】]*[)}\]】]?');
 
 /// 表头里不影响列名识别的字符。
 const Set<String> _headerNoiseRunes = {
@@ -195,7 +204,7 @@ const Set<String> _headerNoiseRunes = {
 };
 
 /// 括号内单位文本。
-final RegExp _unitPattern = RegExp(r'[({\[]\s*([^)}\]]*)\s*[)}\]]');
+final RegExp _unitPattern = RegExp(r'[({\[【]\s*([^)}\]】]*)\s*[)}\]】]');
 
 // ---------------------------------------------------------------------------
 // 单元格解析
@@ -265,7 +274,8 @@ String _normalizeDecimalSeparators(String literal) {
 /// 支持 ISO 8601（含 `Z` / `+08:00` 偏移）、`2025-01-02 08:30`、`2025/1/2 8:30`、
 /// `2025年1月2日 8时30分`、`20250102`、纯日期等写法。
 ///
-/// 带时区偏移的输入会被换算为本地时间；不带偏移的输入按本地时间解释。
+/// 带时区偏移的输入会被换算为本地时间；不带偏移的输入按本地时间解释，且会校验
+/// 年月日与原文一致——`2025-02-30` 不会被顺延成 3 月 2 日，而是返回 null。
 ///
 /// @param raw 单元格原值。
 /// @returns 解析出的时间；无法识别时返回 null。
@@ -274,14 +284,38 @@ DateTime? parseDateTimeCell(Object? raw) {
   final text = toHalfWidth(raw is String ? raw : raw.toString()).trim();
   if (text.isEmpty) return null;
 
+  final hasZone = _timeZonePattern.hasMatch(text);
   final iso = DateTime.tryParse(text);
-  if (iso != null) return iso.isUtc ? iso.toLocal() : iso;
+  if (iso != null) {
+    final result = iso.isUtc ? iso.toLocal() : iso;
+    if (hasZone || _matchesLeadingDate(result, text)) return result;
+  }
 
-  final patterned = _parsePatternedDateTime(text);
-  if (patterned != null) return patterned;
-
-  return _parseCompactDateTime(text);
+  return _parsePatternedDateTime(text) ?? _parseCompactDateTime(text);
 }
+
+/// 文本末尾的时区标记：`Z`、`+08:00`、`+0800`。
+final RegExp _timeZonePattern = RegExp(r'(?:[zZ]|[+-]\d{2}:?\d{2})$');
+
+/// 校验解析结果的开头年月日与原文一致。
+///
+/// [DateTime.parse] 会把 `2025-02-30` 顺延为 3 月 2 日、把 `2025-13-01` 顺延到下一年，
+/// 这里用原文前三个数字做兜底校验。
+///
+/// @param value 已解析的时间。
+/// @param text 原始文本。
+/// @returns 原文开头不是日期时返回 true；否则要求年月日完全一致。
+bool _matchesLeadingDate(DateTime value, String text) {
+  final match = _leadingDatePattern.firstMatch(text);
+  if (match == null) return true;
+  return value.year == int.parse(match.group(1)!) &&
+      value.month == int.parse(match.group(2)!) &&
+      value.day == int.parse(match.group(3)!);
+}
+
+/// 文本开头的年月日数字。
+final RegExp _leadingDatePattern =
+    RegExp(r'^(\d{4})\D?(\d{1,2})\D?(\d{1,2})');
 
 /// 按中英文日期分隔符 + 可选时间部分解析。
 ///
@@ -343,9 +377,11 @@ DateTime? _buildDateTime({
 }
 
 /// `yyyy-M-d` / `yyyy/M/d` / `yyyy.M.d` / `yyyy年M月d日` 加可选时间部分。
+///
+/// 时间部分前的空白用 `[T\s]*` 而不是 `\s+`，避免被日期部分的 `\s*` 抢先吃掉。
 final RegExp _dateTimePattern = RegExp(
   r'(\d{4})\s*[-/.年]\s*(\d{1,2})\s*[-/.月]\s*(\d{1,2})\s*日?'
-  r'(?:[T\s]+(\d{1,2})\s*[:：时]\s*(\d{1,2})'
+  r'(?:[T\s]*(\d{1,2})\s*[:：时]\s*(\d{1,2})'
   r'(?:\s*[:：分]\s*(\d{1,2}))?\s*秒?)?',
 );
 
@@ -368,6 +404,91 @@ final RegExp _durationTokenPattern =
 
 /// 冒号分隔的时长，如 `1:02:03`、`45:30`。
 final RegExp _durationColonPattern = RegExp(r'^(\d{1,3}):([0-5]?\d)(?::([0-5]?\d))?$');
+
+/// 解析只有时刻的单元格。
+///
+/// @param raw 单元格原值，如 `08:30`、`8:30:15`、`8时30分`。
+/// @returns 当日偏移量；无法识别时返回 null。
+Duration? parseTimeOfDayCell(Object? raw) {
+  if (raw == null) return null;
+  final text = toHalfWidth(raw is String ? raw : raw.toString()).trim();
+  if (text.isEmpty) return null;
+
+  final match = _timeOfDayPattern.firstMatch(text);
+  if (match == null) return null;
+  final hour = int.parse(match.group(1)!);
+  final minute = int.tryParse(match.group(2) ?? '') ?? 0;
+  final second = int.tryParse(match.group(3) ?? '') ?? 0;
+  if (hour > 23 || minute > 59 || second > 59) return null;
+  return Duration(hours: hour, minutes: minute, seconds: second);
+}
+
+/// 时刻片段，如 `08:30`、`8:30:15`、`8时30分`。
+final RegExp _timeOfDayPattern =
+    RegExp(r'(\d{1,2})\s*[:：时]\s*(\d{1,2})(?:\s*[:：分]\s*(\d{1,2}))?');
+
+/// 判断文本里是否出现时刻片段。
+///
+/// @param text 已转半角的文本。
+/// @returns 含 `时:分` 结构时为 true。
+bool _hasTimeOfDay(String text) => _timeOfDayPattern.hasMatch(text);
+
+/// 时间类逻辑字段名，按取值优先级排列。
+const List<String> timeFieldNames = <String>['time', 'date'];
+
+/// 收集一行里可能承载时间的单元格文本。
+///
+/// 部分导出把日期与时刻拆成两列，因此返回去重后的非空单元格，交由
+/// [combineDateTimeCells] 合并；同一列被匹配两次时只保留一份。
+///
+/// @param match 表头匹配结果。
+/// @param row 数据行。
+/// @returns 去重后的单元格文本。
+List<String> timeCellTexts(HeaderMatch match, List<String> row) {
+  final parts = <String>[];
+  for (final field in timeFieldNames) {
+    final value = match.cell(row, field);
+    if (value.isEmpty || parts.contains(value)) continue;
+    parts.add(value);
+  }
+  return parts;
+}
+
+/// 把可能分开存放的日期与时刻单元格合并为一个时间点。
+///
+/// 逐个尝试每个单元格：能解析出完整日期的取其年月日，能解析出时刻的取其时分秒。
+/// 因此 `['2025-01-02', '08:30']`、`['2025-01-02 08:30']` 以及
+/// `['08:30', '2025-01-02']` 三种写法结果一致。
+///
+/// @param cells 同一行的时间单元格原文。
+/// @returns 合并后的本地时间；没有任何单元格含日期时返回 null。
+DateTime? combineDateTimeCells(Iterable<String> cells) {
+  DateTime? date;
+  Duration? timeOfDay;
+
+  for (final cell in cells) {
+    final text = cell.trim();
+    if (text.isEmpty) continue;
+
+    final full = parseDateTimeCell(text);
+    if (full != null) {
+      date ??= DateTime(full.year, full.month, full.day);
+      if (timeOfDay == null && _hasTimeOfDay(toHalfWidth(text))) {
+        timeOfDay = Duration(
+          hours: full.hour,
+          minutes: full.minute,
+          seconds: full.second,
+        );
+      }
+      continue;
+    }
+
+    timeOfDay ??= parseTimeOfDayCell(text);
+  }
+
+  if (date == null) return null;
+  return date.add(timeOfDay ?? Duration.zero);
+}
 
 /// 解析导出文件中的时长文本。
 ///
@@ -482,7 +603,7 @@ const Map<WorkoutCategory, List<String>> _categoryKeywords = {
     '跑步', '慢跑', '快跑', '跑步机', '越野跑', 'run', 'jog', 'treadmill',
   ],
   WorkoutCategory.cycling: [
-    '骑行', '单车', '自行车', '动感单车', 'cycle', 'bike', 'spinning', '骑',
+    '骑行', '单车', '自行车', '动感单车', '骑', 'cycl', 'bik', 'spinning',
   ],
   WorkoutCategory.walking: [
     '步行', '行走', '健走', '散步', '徒步', '远足', 'walk', 'hiking', 'hike',

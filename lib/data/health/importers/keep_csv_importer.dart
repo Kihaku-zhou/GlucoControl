@@ -2,7 +2,6 @@
 library;
 
 import '../../../core/result.dart';
-import '../../../domain/health/health_records.dart';
 import '../../../domain/health/health_source.dart';
 import 'import_utils.dart';
 
@@ -92,8 +91,9 @@ class KeepCsvImporter extends HealthFileImporterBase {
 
         for (final row in table.dataRows) {
           builder.countRead();
-          final timeText = _timeText(match, row);
-          final startedAt = parseDateTimeCell(timeText);
+          final timeTexts = timeCellTexts(match, row);
+          final startedAt = combineDateTimeCells(timeTexts);
+          final timeText = timeTexts.join(' ');
           if (startedAt == null) {
             builder.countSkipped('缺少或无法解析的开始时间');
             continue;
@@ -201,20 +201,5 @@ class KeepCsvImporter extends HealthFileImporterBase {
       return startedAt.add(duration);
     }
     return startedAt;
-  }
-
-  /// 把日期列与时间列拼成完整的时间文本。
-  ///
-  /// @param match 表头匹配结果。
-  /// @param row 数据行。
-  /// @returns 以空格连接的时间文本。
-  String _timeText(HeaderMatch match, List<String> row) {
-    final parts = <String>[];
-    for (final field in const <String>['time', 'date']) {
-      final value = match.cell(row, field);
-      if (value.isEmpty || parts.contains(value)) continue;
-      parts.add(value);
-    }
-    return parts.join(' ');
   }
 }

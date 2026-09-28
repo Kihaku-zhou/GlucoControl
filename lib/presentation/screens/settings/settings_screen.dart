@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../../data/database/database_providers.dart';
 import '../../../services/data_export_service.dart';
 import '../../../services/webdav/webdav_service.dart';
+import '../health/health_sources_screen.dart';
 import 'exercise_goal_screen.dart';
 import 'blood_sugar_goal_screen.dart';
 
@@ -37,6 +38,26 @@ class SettingsMainScreen extends ConsumerWidget {
           // 血糖范围
           _buildSectionHeader('血糖范围'),
           const SafeRangeTile(),
+          const Divider(),
+
+          // 数据源接入
+          _buildSectionHeader('数据源接入'),
+          ListTile(
+            leading: const Icon(Icons.hub),
+            title: const Text('接入外部健康应用'),
+            subtitle: const Text(
+              '华为运动健康、Health Connect、硅基轻享、iGPSPORT、Keep、训记',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HealthSourcesScreen(),
+                ),
+              );
+            },
+          ),
           const Divider(),
 
           // WebDAV 同步

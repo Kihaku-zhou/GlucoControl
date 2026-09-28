@@ -4,7 +4,6 @@ library;
 import 'package:xml/xml.dart';
 
 import '../../../core/result.dart';
-import '../../../domain/health/health_records.dart';
 import '../../../domain/health/health_source.dart';
 import 'import_utils.dart';
 

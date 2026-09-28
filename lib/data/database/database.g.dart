@@ -4759,6 +4759,12 @@ class $AIMessagesTable extends AIMessages
   late final GeneratedColumn<String> content = GeneratedColumn<String>(
       'content', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _toolTraceJsonMeta =
+      const VerificationMeta('toolTraceJson');
+  @override
+  late final GeneratedColumn<String> toolTraceJson = GeneratedColumn<String>(
+      'tool_trace_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -4767,7 +4773,7 @@ class $AIMessagesTable extends AIMessages
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, conversationId, role, content, createdAt];
+      [id, conversationId, role, content, toolTraceJson, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4801,6 +4807,12 @@ class $AIMessagesTable extends AIMessages
     } else if (isInserting) {
       context.missing(_contentMeta);
     }
+    if (data.containsKey('tool_trace_json')) {
+      context.handle(
+          _toolTraceJsonMeta,
+          toolTraceJson.isAcceptableOrUnknown(
+              data['tool_trace_json']!, _toolTraceJsonMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -4824,6 +4836,8 @@ class $AIMessagesTable extends AIMessages
           .read(DriftSqlType.string, data['${effectivePrefix}role'])!,
       content: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
+      toolTraceJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tool_trace_json']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
@@ -4840,12 +4854,19 @@ class AIMessage extends DataClass implements Insertable<AIMessage> {
   final int conversationId;
   final String role;
   final String content;
+
+  /// 本轮回答发生过的工具调用记录（JSON 数组）。
+  ///
+  /// 保留它是为了让「AI 查了什么数据才得出结论」在重启后仍可复核；为空表示
+  /// 该条消息没有触发工具调用（例如用户消息，或模型直接作答）。
+  final String? toolTraceJson;
   final DateTime createdAt;
   const AIMessage(
       {required this.id,
       required this.conversationId,
       required this.role,
       required this.content,
+      this.toolTraceJson,
       required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4854,6 +4875,9 @@ class AIMessage extends DataClass implements Insertable<AIMessage> {
     map['conversation_id'] = Variable<int>(conversationId);
     map['role'] = Variable<String>(role);
     map['content'] = Variable<String>(content);
+    if (!nullToAbsent || toolTraceJson != null) {
+      map['tool_trace_json'] = Variable<String>(toolTraceJson);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -4864,6 +4888,9 @@ class AIMessage extends DataClass implements Insertable<AIMessage> {
       conversationId: Value(conversationId),
       role: Value(role),
       content: Value(content),
+      toolTraceJson: toolTraceJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(toolTraceJson),
       createdAt: Value(createdAt),
     );
   }
@@ -4876,6 +4903,7 @@ class AIMessage extends DataClass implements Insertable<AIMessage> {
       conversationId: serializer.fromJson<int>(json['conversationId']),
       role: serializer.fromJson<String>(json['role']),
       content: serializer.fromJson<String>(json['content']),
+      toolTraceJson: serializer.fromJson<String?>(json['toolTraceJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -4887,6 +4915,7 @@ class AIMessage extends DataClass implements Insertable<AIMessage> {
       'conversationId': serializer.toJson<int>(conversationId),
       'role': serializer.toJson<String>(role),
       'content': serializer.toJson<String>(content),
+      'toolTraceJson': serializer.toJson<String?>(toolTraceJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -4896,12 +4925,15 @@ class AIMessage extends DataClass implements Insertable<AIMessage> {
           int? conversationId,
           String? role,
           String? content,
+          Value<String?> toolTraceJson = const Value.absent(),
           DateTime? createdAt}) =>
       AIMessage(
         id: id ?? this.id,
         conversationId: conversationId ?? this.conversationId,
         role: role ?? this.role,
         content: content ?? this.content,
+        toolTraceJson:
+            toolTraceJson.present ? toolTraceJson.value : this.toolTraceJson,
         createdAt: createdAt ?? this.createdAt,
       );
   AIMessage copyWithCompanion(AIMessagesCompanion data) {
@@ -4912,6 +4944,9 @@ class AIMessage extends DataClass implements Insertable<AIMessage> {
           : this.conversationId,
       role: data.role.present ? data.role.value : this.role,
       content: data.content.present ? data.content.value : this.content,
+      toolTraceJson: data.toolTraceJson.present
+          ? data.toolTraceJson.value
+          : this.toolTraceJson,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -4923,13 +4958,15 @@ class AIMessage extends DataClass implements Insertable<AIMessage> {
           ..write('conversationId: $conversationId, ')
           ..write('role: $role, ')
           ..write('content: $content, ')
+          ..write('toolTraceJson: $toolTraceJson, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, conversationId, role, content, createdAt);
+  int get hashCode =>
+      Object.hash(id, conversationId, role, content, toolTraceJson, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4938,6 +4975,7 @@ class AIMessage extends DataClass implements Insertable<AIMessage> {
           other.conversationId == this.conversationId &&
           other.role == this.role &&
           other.content == this.content &&
+          other.toolTraceJson == this.toolTraceJson &&
           other.createdAt == this.createdAt);
 }
 
@@ -4946,12 +4984,14 @@ class AIMessagesCompanion extends UpdateCompanion<AIMessage> {
   final Value<int> conversationId;
   final Value<String> role;
   final Value<String> content;
+  final Value<String?> toolTraceJson;
   final Value<DateTime> createdAt;
   const AIMessagesCompanion({
     this.id = const Value.absent(),
     this.conversationId = const Value.absent(),
     this.role = const Value.absent(),
     this.content = const Value.absent(),
+    this.toolTraceJson = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   AIMessagesCompanion.insert({
@@ -4959,6 +4999,7 @@ class AIMessagesCompanion extends UpdateCompanion<AIMessage> {
     required int conversationId,
     required String role,
     required String content,
+    this.toolTraceJson = const Value.absent(),
     required DateTime createdAt,
   })  : conversationId = Value(conversationId),
         role = Value(role),
@@ -4969,6 +5010,7 @@ class AIMessagesCompanion extends UpdateCompanion<AIMessage> {
     Expression<int>? conversationId,
     Expression<String>? role,
     Expression<String>? content,
+    Expression<String>? toolTraceJson,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -4976,6 +5018,7 @@ class AIMessagesCompanion extends UpdateCompanion<AIMessage> {
       if (conversationId != null) 'conversation_id': conversationId,
       if (role != null) 'role': role,
       if (content != null) 'content': content,
+      if (toolTraceJson != null) 'tool_trace_json': toolTraceJson,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -4985,12 +5028,14 @@ class AIMessagesCompanion extends UpdateCompanion<AIMessage> {
       Value<int>? conversationId,
       Value<String>? role,
       Value<String>? content,
+      Value<String?>? toolTraceJson,
       Value<DateTime>? createdAt}) {
     return AIMessagesCompanion(
       id: id ?? this.id,
       conversationId: conversationId ?? this.conversationId,
       role: role ?? this.role,
       content: content ?? this.content,
+      toolTraceJson: toolTraceJson ?? this.toolTraceJson,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -5010,6 +5055,9 @@ class AIMessagesCompanion extends UpdateCompanion<AIMessage> {
     if (content.present) {
       map['content'] = Variable<String>(content.value);
     }
+    if (toolTraceJson.present) {
+      map['tool_trace_json'] = Variable<String>(toolTraceJson.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -5023,6 +5071,7 @@ class AIMessagesCompanion extends UpdateCompanion<AIMessage> {
           ..write('conversationId: $conversationId, ')
           ..write('role: $role, ')
           ..write('content: $content, ')
+          ..write('toolTraceJson: $toolTraceJson, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -8844,6 +8893,7 @@ typedef $$AIMessagesTableCreateCompanionBuilder = AIMessagesCompanion Function({
   required int conversationId,
   required String role,
   required String content,
+  Value<String?> toolTraceJson,
   required DateTime createdAt,
 });
 typedef $$AIMessagesTableUpdateCompanionBuilder = AIMessagesCompanion Function({
@@ -8851,6 +8901,7 @@ typedef $$AIMessagesTableUpdateCompanionBuilder = AIMessagesCompanion Function({
   Value<int> conversationId,
   Value<String> role,
   Value<String> content,
+  Value<String?> toolTraceJson,
   Value<DateTime> createdAt,
 });
 
@@ -8892,6 +8943,9 @@ class $$AIMessagesTableFilterComposer
 
   ColumnFilters<String> get content => $composableBuilder(
       column: $table.content, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get toolTraceJson => $composableBuilder(
+      column: $table.toolTraceJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -8935,6 +8989,10 @@ class $$AIMessagesTableOrderingComposer
   ColumnOrderings<String> get content => $composableBuilder(
       column: $table.content, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get toolTraceJson => $composableBuilder(
+      column: $table.toolTraceJson,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -8976,6 +9034,9 @@ class $$AIMessagesTableAnnotationComposer
 
   GeneratedColumn<String> get content =>
       $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get toolTraceJson => $composableBuilder(
+      column: $table.toolTraceJson, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -9028,6 +9089,7 @@ class $$AIMessagesTableTableManager extends RootTableManager<
             Value<int> conversationId = const Value.absent(),
             Value<String> role = const Value.absent(),
             Value<String> content = const Value.absent(),
+            Value<String?> toolTraceJson = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               AIMessagesCompanion(
@@ -9035,6 +9097,7 @@ class $$AIMessagesTableTableManager extends RootTableManager<
             conversationId: conversationId,
             role: role,
             content: content,
+            toolTraceJson: toolTraceJson,
             createdAt: createdAt,
           ),
           createCompanionCallback: ({
@@ -9042,6 +9105,7 @@ class $$AIMessagesTableTableManager extends RootTableManager<
             required int conversationId,
             required String role,
             required String content,
+            Value<String?> toolTraceJson = const Value.absent(),
             required DateTime createdAt,
           }) =>
               AIMessagesCompanion.insert(
@@ -9049,6 +9113,7 @@ class $$AIMessagesTableTableManager extends RootTableManager<
             conversationId: conversationId,
             role: role,
             content: content,
+            toolTraceJson: toolTraceJson,
             createdAt: createdAt,
           ),
           withReferenceMapper: (p0) => p0
