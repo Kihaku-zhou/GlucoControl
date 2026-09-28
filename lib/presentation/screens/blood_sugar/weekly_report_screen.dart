@@ -251,7 +251,7 @@ class WeeklyReportScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text('${count}次', style: const TextStyle(color: Colors.grey)),
+        Text('$count次', style: const TextStyle(color: Colors.grey)),
       ],
     );
   }

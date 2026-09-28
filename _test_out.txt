@@ -1,0 +1,191 @@
+﻿00:00 +0: loading D:/GlucoControl/test/core/glucose_units_test.dart
+flutter.bat : test/core/result_test.dart:163:39: Error: Not a constant expression.
+At line:1 char:221
++ ... ucoControl; & "C:\flutter-3.27\flutter\bin\flutter.bat" test test\cor ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (test/core/resul...ant expression.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+      final enriched = const Err<int>(failure).withContext('同步最近 30 天失败');
+                                      ^^^^^^^
+00:00 +0 -1: loading D:/GlucoControl/test/core/result_test.dart [E]
+  Failed to load "D:/GlucoControl/test/core/result_test.dart": Compilation failed for testPath=D:/GlucoControl/test/core/result_test.dart
+00:00 +0 -2: loading D:/GlucoControl/test/core/glucose_units_test.dart [E]
+  Error: the Dart compiler exited unexpectedly.
+  package:flutter_tools/src/base/common.dart 10:3  throwToolExit
+  package:flutter_tools/src/compile.dart 893:9     DefaultResidentCompiler._compile.<fn>
+  dart:async/zone.dart 1422:47                     _rootRunUnary
+  dart:async/zone.dart 1324:19                     _CustomZone.runUnary
+  dart:async/future_impl.dart 902:45               Future._propagateToListeners.handleValueCallback
+  dart:async/future_impl.dart 931:13               Future._propagateToListeners
+  dart:async/future_impl.dart 827:9                Future._propagateToListeners
+  dart:async/future_impl.dart 707:5                Future._completeWithValue
+  dart:async/future_impl.dart 777:7                Future._asyncCompleteWithValue.<fn>
+  dart:async/zone.dart 1414:13                     _rootRun
+  dart:async/zone.dart 1317:19                     _CustomZone.run
+  dart:async/zone.dart 1225:7                      _CustomZone.runGuarded
+  dart:async/zone.dart 1265:23                     _CustomZone.bindCallbackGuarded.<fn>
+  dart:async/schedule_microtask.dart 40:21         _microtaskLoop
+  dart:async/schedule_microtask.dart 49:5          _startMicrotaskLoop
+  dart:isolate-patch/isolate_patch.dart 118:13     _runPendingImmediateCallback
+  dart:isolate-patch/isolate_patch.dart 185:5      _RawReceivePort._handleMessage
+  
+00:00 +0 -2: D:/GlucoControl/test/core/glucose_units_test.dart: GlucoseUnit 单位标签与枚举一一对应
+00:00 +1 -2: D:/GlucoControl/test/core/glucose_units_test.dart: GlucoseUnit fromLabel 能还原两个已知标签
+00:00 +2 -2: D:/GlucoControl/test/core/glucose_units_test.dart: GlucoseUnit fromLabel 对未知标签与 null 降级为 mmol/L
+00:00 +3 -2: D:/GlucoControl/test/core/glucose_units_test.dart: convertGlucose mmol/L 转 mg/dL 使用 18.0182 系数
+00:00 +4 -2: D:/GlucoControl/test/core/glucose_units_test.dart: convertGlucose mg/dL 转 mmol/L 使用同一系数的倒数
+00:00 +5 -2: D:/GlucoControl/test/core/glucose_units_test.dart: convertGlucose 同单位换算原样返回，不做浮点往返
+00:00 +6 -2: D:/GlucoControl/test/core/glucose_units_test.dart: convertGlucose 往返换算在浮点容差内还原原值
+00:00 +7 -2: D:/GlucoControl/test/core/glucose_units_test.dart: convertGlucose 零与负值也按同一规则线性换算
+00:00 +8 -2: D:/GlucoControl/test/core/glucose_units_test.dart: toMmolPerL 与 mmolPerLTo toMmolPerL 把 mg/dL 归一化为 mmol/L
+00:00 +9 -2: D:/GlucoControl/test/core/glucose_units_test.dart: toMmolPerL 与 mmolPerLTo toMmolPerL 对 mmol/L 输入原样返回
+00:00 +10 -2: D:/GlucoControl/test/core/glucose_units_test.dart: toMmolPerL 与 mmolPerLTo mmolPerLTo 按目标单位换算
+00:00 +11 -2: D:/GlucoControl/test/core/glucose_units_test.dart: toMmolPerL 与 mmolPerLTo 两者互为逆运算
+00:00 +12 -2: D:/GlucoControl/test/core/glucose_units_test.dart: GlucoseContext 每个枚举都带稳定编码与展示名
+00:00 +13 -2: D:/GlucoControl/test/core/glucose_units_test.dart: GlucoseContext fromCode 能还原全部已知编码
+00:00 +14 -2: D:/GlucoControl/test/core/glucose_units_test.dart: GlucoseContext fromCode 对未知编码与 null 降级为随机
+00:02 +15 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: HealthSourceId 与 HealthSampleKind 的编码 tryFromCode 还原全部已知编码并拒绝未知值
+00:02 +16 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: HealthSourceId 与 HealthSampleKind 的编码 文件型与在线授权型数据源分类正确
+00:02 +17 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: HealthSample 的载荷读取 doubleField 接受 num 与可解析字符串
+00:02 +18 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: HealthSample 的载荷读取 intField 接受 int、num 与可解析字符串并四舍五入
+00:02 +19 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: HealthSample 的载荷读取 stringField 只接受字符串
+00:02 +20 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: HealthSample 的载荷读取 boolField 接受 bool 与大小写不敏感的字符串
+00:02 +21 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: HealthSample 的载荷读取 duration 由 endAt 与 startAt 之差得到，瞬时样本为 null
+00:02 +22 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: HealthSample 的载荷读取 payload 缺省为空映射
+00:02 +23 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: GlucoseReading payload 键名与模型字段一致
+00:02 +24 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: GlucoseReading 往返守恒：全部字段还原
+00:02 +25 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: GlucoseReading 可空字段为 null 时不写入 payload，往返后仍为 null
+00:02 +26 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: GlucoseReading 缺少 mmolPerL 时 tryFromSample 返回 null
+00:02 +27 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: GlucoseReading 缺 context 时降级为随机，非法 trend 降级为 null
+00:02 +28 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: GlucoseReading valueIn 按目标单位换算
+00:02 +29 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: GlucoseTrend 与 WorkoutCategory GlucoseTrend 的编码与箭头齐全
+00:02 +30 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: GlucoseTrend 与 WorkoutCategory WorkoutCategory 的未知编码降级为 other
+00:02 +31 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: GlucoseTrend 与 WorkoutCategory 有氧分类判定覆盖五种项目
+00:02 +32 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: WorkoutSession payload 键名与模型字段一致且可空字段按需写入
+00:02 +33 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: WorkoutSession 往返守恒：全部字段还原
+00:02 +34 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: WorkoutSession 可空字段全为 null 时 payload 只剩必填项且往返不产生幻影值
+00:02 +35 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: WorkoutSession durationMinutes 精确到秒换算为分钟
+00:02 +36 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: WorkoutSession 缺少 endAt 时 tryFromSample 返回 null
+00:02 +37 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: WorkoutSession 缺 name 时用样本标题兜底，再退化到「运动」
+00:02 +38 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: WorkoutSession occurredAt 取开始时间
+00:02 +39 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: WorkoutSession intensityFactor 优先用标准化功率，缺 FTP 时返回 null
+00:02 +40 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: WorkoutSession intensityFactor 在缺标准化功率时退回平均功率
+00:02 +41 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: WorkoutSession 两个功率都缺时 intensityFactor 返回 null
+00:02 +42 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: BodyComposition payload 键名与模型字段一致
+00:02 +43 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: BodyComposition 往返守恒：全部字段还原
+00:02 +44 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: BodyComposition 全空体测也不报错，payload 为空映射
+00:02 +45 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: SleepSession payload 键名与模型字段一致
+00:02 +46 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: SleepSession 往返守恒：时长与分期字段还原
+00:02 +47 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: SleepSession 分期字段缺失时不写入 payload，往返后仍为 null
+00:02 +48 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: SleepSession 缺少结束时间时 tryFromSample 返回 null
+00:02 +49 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: DailyActivity payload 键名与模型字段一致
+00:02 +50 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: DailyActivity 往返守恒：汇总字段还原
+00:02 +51 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: DailyActivity 全部指标缺失时 payload 为空且往返不产生 0
+00:02 +52 -2: D:/GlucoControl/test/domain/health/health_records_test.dart: DailyActivity 字符串型数值可以被还原
+00:02 +53 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: HealthTimelineKind 编码与样本类别的映射覆盖全部取值
+00:02 +54 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: HealthTimelineKind tryFromCode 还原已知编码并拒绝未知值
+00:02 +55 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: HealthTimelineEntry toJson 输出全部非空字段
+00:02 +56 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: HealthTimelineEntry toJson 省略空字段，瞬时记录不含 until
+00:02 +57 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: HealthTimelineEntry duration 由 until 与 at 之差得到
+00:02 +58 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: HealthTimelineEntry toString 便于日志定位
+00:02 +59 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: HealthTimeline 的基础查询 空时间线的 span 为 null
+00:02 +60 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: HealthTimeline 的基础查询 span 取首尾条目的发生时间
+00:02 +61 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: HealthTimeline 的基础查询 ofKind 只返回指定类别
+00:02 +62 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: HealthTimeline 的基础查询 between 为左闭右开区间
+00:02 +63 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: HealthTimeline 的基础查询 between 的右端被排除、左端被包含
+00:02 +64 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: glucoseSummary 没有血糖记录时返回 null 而不是全零
+00:02 +65 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: glucoseSummary 空时间线同样返回 null
+00:02 +66 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: glucoseSummary metrics 里没有可用数值时返回 null
+00:02 +67 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: glucoseSummary TIR/below/above 三档占比之和为 100
+00:02 +68 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: glucoseSummary 目标范围边界值计入达标档
+00:02 +69 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: glucoseSummary 自定义目标范围改变分档结果
+00:02 +70 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: glucoseSummary 均值与极值由原始读数得到
+00:02 +71 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: glucoseSummary 估算糖化使用 ADAG 公式 (meanMgDl + 46.7) / 28.7
+00:02 +72 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: glucoseSummary 只有一个读数时占比不除零
+00:02 +73 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: glucoseSummary 只统计血糖类别的条目
+00:02 +74 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: glucoseSummary toJson 按约定精度四舍五入
+00:02 +75 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: contextAround 只返回运动与饮食，忽略血糖与体测
+00:02 +76 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: contextAround 恰好落在 lookBack 边界上的事件被包含
+00:02 +77 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: contextAround 恰好落在 lookAhead 边界上的事件被排除
+00:02 +78 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: contextAround 跨越窗口左界的运动按重叠计入
+00:02 +79 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: contextAround 在窗口左界之前就已经结束的运动被排除
+00:02 +80 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: contextAround 在窗口右界之后开始的运动被排除
+00:02 +81 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: contextAround 自定义 lookBack/lookAhead 改变窗口
+00:02 +82 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: contextAround 结果保持时间线原有顺序
+00:02 +83 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: toJson 的条数压缩 未超限时原样输出全部条目
+00:02 +84 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: toJson 的条数压缩 超限时每类各保留最新若干条且仍按时间升序
+00:02 +85 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: toJson 的条数压缩 某类条数不足配额时全部保留，名额不补偿给其他类
+00:02 +86 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: toJson 的条数压缩 类别数多于名额时配额下限为 1，结果条数可能超过 maxEntries
+00:02 +87 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: toJson 的条数压缩 默认 maxEntries=200 时不压缩常见规模的时间线
+00:02 +88 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: 从样本与记录构造条目 timelineEntryFromSample 搬运信封字段并把 payload 当 metrics
+00:02 +89 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: 从样本与记录构造条目 timelineEntryFromRecord 走 toSample 得到同样的指标键
+00:02 +90 -2: D:/GlucoControl/test/domain/health/health_timeline_test.dart: 从样本与记录构造条目 血糖记录转换后可直接参与 glucoseSummary
+00:03 +91 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig 的 JSON 往返 全部字段齐全时往返守恒
+00:03 +92 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig 的 JSON 往返 toJson 省略未填写的字段而不是写入 null
+00:03 +93 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig 的 JSON 往返 空配置序列化为空映射，反序列化得到空配置
+00:03 +94 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig 的 JSON 往返 fromJson 缺失字段时取 null 与空映射默认值
+00:03 +95 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig 的 JSON 往返 extra 的非字符串值被统一转成字符串
+00:03 +96 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig 的 JSON 往返 extra 为空时 toJson 不写入该键
+00:03 +97 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig 的 JSON 往返 JSON 编码后再解码仍守恒
+00:03 +98 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig.isEmpty 的判空语义 所有字段都为 null 时为空配置
+00:03 +99 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig.isEmpty 的判空语义 任意一个必填字段有值就不算空
+00:03 +100 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig.isEmpty 的判空语义 空字符串等价于未填写
+00:03 +101 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig.isEmpty 的判空语义 实现只用 isEmpty 判空，纯空格串仍被视为已填写
+00:03 +102 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig.isEmpty 的判空语义 纯空格串被 trim 后视为未填写（期望语义，当前未实现）
+  Skip: 源码 isEmpty 使用 (field ?? '').isEmpty，未做 trim：纯空格串会被判为「已配置」。连接器各自 trim，故暂不影响取数，但设置页可能出现「显示已配置、实际无地址」的状态。
+00:03 +102 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig.copyWith 只替换传入的字段
+00:03 +103 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig.copyWith 传入 null 时保留原值（无法显式清空单个字段）
+00:03 +104 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthSourceConfig.copyWith 可以整体替换 extra
+00:03 +105 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthConfigStore 未配置时读取到空配置
+00:03 +106 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthConfigStore 写入后可以原样读回
+00:03 +107 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthConfigStore 不同数据源的配置互不干扰
+00:03 +108 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthConfigStore 存储键带固定前缀加数据源编码
+00:03 +109 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthConfigStore clear 之后回到未配置状态
+00:03 +110 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthConfigStore 写入空配置会覆盖已有配置
+00:03 +111 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthConfigStore 存储中是非法 JSON 时降级为空配置
+00:03 +112 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthConfigStore 存储中是非对象 JSON 时降级为空配置
+00:03 +113 ~1 -2: D:/GlucoControl/test/data/health/health_source_config_test.dart: HealthConfigStore 存储中是空串时按未配置处理
+00:03 +114 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: entriesOf 顶层数组按字符串键归一化
+00:03 +115 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: entriesOf 过滤数组中的非对象元素
+00:03 +116 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: entriesOf JSON 字符串响应被解码后再取条目
+00:03 +117 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: entriesOf 非数组响应返回空列表
+00:03 +118 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: entriesOf 字符串不是合法 JSON 时抛出 FormatException
+00:03 +119 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 sgv 从 mg/dL 换算为 mmol/L 并保留原始值
+00:03 +120 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 换算使用 18.0182 系数
+00:03 +121 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 mbg 与 glucose 也可作为血糖字段
+00:03 +122 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 字符串型 sgv 也能解析
+00:03 +123 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 mbg 类型标记为随机时点，其余为动态监测
+00:03 +124 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 缺少 sgv 时返回 null
+00:03 +125 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 非正血糖值按缺失处理
+00:03 +126 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 direction 全量映射到 GlucoseTrend
+00:03 +127 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 未知或非字符串 direction 不写入 trend 字段
+00:03 +128 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 direction 两侧空白被忽略
+00:03 +129 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 _id 缺失时用时间戳兜底并保持稳定
+00:03 +130 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 _id 为空串时同样用时间戳兜底
+00:03 +131 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 秒级时间戳被放大为毫秒
+00:03 +132 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 缺少 date 时退回 dateString
+00:03 +133 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 时间字段完全缺失时使用当前时间兜底
+00:03 +134 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: parseEntry 的字段映射 device 非字符串时不写入 payload
+00:03 +135 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: checkAvailability 缺少站点地址时要求先授权
+00:03 +136 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: checkAvailability 地址只有空白时等同于未填写
+00:03 +137 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: checkAvailability 缺少 secret 与 token 时要求先授权
+00:03 +138 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: checkAvailability 配置 accessToken 后可用
+00:03 +139 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: checkAvailability 配置只读 token 后可用
+00:03 +140 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: checkAvailability authorize 直接复用可用性探测
+00:03 +141 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: checkAvailability id 与自动同步标记
+00:03 +142 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 未配置地址时直接返回配置类失败，不发请求
+00:03 +143 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 请求 URL 去掉基址尾部斜杠并带上窗口起点与条数上限
+00:03 +144 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 配置只读 token 时作为查询参数发送
+00:03 +145 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 accessToken 经 SHA-1 后放入 api-secret 请求头
+00:03 +146 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 没有 accessToken 时不发送 api-secret 头
+00:03 +147 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 成功路径把条目归一化为样本
+00:03 +148 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 缺少血糖值的条目被跳过并计入告警
+00:03 +149 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 鉴权失败映射为 authentication 失败
+00:03 +150 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 403 同样视为鉴权失败
+00:03 +151 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 404 映射为配置类失败
+00:03 +152 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 5xx 映射为可重试的网络失败
+00:03 +153 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 其他非 2xx 映射为未归类失败并带上状态码
+00:03 +154 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 网络异常映射为 network 失败并保留 cause
+00:03 +155 ~1 -2: D:/GlucoControl/test/data/health/sources/nightscout_data_source_test.dart: fetch 的请求构造与响应处理 2xx 但响应体是对象时返回空样本
+00:03 +156 ~1 -2: Some tests failed.

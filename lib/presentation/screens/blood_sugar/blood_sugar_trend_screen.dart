@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/constants.dart';
-import '../../../core/theme.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
 
@@ -208,13 +206,13 @@ class BloodSugarTrendScreen extends ConsumerWidget {
                       // 安全范围线
                       HorizontalLine(
                         y: 70,
-                        color: Colors.green.withOpacity(0.5),
+                        color: Colors.green.withValues(alpha: 0.5),
                         strokeWidth: 2,
                         dashArray: [5, 5],
                       ),
                       HorizontalLine(
                         y: 140,
-                        color: Colors.green.withOpacity(0.5),
+                        color: Colors.green.withValues(alpha: 0.5),
                         strokeWidth: 2,
                         dashArray: [5, 5],
                       ),

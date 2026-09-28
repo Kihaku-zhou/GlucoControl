@@ -488,6 +488,25 @@ class AppDatabase extends _$AppDatabase {
   Future<int> insertAIMessage(AIMessagesCompanion message) =>
       into(aIMessages).insert(message);
 
+  /// 写入一条 AI 消息。
+  ///
+  /// 把 drift 的 Companion 组装留在数据层，界面层因此不需要引入 drift。
+  /// [toolTraceJson] 是该轮回答的工具调用记录；为空表示没有触发工具调用。
+  Future<int> appendAIMessage({
+    required int conversationId,
+    required String role,
+    required String content,
+    String? toolTraceJson,
+    DateTime? createdAt,
+  }) =>
+      into(aIMessages).insert(AIMessagesCompanion.insert(
+        conversationId: conversationId,
+        role: role,
+        content: content,
+        toolTraceJson: Value(toolTraceJson),
+        createdAt: createdAt ?? DateTime.now(),
+      ));
+
   Future<List<AIMessage>> getAIMessages(int conversationId) =>
       (select(aIMessages)
             ..where((t) => t.conversationId.equals(conversationId))

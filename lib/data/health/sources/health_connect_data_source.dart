@@ -1,6 +1,6 @@
 import 'dart:io' show Platform;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:health/health.dart';
 
 import '../../../core/glucose_units.dart';
@@ -101,6 +101,7 @@ class HealthConnectDataSource implements HealthDataSource {
           '用户未授予 Health Connect 读取权限',
         ));
       }
+      await _requestHistoryAccessIfNeeded();
       return const Ok(HealthSourceAvailability.ready());
     } on Exception catch (error) {
       return Err(AppFailure(
@@ -109,6 +110,22 @@ class HealthConnectDataSource implements HealthDataSource {
         code: 'health_connect.authorize_failed',
         cause: error,
       ));
+    }
+  }
+
+  /// 申请读取 30 天以前的历史数据。
+  ///
+  /// Health Connect 默认只放行授权前 30 天的记录；要导入更早的导出数据，
+  /// 必须先取得 `READ_HEALTH_DATA_HISTORY`。该系统权限在部分设备或版本上
+  /// 不存在，因此失败只降级为「只能读近 30 天」，不影响基础同步。
+  Future<void> _requestHistoryAccessIfNeeded() async {
+    try {
+      if (await _health.isHealthDataHistoryAuthorized()) return;
+      if (await _health.isHealthDataHistoryAvailable()) {
+        await _health.requestHealthDataHistoryAuthorization();
+      }
+    } on Exception catch (error) {
+      debugPrint('Health Connect 历史数据权限申请未完成：$error');
     }
   }
 

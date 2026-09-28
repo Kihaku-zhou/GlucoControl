@@ -56,10 +56,17 @@ class SibionicsCsvImporter extends HealthFileImporterBase {
   bool canHandle(String fileName, List<int> bytes) {
     if (!hasFileExtension(fileName, fileExtensions)) return false;
     final table = _locate(bytes);
-    if (table == null) return false;
-    return table.match.matchedAllOf(const <String>['glucose']) &&
-        table.match.matchedCount >= 2;
+    return table != null && _isSibionicsHeader(table.match);
   }
+
+  /// 判断表头是否具备硅基轻享导出的特征。
+  ///
+  /// 必须命中血糖列（唯一的判别列），且至少命中两个逻辑字段。
+  ///
+  /// @param match 表头匹配结果。
+  /// @returns 具备该导出格式特征时为 true。
+  bool _isSibionicsHeader(HeaderMatch match) =>
+      match.matchedAllOf(const <String>['glucose']) && match.matchedCount >= 2;
 
   @override
   Future<Result<List<HealthSample>>> parse({
@@ -70,7 +77,7 @@ class SibionicsCsvImporter extends HealthFileImporterBase {
     return runImport('sibionics_csv', () {
       try {
         final table = _locate(bytes);
-        if (table == null) {
+        if (table == null || !_isSibionicsHeader(table.match)) {
           throw importParsingFailure(
             '未找到可识别的表头，请确认是硅基轻享导出的 CSV 文件',
             code: 'sibionics_csv_no_header',

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/bottom_navigation.dart';
 import 'blood_sugar/blood_sugar_list_screen.dart';
-import 'exercise/exercise_list_screen.dart';
 import 'exercise/simple_exercise_list_screen.dart';
 import 'meal/meal_list_screen.dart';
 import 'settings/settings_screen.dart';
@@ -123,51 +122,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
           ),
         ],
-      ),
-    );
-  }
-
-  void _showQuickAddMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.monitor_heart),
-              title: const Text('血糖记录'),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() => _currentIndex = 0);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.fitness_center),
-              title: const Text('运动记录'),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() => _currentIndex = 1);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.straighten),
-              title: const Text('体测记录'),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() => _currentIndex = 2);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.restaurant),
-              title: const Text('饮食记录'),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() => _currentIndex = 3);
-              },
-            ),
-          ],
-        ),
       ),
     );
   }

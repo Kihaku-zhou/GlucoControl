@@ -54,7 +54,7 @@ class ExerciseListScreen extends ConsumerWidget {
           // 训练计划提示条
           if (selectedPlan != null)
             Container(
-              color: Theme.of(context).primaryColor.withOpacity(0.1),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
@@ -351,7 +351,6 @@ class _ExerciseRecordTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timeFormat = DateFormat('HH:mm');
-    final dateFormat = DateFormat('yyyy年M月d日 HH:mm');
     final isAerobic = record.type == 'aerobic';
 
     return Card(
@@ -361,7 +360,7 @@ class _ExerciseRecordTile extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: isAerobic ? Colors.blue.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
+            color: isAerobic ? Colors.blue.withValues(alpha: 0.2) : Colors.orange.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -425,7 +424,7 @@ class _ExerciseRecordTile extends StatelessWidget {
             _buildDetailRow('运动名称', record.name),
             _buildDetailRow('运动类型', isAerobic ? '有氧运动' : '力量训练'),
             _buildDetailRow('时长', '${record.duration} 分钟'),
-            if (record.distance != null && false)
+            if (record.distance != null)
               _buildDetailRow('距离', '${record.distance} 公里'),
             if (record.distance != null && record.duration > 0)
               _buildDetailRow('平均速度', '${(record.distance! / (record.duration / 60)).toStringAsFixed(2)} km/h'),
@@ -543,7 +542,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(

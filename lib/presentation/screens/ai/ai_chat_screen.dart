@@ -106,13 +106,10 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
     _input.clear();
 
     try {
-      await database.insertAIMessage(
-        AIMessagesCompanion.insert(
-          conversationId: conversationId,
-          role: 'user',
-          content: text.isEmpty ? '（图片）' : text,
-          createdAt: DateTime.now(),
-        ),
+      await database.appendAIMessage(
+        conversationId: conversationId,
+        role: 'user',
+        content: text.isEmpty ? '（图片）' : text,
       );
       ref.invalidate(aiMessagesProvider(conversationId));
 
@@ -126,20 +123,15 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
           ? result.requireValue()
           : HealthAssistantTurn(text: '请求失败：${result.failureOrNull!.message}');
 
-      await database.insertAIMessage(
-        AIMessagesCompanion.insert(
-          conversationId: conversationId,
-          role: 'assistant',
-          content: reply.text,
-          toolTraceJson: Value(
-            reply.toolTraces.isEmpty
-                ? null
-                : jsonEncode(
-                    reply.toolTraces.map((trace) => trace.toJson()).toList(),
-                  ),
-          ),
-          createdAt: DateTime.now(),
-        ),
+      await database.appendAIMessage(
+        conversationId: conversationId,
+        role: 'assistant',
+        content: reply.text,
+        toolTraceJson: reply.toolTraces.isEmpty
+            ? null
+            : jsonEncode(
+                reply.toolTraces.map((trace) => trace.toJson()).toList(),
+              ),
       );
       await database.updateAIConversation(
         (await database.getAIConversation(conversationId))!

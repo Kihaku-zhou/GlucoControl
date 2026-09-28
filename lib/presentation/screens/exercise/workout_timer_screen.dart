@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/database/database.dart';
-import '../../../data/database/database_providers.dart';
 
 /// 运动计时器页面
 class WorkoutTimerScreen extends ConsumerStatefulWidget {
@@ -242,7 +241,7 @@ class _WorkoutTimerScreenState extends ConsumerState<WorkoutTimerScreen> {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.2),
+                        color: Colors.orange.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: Column(
@@ -271,7 +270,7 @@ class _WorkoutTimerScreenState extends ConsumerState<WorkoutTimerScreen> {
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.2),
+                          color: Colors.blue.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: Column(
@@ -290,7 +289,7 @@ class _WorkoutTimerScreenState extends ConsumerState<WorkoutTimerScreen> {
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.2),
+                          color: Colors.green.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: Column(

@@ -84,16 +84,18 @@ class GpxTrackImporter extends HealthFileImporterBase {
 
   /// 判断文本是否具备 GPX 的结构特征。
   ///
-  /// 要求 `<gpx` 根标签出现在前面一小段内（允许 XML 声明、注释与命名空间前缀），
-  /// 避免为无关字节流先建整棵 XML 树。
+  /// 要求 `<gpx`（或带命名空间前缀的 `:gpx`）出现在前面一小段内，允许 XML 声明、
+  /// 注释与命名空间声明；避免为无关字节流先建整棵 XML 树。
   ///
   /// @param text 文件文本。
   /// @returns 具备 GPX 根元素特征时为 true。
   bool _looksLikeGpx(String text) {
     final head = text.trimLeft().toLowerCase();
     if (head.isEmpty) return false;
-    final index = head.indexOf('<gpx');
-    return index >= 0 && index < 512;
+    final plain = head.indexOf('<gpx');
+    if (plain >= 0 && plain < 512) return true;
+    final prefixed = head.indexOf(':gpx');
+    return prefixed >= 0 && prefixed < 512;
   }
 
   /// 解析一条 `<trk>`。

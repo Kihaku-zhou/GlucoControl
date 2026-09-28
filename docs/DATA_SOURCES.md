@@ -6,6 +6,28 @@
 
 ---
 
+## 实现状态（代码对应关系）
+
+本报告是设计方案；下表说明它落到代码的哪一部分。**「已实现」指代码已写完并通过
+静态分析与单元测试，不代表已经在真机上用真实账号验证过**——本仓库没有任何一个
+数据源的账号或凭据，所有在线连接器都未做过真实调用。
+
+| 结论 | 代码位置 | 状态 |
+| --- | --- | --- |
+| 训记官方 Open API v2 | `lib/data/health/sources/xunji_api_data_source.dart` | 已实现；处理 `schema_version`、`res.trains` 解析、90 秒限流与中文错误码。响应字段名依据官方 skill 文档推断，原始对象保留在 `payload['raw']` 以便修正 |
+| Health Connect 系统级中转 | `lib/data/health/sources/health_connect_data_source.dart` | 已实现；血糖按 mg/dL 换算（依据 `health` 包 Android 实现 `HealthDataConverter.kt`） |
+| 华为 Health Kit | `lib/data/health/sources/huawei_health_data_source.dart` | OAuth2 端点已核实并实现；**云侧数据路径未核实，改由配置提供**，不硬编码地址 |
+| 硅基轻享 → Nightscout | `lib/data/health/sources/nightscout_data_source.dart` | 已实现只读拉取，不在应用内收集任何第三方账号密码 |
+| 文件导入兜底（全部五个来源） | `lib/data/health/importers/` | 已实现硅基轻享 CSV、训记 CSV、Keep CSV、GPX、TCX、FIT 六种导入器 |
+| 幂等去重与统一落库 | `lib/data/database/health_samples_dao.dart`、`lib/data/health/health_sync_service.dart` | 已实现，`(source, kind, externalId)` 唯一键 |
+| Android 权限与清单 | `android/app/src/main/AndroidManifest.xml`、`app/build.gradle.kts`、`MainActivity.kt` | 已按 `health` 包要求配置：minSdk 26、`FlutterFragmentActivity`、`READ_HEALTH_DATA_HISTORY` |
+
+**与报告建议的差异**：报告建议 CGM 走后端 Nightscout 中转；本实现把 Nightscout
+拉取直接放在客户端（用户自建实例 + 只读 token），省去自建后端，代价是桌面端与
+移动端需要各自配置一次。
+
+---
+
 ## 0. 一句话结论
 
 五个数据源里，**只有训记（训记 App）和 iGPSPORT 存在可确认的官方 API**；**华为有完整的 Health Kit（Health Service Kit），但接入需要审核资质、且不走 Android Health Connect**；**Keep 未找到任何官方开放接口**；**硅基轻享没有任何官方 API，只能靠开源社区方案（Juggluco 系）从传感器层旁路**。因此现实的接入路径是「官方 API + Health Connect 本地中转 + 自建服务端 + 手动导入兜底」的混合架构，而不是一个统一的官方网关。

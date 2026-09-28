@@ -1,55 +1,130 @@
-# GlucoControl - 血糖控制应用
+# GlucoControl
 
-🦞 **作者**：小龙虾 | AI 助手，基于大语言模型驱动的赛博牛马
+以血糖管理为核心的多源健康数据聚合与 AI 分析应用。跨平台支持 Android、Windows 与 Linux。
 
-**关于这个项目**：本项目采用「人类指挥 + AI 执行」的协作模式开发。管理该项目的人类对 Flutter 和数据库一窍不通，App 目前仍处于开发阶段。我根据人类的需求进行思考和规划，然后通过编写代码来实现功能。这种人机协作模式让我能够持续学习和迭代，不断完善这个健康管理应用。
+应用本身负责记录与展示（血糖、饮食、运动、体测、训练计划），并通过一组**标准化连接器**
+把散落在各处的运动健康数据汇入同一条时间线，再交给 AI 按需查询、综合判断。
+
+> **免责声明**：本应用只做数据记录与展示，不能作为诊断依据。涉及用药、胰岛素剂量
+> 调整与低血糖处置的问题请咨询医生。
 
 ---
 
-一个跨平台的血糖控制应用，支持 Android、Windows 和 Linux。
+## 核心能力
 
-## 📱 安卓平台测试状态
+### 本地记录
 
-**目前该项目安卓平台基础功能已基本测试完毕 🎉**
+- 血糖记录（空腹、餐后、动态监测、自定义时间），mmol/L 与 mg/dL 双向换算
+- 饮食记录（含图片与食物明细）
+- 运动记录（有氧、力量、耐力；距离、爬升、功率、心率）
+- 体测记录（体重、体脂、肌肉量、围度）与训练计划
+- 血糖图表、趋势分析、周报、TIR 统计与糖化血红蛋白推算
+- 数据导出（JSON/CSV）与坚果云 WebDAV 同步
 
-已基本测试完毕的功能：
-- ✅ 血糖记录（空腹、餐后、自定义时间）
-- ✅ 血糖图表和趋势分析
-- ✅ 血糖筛选
-- ✅ 运动记录（力量/有氧/耐力，支持自定义每组次数）
-- ✅ 训练计划
-- ✅ 饮食记录（支持图片）
-- ✅ 身体数据记录
-- ✅ AI 健康助手（可读取健康数据进行分析）
-- ✅ 数据导出（JSON/CSV）
-- ✅ 坚果云 WebDAV 同步
-- ✅ 主题切换
-- ✅ 通知设置
+### 多源数据接入
 
-🔄 **剩下的功能随缘更新...**（如运动成就、饮食 AI 分析、数据导入等）
+五个目标应用的开放程度差别很大，因此接入分三条通路。**文件导入对所有来源都有效**，
+是在线通路不可用时的兜底。
 
-## 技术栈
+| 数据源 | 通路 | 可行性 | 说明 |
+| --- | --- | --- | --- |
+| **训记** | 官方 Open API v2 | 高 | 唯一开箱即用的来源。在 App 的「我的 > 数据导出和导入」生成 API Key 即可；需买断/VIP 账号，接口按训练日限流约 90 秒 |
+| **iGPSPORT** | FIT/GPX 文件、Strava/TrainingPeaks 中转 | 中 | 有官方 API 但无自助申请入口，需商务流程 |
+| **华为运动健康** | Health Kit（需资质审核）、文件导入 | 中 | 覆盖步数、心率、睡眠、运动与血糖；**不向 Health Connect 写入**，也不支持其授权 |
+| **硅基轻享** | Nightscout（经 Juggluco） | 低 | 没有公开 API。社区通行做法是用 Juggluco 直读传感器后推送 Nightscout，本应用以只读方式拉取 |
+| **Keep** | 文件导入、Health Connect | 低 | 未找到官方开放接口；隐私政策承诺可导出，但入口与格式未核实 |
 
-- **框架**：Flutter 3.x
-- **状态管理**：Riverpod
-- **数据库**：Drift (SQLite)
-- **图表**：fl_chart
+另支持 **Android Health Connect** 作为系统级中转：任何写入其中的应用的数据都会在此汇总，
+读取时以 `originApp` 标注原始应用来源。
+
+详细的调研过程、信息来源与未核实事项见 [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md)。
+
+### AI 助手：按需查询，而非预先喂数据
+
+旧实现把全部健康数据拼成一段文本塞进系统提示。现在模型通过**工具调用**自行取数：
+
+| 工具 | 用途 |
+| --- | --- |
+| `list_data_sources` | 各数据源的启用状态、最近同步、最近错误与数据量 |
+| `query_health_timeline` | 按时间范围与类别拉取跨来源统一时间线 |
+| `glucose_summary` | 平均血糖、极值、TIR、范围内时间占比、eA1c |
+| `glucose_context` | 某个时刻前后的运动与饮食，用于解释血糖波动 |
+| `compare_active_rest_days` | 有运动日与无运动日的血糖对比 |
+| `sync_data_source` | 立即拉取某个或全部数据源的最新数据 |
+
+每次问答都会在回答下方显示「查询了 N 项数据」的可展开记录，且该记录跨会话保留，
+便于复核结论依据。
+
+---
+
+## 架构
+
+```
+lib/
+  core/          Result/Failure、血糖单位换算
+  domain/        领域模型与契约（纯 Dart，不依赖 Flutter/drift/网络）
+  data/          drift 存储、外部连接器、文件导入、同步编排
+  services/      AI 工具、对话客户端、助手循环
+  presentation/  Riverpod Provider 与界面
+```
+
+分层规则、关键抽象与扩展点见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。
+
+**新增数据源**：实现 `HealthDataSource`（在线）或 `HealthFileImporter`（文件）并注册，
+数据源管理页会自动列出，无需改动界面。
+**新增 AI 能力**：实现 `AiTool` 并加入 `HealthTools.build` 的列表。
+
+技术栈：Flutter 3.27 · Riverpod · Drift (SQLite) · fl_chart · go_router · dio。
+
+---
 
 ## 构建
 
 ```bash
-# 获取依赖
 flutter pub get
 
-# 生成数据库代码
+# 生成 drift 数据库代码（修改表结构后必须执行）
 dart run build_runner build --delete-conflicting-outputs
 
-# 构建 Debug 版
-flutter build apk --debug
+flutter analyze
+flutter test
 
-# 构建 Release 版
-flutter build apk --release
+flutter build apk --debug     # 或 --release
 ```
+
+Android 侧要求 `minSdk = 26`（Health Connect 的下限），`MainActivity` 继承
+`FlutterFragmentActivity`，并在 `AndroidManifest.xml` 中声明所读取的
+`android.permission.health.READ_*` 权限——这三处配置缺一不可，详见
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。
+
+---
+
+## 项目状态
+
+已完成的工程化改造：
+
+- 修复了提交时无法编译的问题（生成的 drift 代码与表定义不同步，133 个编译错误）
+- 依赖从 `any` 收敛为精确版本约束，移除未使用的 `freezed`/`riverpod_annotation`
+- 建立上述分层与新代码的单元测试
+- AI 从「预生成数据摘要」改为「模型按需调用工具」；旧的分析页也已迁移到同一套机制
+- 数据源管理页：逐源探测可用性、配置、同步、清除，以及通用文件导入
+- 删除不可达的死代码：BLE 心率服务（其实现恒抛异常、异常被吞掉，运行时静默失效）、
+  Web 平台 stub、旧的 AI 分析实现
+- CI 拆分为「静态分析 + 单元测试」与「构建 APK」两个作业，`flutter analyze` 改为严格模式
+
+尚未处理的问题（详见架构文档的「已知债务」）：
+
+- `WebDAVService` 仍是单例，配置靠 `init()` 注入
+- WebDAV 备份尚未覆盖外部样本表与 AI 对话
+- 凭据以明文存于 `SharedPreferences`，未接入平台密钥库
+- 界面文案未国际化
+- `go_router` 已引入但基本未使用，跳转仍走 `Navigator.push`
+
+---
+
+## 参与
+
+见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 与 [`SECURITY.md`](SECURITY.md)。
 
 ## 许可证
 

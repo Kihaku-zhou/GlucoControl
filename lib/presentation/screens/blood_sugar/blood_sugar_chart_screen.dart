@@ -136,10 +136,6 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
     final safeMinStored = ref.read(safeRangeMinProvider);
     final safeMaxStored = ref.read(safeRangeMaxProvider);
     
-    // 转换为当前显示单位
-    final safeMin = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(safeMinStored) : safeMinStored;
-    final safeMax = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(safeMaxStored) : safeMaxStored;
-    
     // 将统计值转换为显示单位
     final displayAvg = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(avgMgDl) : avgMgDl;
     final displayMax = currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(maxMgDl) : maxMgDl;
@@ -163,11 +159,6 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
     }).length;
     final lowPercent = (lowCount / records.length * 100).toStringAsFixed(1);
     final highPercent = (highCount / records.length * 100).toStringAsFixed(1);
-    
-    final displayValues = records.map((r) {
-      final mgDlValue = r.unit == 'mmol/L' ? AppConstants.mmolLToMgDl(r.value) : r.value;
-      return currentUnit == 'mmol/L' ? AppTheme.mgdlToMmoll(mgDlValue) : mgDlValue;
-    }).toList();
 
     return Card(
       child: Padding(
@@ -186,7 +177,7 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
                 _buildStatItem('平均值', displayAvg.toStringAsFixed(1), currentUnit),
                 _buildStatItem('最高', displayMax.toStringAsFixed(1), currentUnit),
                 _buildStatItem('最低', displayMin.toStringAsFixed(1), currentUnit),
-                _buildStatItem('TIR', '$inRangePercent', '%', color: Colors.green),
+                _buildStatItem('TIR', inRangePercent, '%', color: Colors.green),
               ],
             ),
             
@@ -196,9 +187,9 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatItem('达标', '$inRangePercent', '%', color: Colors.green),
-                _buildStatItem('偏低', '$lowPercent', '%', color: Colors.orange),
-                _buildStatItem('偏高', '$highPercent', '%', color: Colors.red),
+                _buildStatItem('达标', inRangePercent, '%', color: Colors.green),
+                _buildStatItem('偏低', lowPercent, '%', color: Colors.orange),
+                _buildStatItem('偏高', highPercent, '%', color: Colors.red),
               ],
             ),
           ],
@@ -308,13 +299,13 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
           getDrawingHorizontalLine: (value) {
             if ((value - safeMin).abs() < 0.1 || (value - safeMax).abs() < 0.1) {
               return FlLine(
-                color: Colors.orange.withOpacity(0.5),
+                color: Colors.orange.withValues(alpha: 0.5),
                 strokeWidth: 2,
                 dashArray: [5, 5],
               );
             }
             return FlLine(
-              color: Colors.grey.withOpacity(0.2),
+              color: Colors.grey.withValues(alpha: 0.2),
               strokeWidth: 1,
             );
           },
@@ -383,7 +374,7 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.blue.withValues(alpha: 0.1),
             ),
           ),
         ],
@@ -391,7 +382,7 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
           horizontalLines: [
             HorizontalLine(
               y: safeMin,
-              color: Colors.orange.withOpacity(0.5),
+              color: Colors.orange.withValues(alpha: 0.5),
               strokeWidth: 2,
               dashArray: [5, 5],
               label: HorizontalLineLabel(
@@ -403,7 +394,7 @@ class _BloodSugarChartScreenState extends ConsumerState<BloodSugarChartScreen> {
             ),
             HorizontalLine(
               y: safeMax,
-              color: Colors.orange.withOpacity(0.5),
+              color: Colors.orange.withValues(alpha: 0.5),
               strokeWidth: 2,
               dashArray: [5, 5],
               label: HorizontalLineLabel(

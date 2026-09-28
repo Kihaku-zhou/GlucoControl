@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 import '../../../core/constants.dart';
-import '../../../core/app_colors.dart';
 import '../../../core/theme.dart';
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
@@ -152,7 +150,7 @@ class BloodSugarStatsScreen extends ConsumerWidget {
     }
 
     return Card(
-      color: tirColor.withOpacity(0.1),
+      color: tirColor.withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -52,12 +52,17 @@ class XunjiCsvImporter extends HealthFileImporterBase {
   bool canHandle(String fileName, List<int> bytes) {
     if (!hasFileExtension(fileName, fileExtensions)) return false;
     final table = _locate(bytes);
-    if (table == null) return false;
-    final matched = _discriminatorFields
-        .where((field) => table.match[field] != null)
-        .length;
-    return matched >= 2;
+    return table != null && _isXunjiHeader(table.match);
   }
+
+  /// 判断表头是否具备训记导出的特征。
+  ///
+  /// 动作、重量、组数、次数四个字段至少命中两个，避免把别人的 CSV 抢走。
+  ///
+  /// @param match 表头匹配结果。
+  /// @returns 具备该导出格式特征时为 true。
+  bool _isXunjiHeader(HeaderMatch match) =>
+      _discriminatorFields.where((field) => match[field] != null).length >= 2;
 
   @override
   Future<Result<List<HealthSample>>> parse({
@@ -68,7 +73,7 @@ class XunjiCsvImporter extends HealthFileImporterBase {
     return runImport('xunji_csv', () {
       try {
         final table = _locate(bytes);
-        if (table == null) {
+        if (table == null || !_isXunjiHeader(table.match)) {
           throw importParsingFailure(
             '未找到可识别的表头，请确认是训记导出的 CSV 文件',
             code: 'xunji_csv_no_header',

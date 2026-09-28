@@ -140,7 +140,7 @@ class _MealRecordTile extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: _getMealTypeColor(record.type).withOpacity(0.2),
+            color: _getMealTypeColor(record.type).withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -183,7 +183,7 @@ class _MealRecordTile extends StatelessWidget {
         builder: (context, scrollController) => FutureBuilder(
           future: db.getFoodItemsByMealId(record.id),
           builder: (context, snapshot) {
-            final foodItems = (snapshot.data as List<FoodItem>?) ?? [];
+            final foodItems = snapshot.data ?? [];
             
             return Container(
               padding: const EdgeInsets.all(24),
@@ -358,7 +358,7 @@ class _AddMealSheetState extends ConsumerState<AddMealSheet> {
   final List<FoodItemInput> _foodItems = [];
   
   // 图片相关 - 支持多张
-  List<String> _imagePaths = [];
+  final List<String> _imagePaths = [];
   final ImagePicker _picker = ImagePicker();
   final MealImageService _imageService = MealImageService();
 

@@ -74,8 +74,6 @@ class BloodSugarAchievementScreen extends ConsumerWidget {
     int totalRecords = records.length;
     int fastingCount = 0;
     int postMealCount = 0;
-    int lowCount = 0;
-    int highCount = 0;
     int inRangeCount = 0;
     
     const safeMin = 70.0;
@@ -92,10 +90,6 @@ class BloodSugarAchievementScreen extends ConsumerWidget {
       
       if (value >= safeMin && value <= safeMax) {
         inRangeCount++;
-      } else if (value < safeMin) {
-        lowCount++;
-      } else {
-        highCount++;
       }
     }
 
@@ -217,7 +211,7 @@ class BloodSugarAchievementScreen extends ConsumerWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: unlocked ? color.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
+            color: unlocked ? color.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

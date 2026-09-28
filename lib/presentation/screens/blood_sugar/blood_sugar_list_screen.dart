@@ -12,7 +12,6 @@ import '../../../services/auto_sync_service.dart';
 import 'blood_sugar_chart_screen.dart';
 import 'weekly_report_screen.dart';
 import 'blood_sugar_filter_screen.dart';
-import 'blood_sugar_trend_screen.dart';
 import '../ai/ai_analysis_screen.dart';
 
 /// 血糖记录列表页面
@@ -22,7 +21,6 @@ class BloodSugarListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recordsAsync = ref.watch(bloodSugarRecordsProvider);
-    final currentUnit = ref.watch(bloodSugarUnitProvider);
 
     return Scaffold(
       drawer: buildMainDrawer(context),
@@ -36,6 +34,18 @@ class BloodSugarListScreen extends ConsumerWidget {
         title: const Text('血糖记录', textAlign: TextAlign.center),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.auto_awesome),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AIAnalysisScreen(),
+                ),
+              );
+            },
+            tooltip: 'AI 分析',
+          ),
           IconButton(
             icon: Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary),
             onPressed: () {
@@ -288,7 +298,7 @@ class _BloodSugarRecordTile extends ConsumerWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Center(

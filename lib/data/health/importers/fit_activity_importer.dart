@@ -1,11 +1,13 @@
 /// FIT 活动文件导入器（iGPSPORT 码表等）。
 ///
 /// API 依据 `fit_tool` 1.0.5 源码确认：
-/// `FitFile.fromBytes(Uint8List, {checkCrc})`、`FitFile.records`、`Record.message`、
-/// `SessionMessage.{startTime,timestamp,totalTimerTime,totalElapsedTime,totalDistance,
-/// totalCalories,avgHeartRate,maxHeartRate,avgPower,normalizedPower,totalAscent,sport}`、
-/// `RecordMessage.{timestamp,positionLat,positionLong,altitude,enhancedAltitude,
-/// distance,heartRate,power}`、`toMillisecondsSinceEpoch(int)`（1989 纪元秒转 Unix 毫秒）。
+/// `FitFile.fromBytes(Uint8List, {checkCrc})`、`FitFile.records`、`Record.message`。
+///
+/// `SessionMessage` / `RecordMessage` 的 `timestamp`、`startTime` 字段在 fit_tool 中
+/// 声明为 `scale: 0.001, offset: -631065600000`，取值与赋值都是 **Unix 毫秒**，而不是
+/// FIT 规范里的 1989 纪元秒；`totalElapsedTime` / `totalTimerTime` 是秒，
+/// `totalDistance` 与 `RecordMessage.distance`、`altitude` 是米，
+/// `totalAscent`、`normalizedPower`、`totalCalories` 分别是米、瓦、千卡。
 library;
 
 import 'dart:typed_data';
@@ -122,26 +124,24 @@ class FitActivityImporter extends HealthFileImporterBase {
     SessionMessage session,
     List<RecordMessage> records,
   ) {
-    final startSeconds = session.startTime ?? _firstTimestamp(records);
-    if (startSeconds == null) return null;
+    final startMs = session.startTime ?? _firstTimestamp(records);
+    if (startMs == null) return null;
 
     final durationSeconds =
         session.totalTimerTime ?? session.totalElapsedTime ?? 0;
-    final startedAt = _fitDateTime(startSeconds);
-    final windowEndSeconds = durationSeconds > 0
-        ? startSeconds + durationSeconds.round()
-        : null;
+    final startedAt = _fitDateTime(startMs);
+    final endMs =
+        durationSeconds > 0 ? startMs + (durationSeconds * 1000).round() : null;
 
     final window = records
         .where((record) =>
             record.timestamp != null &&
-            record.timestamp! >= startSeconds &&
-            (windowEndSeconds == null ||
-                record.timestamp! <= windowEndSeconds))
+            record.timestamp! >= startMs &&
+            (endMs == null || record.timestamp! <= endMs))
         .toList();
 
-    var endedAt = durationSeconds > 0
-        ? startedAt.add(Duration(milliseconds: (durationSeconds * 1000).round()))
+    var endedAt = endMs != null
+        ? _fitDateTime(endMs)
         : startedAt;
     final lastRecordTime = _lastTimestamp(window);
     if (lastRecordTime != null) {
@@ -167,8 +167,8 @@ class FitActivityImporter extends HealthFileImporterBase {
     return HealthSample(
       source: id,
       externalId: buildExternalId('fit', <Object?>[
-        startSeconds,
-        windowEndSeconds ?? '',
+        startMs,
+        endMs ?? '',
         sportName,
         distanceM,
       ]),
@@ -201,13 +201,13 @@ class FitActivityImporter extends HealthFileImporterBase {
   /// @param records 文件中的 Record 消息。
   /// @returns 归一化样本；没有可用时间戳时返回 null。
   HealthSample? _sampleFromRecords(List<RecordMessage> records) {
-    final startSeconds = _firstTimestamp(records);
-    final lastSeconds = _lastTimestamp(records);
-    if (startSeconds == null) return null;
-    if (lastSeconds == null || lastSeconds <= startSeconds) return null;
+    final startMs = _firstTimestamp(records);
+    final lastMs = _lastTimestamp(records);
+    if (startMs == null) return null;
+    if (lastMs == null || lastMs <= startMs) return null;
 
-    final startedAt = _fitDateTime(startSeconds);
-    final endedAt = _fitDateTime(lastSeconds);
+    final startedAt = _fitDateTime(startMs);
+    final endedAt = _fitDateTime(lastMs);
     final distanceM = _recordDistanceMeters(records);
     final hasElevation = records.any((record) => _recordElevation(record) != null);
     final avgHeartRate = _averageHeartRate(records);
@@ -216,8 +216,8 @@ class FitActivityImporter extends HealthFileImporterBase {
     return HealthSample(
       source: id,
       externalId: buildExternalId('fit', <Object?>[
-        startSeconds,
-        lastSeconds,
+        startMs,
+        lastMs,
         distanceM,
       ]),
       kind: HealthSampleKind.workout,
@@ -236,19 +236,17 @@ class FitActivityImporter extends HealthFileImporterBase {
     );
   }
 
-  /// 把 FIT 的 1989 纪元秒转为本地时间。
+  /// 把 fit_tool 的时间戳（Unix 毫秒，UTC）转为本地时间。
   ///
-  /// @param seconds 自 1989-12-31T00:00:00Z 起的秒数。
+  /// @param milliseconds 自 1970-01-01T00:00:00Z 起的毫秒数。
   /// @returns 本地时间。
-  DateTime _fitDateTime(int seconds) => DateTime.fromMillisecondsSinceEpoch(
-        toMillisecondsSinceEpoch(seconds),
-        isUtc: true,
-      ).toLocal();
+  DateTime _fitDateTime(int milliseconds) =>
+      DateTime.fromMillisecondsSinceEpoch(milliseconds, isUtc: true).toLocal();
 
   /// 取第一条有时间戳的 Record 的时间。
   ///
   /// @param records Record 消息。
-  /// @returns 1989 纪元秒；没有可用时间戳时返回 null。
+  /// @returns Unix 毫秒；没有可用时间戳时返回 null。
   int? _firstTimestamp(List<RecordMessage> records) {
     for (final record in records) {
       final timestamp = record.timestamp;
@@ -260,7 +258,7 @@ class FitActivityImporter extends HealthFileImporterBase {
   /// 取最后一条有时间戳的 Record 的时间。
   ///
   /// @param records Record 消息。
-  /// @returns 1989 纪元秒；没有可用时间戳时返回 null。
+  /// @returns Unix 毫秒；没有可用时间戳时返回 null。
   int? _lastTimestamp(List<RecordMessage> records) {
     int? result;
     for (final record in records) {

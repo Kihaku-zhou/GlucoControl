@@ -56,12 +56,17 @@ class KeepCsvImporter extends HealthFileImporterBase {
   bool canHandle(String fileName, List<int> bytes) {
     if (!hasFileExtension(fileName, fileExtensions)) return false;
     final table = _locate(bytes);
-    if (table == null) return false;
-    final matched = _discriminatorFields
-        .where((field) => table.match[field] != null)
-        .length;
-    return matched >= 2;
+    return table != null && _isKeepHeader(table.match);
   }
+
+  /// 判断表头是否具备 Keep 导出的特征。
+  ///
+  /// 运动类型、时长、消耗三个字段至少命中两个，避免把别人的 CSV 抢走。
+  ///
+  /// @param match 表头匹配结果。
+  /// @returns 具备该导出格式特征时为 true。
+  bool _isKeepHeader(HeaderMatch match) =>
+      _discriminatorFields.where((field) => match[field] != null).length >= 2;
 
   @override
   Future<Result<List<HealthSample>>> parse({
@@ -72,7 +77,7 @@ class KeepCsvImporter extends HealthFileImporterBase {
     return runImport('keep_csv', () {
       try {
         final table = _locate(bytes);
-        if (table == null) {
+        if (table == null || !_isKeepHeader(table.match)) {
           throw importParsingFailure(
             '未找到可识别的表头，请确认是 Keep 导出的 CSV 文件',
             code: 'keep_csv_no_header',

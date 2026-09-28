@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/database/database.dart';
-import '../../../data/database/database_providers.dart';
-import '../../../services/ai/ai_analysis_service.dart';
+import '../../../services/ai/health_assistant.dart';
+import '../../providers/health_providers.dart';
 import '../settings/settings_screen.dart';
 
-/// AI 分析页面
+/// AI 分析页。
+///
+/// 是「一键分析」的入口：不再自己拼装数据摘要，而是把一个固定问题交给
+/// [HealthAssistant]，由它按需调用工具取数。因此这里的分析结论与聊天页共享
+/// 同一套数据来源与同一套推算口径。
 class AIAnalysisScreen extends ConsumerStatefulWidget {
+  /// 构造页面。
   const AIAnalysisScreen({super.key});
 
   @override
@@ -15,117 +19,64 @@ class AIAnalysisScreen extends ConsumerStatefulWidget {
 }
 
 class _AIAnalysisScreenState extends ConsumerState<AIAnalysisScreen> {
-  bool _isLoading = false;
+  /// 可选的分析时间跨度。
+  static const List<int> _rangeOptions = <int>[7, 14, 30, 90];
+
+  int _days = 30;
+  bool _loading = false;
   String? _error;
-  AIAnalysisResult? _result;
-  DateTime? _lastAnalysisTime;
+  HealthAssistantTurn? _result;
 
   @override
   void initState() {
     super.initState();
-    // 自动开始分析
-    _runAnalysis();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _runAnalysis());
   }
 
+  /// 按当前跨度发起一次分析。
   Future<void> _runAnalysis() async {
+    final assistant = ref.read(healthAssistantProvider);
+    if (assistant == null) {
+      setState(() {
+        _error = '尚未配置 AI。请先在「设置 > AI API 配置」中填写接口地址、API Key 与模型。';
+        _result = null;
+      });
+      return;
+    }
+
     setState(() {
-      _isLoading = true;
+      _loading = true;
       _error = null;
     });
 
-    try {
-      final db = ref.read(databaseProvider);
-      final prefs = ref.read(sharedPreferencesProvider);
-      
-      // 获取 AI 配置
-      final apiUrl = prefs.getString('ai_api_url') ?? '';
-      final apiKey = prefs.getString('ai_api_key') ?? '';
-      final model = prefs.getString('ai_model') ?? 'gpt-3.5-turbo';
-      final enabled = prefs.getBool('ai_enabled') ?? false;
-      
-      if (!enabled || apiKey.isEmpty) {
-        setState(() {
-          _error = '请先在设置中配置 AI API';
-          _isLoading = false;
-        });
-        return;
+    final history = <Map<String, Object?>>[
+      <String, Object?>{
+        'role': 'system',
+        'content': assistant.buildSystemPrompt(),
+      },
+      <String, Object?>{
+        'role': 'user',
+        'content': '请分析我最近 $_days 天的健康数据，按以下顺序作答：\n'
+            '1. 血糖总体控制情况：平均血糖、目标范围内时间占比、偏高与偏低的时段分布；\n'
+            '2. 血糖波动最明显的几个时段，分别指出当时有没有饮食或运动记录；\n'
+            '3. 运动对血糖的影响（如果数据量足够做对比）；\n'
+            '4. 基于以上数据，给出 2 到 3 条具体且可执行的建议。\n'
+            '请先说明你实际取到了哪些数据、覆盖多长时间，并指出数据不足之处。',
+      },
+    ];
+
+    final reply = await assistant.send(history: history);
+    if (!mounted) return;
+
+    setState(() {
+      _loading = false;
+      if (reply.isOk) {
+        _result = reply.requireValue();
+      } else {
+        _error = reply.failureOrNull!.message;
+        _result = null;
       }
-
-      // 初始化 AI 服务
-      final aiService = AIAnalysisService();
-      aiService.init(AIConfig(
-        apiUrl: apiUrl,
-        apiKey: apiKey,
-        model: model,
-        enabled: true,
-      ));
-
-      // 获取最近30天的数据
-      final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
-      
-      // 获取血糖记录
-      final bloodSugarRecords = await db.getBloodSugarRecordsByDateRange(
-        thirtyDaysAgo,
-        DateTime.now(),
-      );
-      
-      // 获取运动记录
-      final exerciseRecords = await db.getExerciseRecordsByDateRange(
-        thirtyDaysAgo,
-        DateTime.now(),
-      );
-      
-      // 获取饮食记录
-      final mealRecords = await db.getMealRecordsByDateRange(
-        thirtyDaysAgo,
-        DateTime.now(),
-      );
-
-      // 转换为 Map 格式
-      final bloodSugarData = bloodSugarRecords.map((r) => {
-        'recordedAt': r.recordedAt.toString().substring(0, 16),
-        'value': r.value,
-        'unit': r.unit,
-        'type': r.type,
-      }).toList();
-
-      debugPrint('AI Analysis - Blood sugar records: ${bloodSugarData.length}');
-      debugPrint('AI Analysis - Exercise records: ${exerciseRecords.length}');
-      debugPrint('AI Analysis - Meal records: ${mealRecords.length}');
-
-      final exerciseData = exerciseRecords.map((r) => {
-        'startedAt': r.startedAt.toString().substring(0, 16),
-        'type': r.type,
-        'name': r.name,
-        'duration': r.duration,
-        'calories': r.calories,
-      }).toList();
-
-      final mealData = mealRecords.map((r) => {
-        'recordedAt': r.recordedAt.toString().substring(0, 16),
-        'type': r.type,
-      }).toList();
-
-      // 调用 AI 分析
-      final result = await aiService.analyzeBloodSugarTrend(
-        bloodSugarRecords: bloodSugarData,
-        exerciseRecords: exerciseData,
-        mealRecords: mealData,
-      );
-
-      debugPrint('AI Analysis result: $result');
-
-      setState(() {
-        _result = result;
-        _lastAnalysisTime = DateTime.now();
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _isLoading = false;
-      });
-    }
+    });
   }
 
   @override
@@ -133,405 +84,124 @@ class _AIAnalysisScreenState extends ConsumerState<AIAnalysisScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('AI 健康分析'),
-        actions: [
+        actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _isLoading ? null : _runAnalysis,
             tooltip: '重新分析',
+            onPressed: _loading ? null : _runAnalysis,
+            icon: const Icon(Icons.refresh),
           ),
         ],
-      ),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('AI 正在分析你的健康数据...'),
-            SizedBox(height: 8),
-            Text('这可能需要几秒钟', style: TextStyle(color: Colors.grey)),
-          ],
-        ),
-      );
-    }
-
-    if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              const Text('分析失败', style: TextStyle(fontSize: 18)),
-              const SizedBox(height: 8),
-              Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: _runAnalysis,
-                icon: const Icon(Icons.refresh),
-                label: const Text('重试'),
-              ),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AIApiSettingsScreen(),
-                    ),
-                  );
-                },
-                child: const Text('检查 AI API 配置'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (_result == null) {
-      return const Center(child: Text('暂无数据'));
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 分析时间
-          if (_lastAnalysisTime != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Text(
-                '分析时间: ${_lastAnalysisTime!.toString().substring(0, 16)}',
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ),
-
-          // 概览
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.analytics, color: Colors.blue),
-                      const SizedBox(width: 8),
-                      const Text(
-                        '健康概览',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _result!.summary,
-                    style: const TextStyle(height: 1.5),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // 建议
-          if (_result!.suggestions.isNotEmpty) ...[
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.lightbulb, color: Colors.orange),
-                        const SizedBox(width: 8),
-                        const Text(
-                          '健康建议',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    ..._result!.suggestions.asMap().entries.map((entry) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${entry.key + 1}. ',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange,
-                              ),
-                            ),
-                            Expanded(child: Text(entry.value)),
-                          ],
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          // 详细分析
-          if (_result!.analysis.isNotEmpty)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.insights, color: Colors.green),
-                        SizedBox(width: 8),
-                        Text(
-                          '数据分析',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    ..._result!.analysis.entries.map((entry) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              entry.key,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              entry.value.toString(),
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// AI API 设置页面（复用 settings 中的）
-class AIApiSettingsScreen extends ConsumerStatefulWidget {
-  const AIApiSettingsScreen({super.key});
-
-  @override
-  ConsumerState<AIApiSettingsScreen> createState() => _AIApiSettingsScreenState();
-}
-
-class _AIApiSettingsScreenState extends ConsumerState<AIApiSettingsScreen> {
-  final _apiUrlController = TextEditingController();
-  final _apiKeyController = TextEditingController();
-  final _modelController = TextEditingController();
-  bool _enabled = false;
-  bool _isTesting = false;
-  bool? _testResult;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadConfig();
-  }
-
-  Future<void> _loadConfig() async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    setState(() {
-      _apiUrlController.text = prefs.getString('ai_api_url') ?? '';
-      _apiKeyController.text = prefs.getString('ai_api_key') ?? '';
-      _modelController.text = prefs.getString('ai_model') ?? 'gpt-3.5-turbo';
-      _enabled = prefs.getBool('ai_enabled') ?? false;
-    });
-  }
-
-  Future<void> _saveConfig() async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString('ai_api_url', _apiUrlController.text);
-    await prefs.setString('ai_api_key', _apiKeyController.text);
-    await prefs.setString('ai_model', _modelController.text);
-    await prefs.setBool('ai_enabled', _enabled);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('AI API 设置已保存')),
-      );
-    }
-  }
-
-  Future<void> _testConnection() async {
-    setState(() {
-      _isTesting = true;
-      _testResult = null;
-    });
-
-    // 保存配置
-    await _saveConfig();
-
-    // 测试连接
-    final aiService = AIAnalysisService();
-    aiService.init(AIConfig(
-      apiUrl: _apiUrlController.text,
-      apiKey: _apiKeyController.text,
-      model: _modelController.text,
-      enabled: true,
-    ));
-
-    final result = await aiService.testConnection();
-
-    setState(() {
-      _isTesting = false;
-      _testResult = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _apiUrlController.dispose();
-    _apiKeyController.dispose();
-    _modelController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('AI API 配置'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: [
-          SwitchListTile(
-            title: const Text('启用 AI 分析'),
-            subtitle: const Text('基于血糖、饮食、运动数据进行分析'),
-            value: _enabled,
-            onChanged: (value) {
-              setState(() {
-                _enabled = value;
-              });
-            },
-          ),
-          const Divider(),
-          TextField(
-            controller: _apiUrlController,
-            decoration: const InputDecoration(
-              labelText: 'API 地址',
-              hintText: 'https://api.openai.com/v1',
-              helperText: '支持 OpenAI 兼容的 API',
-            ),
-          ),
+        children: <Widget>[
+          _buildRangeSelector(),
           const SizedBox(height: 16),
-          TextField(
-            controller: _apiKeyController,
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'API Key',
-              hintText: '你的 API Key',
+          if (_loading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 48),
+              child: Center(child: CircularProgressIndicator()),
             ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _modelController,
-            decoration: const InputDecoration(
-              labelText: '模型',
-              hintText: 'gpt-3.5-turbo',
-            ),
-          ),
-          const SizedBox(height: 24),
-          if (_testResult != null)
-            Container(
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: _testResult! ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    _testResult! ? Icons.check_circle : Icons.error,
-                    color: _testResult! ? Colors.green : Colors.red,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _testResult! ? '连接成功！' : '连接失败，请检查配置',
-                    style: TextStyle(
-                      color: _testResult! ? Colors.green : Colors.red,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _isTesting ? null : _testConnection,
-                  icon: _isTesting
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.wifi_tethering),
-                  label: const Text('测试连接'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: _saveConfig,
-                  child: const Text('保存'),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          const Card(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('支持的 API', style: TextStyle(fontWeight: FontWeight.bold)),
-                  SizedBox(height: 8),
-                  Text('• OpenAI (api.openai.com)'),
-                  Text('• SiliconFlow (api.siliconflow.cn)'),
-                  Text('• DeepSeek (api.deepseek.com)'),
-                  Text('• 其他 OpenAI 兼容 API'),
-                ],
-              ),
-            ),
-          ),
+          if (_error != null) _buildError(),
+          if (_result != null) ..._buildResult(_result!),
         ],
       ),
     );
+  }
+
+  /// 时间跨度选择。
+  Widget _buildRangeSelector() {
+    return SegmentedButton<int>(
+      segments: _rangeOptions
+          .map((days) => ButtonSegment<int>(
+                value: days,
+                label: Text('$days 天'),
+              ))
+          .toList(),
+      selected: <int>{_days},
+      onSelectionChanged: _loading
+          ? null
+          : (selection) {
+              setState(() => _days = selection.first);
+              _runAnalysis();
+            },
+    );
+  }
+
+  /// 错误提示，配置类问题直接给出跳转入口。
+  Widget _buildError() {
+    return Card(
+      color: Theme.of(context).colorScheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(_error!, style: const TextStyle(height: 1.5)),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AIApiSettingsScreen(),
+                ),
+              ),
+              child: const Text('前往 AI 配置'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 分析结果与工具调用记录。
+  List<Widget> _buildResult(HealthAssistantTurn turn) {
+    return <Widget>[
+      if (turn.toolTraces.isNotEmpty) ...<Widget>[
+        Card(
+          child: ExpansionTile(
+            leading: const Icon(Icons.build_circle_outlined),
+            title: Text('本次查询了 ${turn.toolTraces.length} 项数据'),
+            children: turn.toolTraces
+                .map((trace) => ListTile(
+                      dense: true,
+                      leading: Icon(
+                        trace.succeeded
+                            ? Icons.check_circle_outline
+                            : Icons.error_outline,
+                        size: 18,
+                        color: trace.succeeded ? Colors.green : Colors.red,
+                      ),
+                      title: Text(trace.name,
+                          style: const TextStyle(fontSize: 13)),
+                      subtitle: Text(
+                        trace.succeeded
+                            ? '参数：${trace.arguments}'
+                            : '失败：${trace.error}',
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SelectableText(
+            turn.text,
+            style: const TextStyle(fontSize: 14, height: 1.7),
+          ),
+        ),
+      ),
+      const SizedBox(height: 16),
+      const Text(
+        '以上结论基于应用内记录与你已接入的外部数据源。'
+        '本应用只做数据记录与展示，不能作为诊断依据；'
+        '涉及用药调整请咨询医生。',
+        style: TextStyle(fontSize: 12, color: Colors.grey, height: 1.5),
+      ),
+    ];
   }
 }

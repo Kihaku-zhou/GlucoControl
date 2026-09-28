@@ -3,7 +3,6 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'dart:io';
 
 import '../../../data/database/database.dart';
 import '../../../data/database/database_providers.dart';
@@ -165,7 +164,7 @@ class _LatestMeasurementCard extends StatelessWidget {
                 if (measurement.weight != null)
                   _MetricItem(
                     label: '体重',
-                    value: '${measurement.weight!.toStringAsFixed(1)}',
+                    value: measurement.weight!.toStringAsFixed(1),
                     unit: 'kg',
                   ),
                 if (measurement.bmi != null)
@@ -178,7 +177,7 @@ class _LatestMeasurementCard extends StatelessWidget {
                 if (measurement.bodyFat != null)
                   _MetricItem(
                     label: '体脂',
-                    value: '${measurement.bodyFat!.toStringAsFixed(1)}',
+                    value: measurement.bodyFat!.toStringAsFixed(1),
                     unit: '%',
                   ),
                 if (measurement.waistHipRatio != null)
@@ -264,7 +263,7 @@ class _BodyMeasurementTile extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: Colors.purple.withOpacity(0.2),
+            color: Colors.purple.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(
@@ -454,7 +453,7 @@ class _AddBodyMeasurementSheetState extends ConsumerState<AddBodyMeasurementShee
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -1046,7 +1045,7 @@ class _BodyMeasurementChartScreenState extends ConsumerState<BodyMeasurementChar
                           dotData: const FlDotData(show: true),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: (metricInfo['color'] as Color).withOpacity(0.2),
+                            color: (metricInfo['color'] as Color).withValues(alpha: 0.2),
                           ),
                         ),
                       ],
