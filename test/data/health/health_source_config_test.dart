@@ -122,18 +122,29 @@ void main() {
       );
     });
 
-    test('实现只用 isEmpty 判空，纯空格串仍被视为已填写', () {
-      // `(baseUrl ?? '').isEmpty` 对 '   ' 为 false —— 语义由源码决定。
-      expect(const HealthSourceConfig(baseUrl: '   ').isEmpty, isFalse);
-      expect(const HealthSourceConfig(apiKey: '\t').isEmpty, isFalse);
+    test('只含空白的字段视为未填写', () {
+      expect(const HealthSourceConfig(baseUrl: '   ').isEmpty, isTrue);
+      expect(const HealthSourceConfig(apiKey: '\t').isEmpty, isTrue);
+      expect(const HealthSourceConfig(apiKey: '\n').isEmpty, isTrue);
+      expect(
+        const HealthSourceConfig(clientSecret: '  ').isEmpty,
+        isTrue,
+      );
     });
 
-    test('纯空格串被 trim 后视为未填写（期望语义，当前未实现）', () {
+    test('只要有一个字段含非空白字符就不算空', () {
       expect(const HealthSourceConfig(baseUrl: '   ').isEmpty, isTrue);
-      expect(const HealthSourceConfig(apiKey: '\n').isEmpty, isTrue);
-    }, skip: '源码 isEmpty 使用 (field ?? \'\').isEmpty，未做 trim：'
-        '纯空格串会被判为「已配置」。连接器各自 trim，故暂不影响取数，'
-        '但设置页可能出现「显示已配置、实际无地址」的状态。');
+      expect(
+        const HealthSourceConfig(baseUrl: '   ', apiKey: 'k').isEmpty,
+        isFalse,
+      );
+      expect(
+        const HealthSourceConfig(
+          extra: <String, String>{'token': 't'},
+        ).isEmpty,
+        isFalse,
+      );
+    });
   });
 
   group('HealthSourceConfig.copyWith', () {

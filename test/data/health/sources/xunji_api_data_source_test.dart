@@ -8,6 +8,7 @@ library;
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:glucocontrol/core/result.dart';
@@ -125,8 +126,25 @@ void main() {
       expect(XunjiApiDataSource.extractTrains(<String, Object?>{}), isEmpty);
     });
 
-    test('gzip 字节流形式的响应体也能解码', () {
+    test('未声明 Content-Encoding 的 JSON 字节流会被解码', () {
       final bytes = utf8.encode(jsonEncode(<String, Object?>{
+        'res': <String, Object?>{
+          'trains': <Object?>[
+            <String, Object?>{'localid': 'bytes'},
+          ],
+        },
+      }));
+
+      // Uint8List 同时满足 `is List`，实现必须先处理字节流再处理数组，
+      // 否则这条路径不可达、整日训练会被静默丢弃。
+      expect(
+        XunjiApiDataSource.extractTrains(bytes).single['localid'],
+        'bytes',
+      );
+    });
+
+    test('gzip 压缩的响应体能被解压后解析', () {
+      final payload = utf8.encode(jsonEncode(<String, Object?>{
         'res': <String, Object?>{
           'trains': <Object?>[
             <String, Object?>{'localid': 'gzip'},
@@ -134,9 +152,26 @@ void main() {
         },
       }));
 
-      final trains = XunjiApiDataSource.extractTrains(bytes);
+      final compressed = const GZipEncoder().encodeBytes(payload);
 
-      expect(trains.single['localid'], 'gzip');
+      expect(
+        XunjiApiDataSource.extractTrains(compressed).single['localid'],
+        'gzip',
+      );
+      expect(XunjiApiDataSource.looksLikeUndecodedBytes(compressed), isFalse);
+    });
+
+    test('无法解码的字节流会被标记为「未解码」而不是静默丢弃', () {
+      // 0x1f 0x8b 是 gzip 魔数，但后续内容不是合法 gzip。
+      expect(
+        XunjiApiDataSource.looksLikeUndecodedBytes(<int>[0x1f, 0x8b, 0x00]),
+        isTrue,
+      );
+      // 普通 JSON 字节流可以被解码，不应被误报。
+      expect(
+        XunjiApiDataSource.looksLikeUndecodedBytes(utf8.encode('{"res":{}}')),
+        isFalse,
+      );
     });
 
     test('字节流不是合法 JSON 时返回空列表', () {
@@ -277,7 +312,27 @@ void main() {
       expect(sample.doubleField('distanceKm'), closeTo(3.0, 1e-9));
     });
 
-    test('数字型距离被当作公里原样使用（与字符串口径不一致）', () {
+    test('带 km 单位的字符串距离按公里使用', () {
+      final sample = XunjiApiDataSource.parseTrain(
+        <String, Object?>{
+          'localid': 'x6b',
+          'movements': <Object?>[
+            <String, Object?>{
+              'sets': <Object?>[
+                <String, Object?>{
+                  'metrics': <String, Object?>{'distance': '5km'},
+                },
+              ],
+            },
+          ],
+        },
+        originDate: _origin,
+      )!;
+
+      expect(sample.doubleField('distanceKm'), closeTo(5.0, 1e-9));
+    });
+
+    test('数字型距离与无单位字符串口径一致，都按米换算', () {
       final sample = XunjiApiDataSource.parseTrain(
         <String, Object?>{
           'localid': 'x7',
@@ -294,32 +349,10 @@ void main() {
         originDate: _origin,
       )!;
 
-      // 同一个物理量写成数字时不会被除以 1000。
-      expect(sample.doubleField('distanceKm'), 3000.0);
+      // 同一个物理量无论写成数字还是无单位字符串，都必须得到同一结果，
+      // 否则数字型距离会被放大 1000 倍。
+      expect(sample.doubleField('distanceKm'), closeTo(3.0, 1e-9));
     });
-
-    test('数字型距离应按米换算（期望语义，当前未实现）', () {
-      final sample = XunjiApiDataSource.parseTrain(
-        <String, Object?>{
-          'localid': 'x8',
-          'movements': <Object?>[
-            <String, Object?>{
-              'sets': <Object?>[
-                <String, Object?>{
-                  'metrics': <String, Object?>{'distance': 3000},
-                },
-              ],
-            },
-          ],
-        },
-        originDate: _origin,
-      )!;
-
-      expect(sample.doubleField('distanceKm'), 3.0);
-    },
-        skip: '_readDistanceKm 对 num 直接原样返回，对无单位字符串却除以 1000；'
-            '文档注释称「纯数字米」，两处口径不一致。若上游确实给米，'
-            '数字型距离会放大 1000 倍。');
 
     test('热耗与心率按组汇总', () {
       final sample = XunjiApiDataSource.parseTrain(
@@ -406,7 +439,8 @@ void main() {
         },
         originDate: _origin,
       )!;
-      expect(epoch.startAt.millisecondsSinceEpoch, 1773500000);
+      // 秒级时间戳被放大为毫秒。
+      expect(epoch.startAt.millisecondsSinceEpoch, 1773500000 * 1000);
     });
 
     test('endTime 别名与毫秒级时间戳', () {

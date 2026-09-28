@@ -116,10 +116,16 @@ class HealthSyncService {
   }) async {
     final dataSource = _sources[source];
     if (dataSource == null) {
+      final reason = '${source.displayName}在当前平台没有可用的连接器';
+      await _repository.recordSyncOutcome(
+        source: source,
+        succeeded: false,
+        error: reason,
+      );
       return HealthSyncReport(
         source: source,
         succeeded: false,
-        error: '${source.displayName}在当前平台没有可用的连接器',
+        error: reason,
       );
     }
 

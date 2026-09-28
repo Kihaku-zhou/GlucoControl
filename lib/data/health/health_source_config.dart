@@ -53,13 +53,19 @@ class HealthSourceConfig {
   final Map<String, String> extra;
 
   /// 是否一个字段都没有填写。
+  ///
+  /// 只含空白的字符串视为未填写：设置页把「已填写但全是空格」当成已配置，
+  /// 会让用户在毫无提示的情况下永远取不到数。
   bool get isEmpty =>
-      (baseUrl ?? '').isEmpty &&
-      (apiKey ?? '').isEmpty &&
-      (accessToken ?? '').isEmpty &&
-      (clientId ?? '').isEmpty &&
-      (clientSecret ?? '').isEmpty &&
+      _isBlank(baseUrl) &&
+      _isBlank(apiKey) &&
+      _isBlank(accessToken) &&
+      _isBlank(clientId) &&
+      _isBlank(clientSecret) &&
       extra.isEmpty;
+
+  /// 判断一个可选文本是否为空或只含空白。
+  static bool _isBlank(String? value) => value == null || value.trim().isEmpty;
 
   /// 序列化为可持久化的 JSON。
   Map<String, Object?> toJson() => {

@@ -38,6 +38,7 @@ dependencies:
   csv: ^5.1.1 # Keep / 训记 / 硅基轻享 导出的 CSV
   xml: ^6.5.0 # GPX / TCX 轨迹（iGPSPORT、Keep）
   fit_tool: ^1.0.5 # FIT 活动文件（iGPSPORT 码表）
+  archive: ^4.3.0 # 未声明 Content-Encoding 时自行解压 gzip 响应
   crypto: ^3.0.7 # 外部样本指纹，用于幂等去重
 
   # ---- 媒体与权限 ----

@@ -101,24 +101,38 @@ Android 侧要求 `minSdk = 26`（Health Connect 的下限），`MainActivity` �
 
 ## 项目状态
 
+当前验证结果（本机 Flutter 3.27.3）：
+
+```
+flutter analyze   →  No issues found!
+flutter test      →  475 passed，0 failed，0 skipped
+flutter build apk --debug  →  成功
+```
+
 已完成的工程化改造：
 
 - 修复了提交时无法编译的问题（生成的 drift 代码与表定义不同步，133 个编译错误）
 - 依赖从 `any` 收敛为精确版本约束，移除未使用的 `freezed`/`riverpod_annotation`
-- 建立上述分层与新代码的单元测试
+- 建立上述分层与 475 个单元测试，覆盖血糖单位换算、模型字段守恒、时间线统计、
+  同步编排、四个连接器的响应解析与 AI 工具调用循环
 - AI 从「预生成数据摘要」改为「模型按需调用工具」；旧的分析页也已迁移到同一套机制
 - 数据源管理页：逐源探测可用性、配置、同步、清除，以及通用文件导入
 - 删除不可达的死代码：BLE 心率服务（其实现恒抛异常、异常被吞掉，运行时静默失效）、
   Web 平台 stub、旧的 AI 分析实现
 - CI 拆分为「静态分析 + 单元测试」与「构建 APK」两个作业，`flutter analyze` 改为严格模式
+- 修复了 5 个由测试暴露的实现缺陷（AI 接口地址少一段 `/v1`、训记响应体
+  解码分支不可达、距离单位口径不一致、连接配置空白判定、未注册连接器不写回状态），
+  详见 [`CHANGELOG.md`](CHANGELOG.md)
 
 尚未处理的问题（详见架构文档的「已知债务」）：
 
 - `WebDAVService` 仍是单例，配置靠 `init()` 注入
 - WebDAV 备份尚未覆盖外部样本表与 AI 对话
 - 凭据以明文存于 `SharedPreferences`，未接入平台密钥库
-- 界面文案未国际化
+- 界面文案未国际化；旧列表页仍直接访问数据库
 - `go_router` 已引入但基本未使用，跳转仍走 `Navigator.push`
+- **四个在线连接器均未做过真实调用**：本仓库没有账号、设备与凭据，
+  训记 / Nightscout / 华为 Health Kit / Health Connect 的行为只经过离线单元测试验证
 
 ---
 

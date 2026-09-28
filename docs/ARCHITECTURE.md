@@ -172,6 +172,10 @@ OpenAI 兼容接口的 `tools` 字段。
 4. **界面文案未国际化**。文案直接写在 Widget 中。若要支持多语言，应统一走 locale 字典。
 5. **`go_router` 基本未使用**。`app/router.dart` 只注册了首页，实际跳转全部走
    `Navigator.push`。要么补齐路由表，要么移除该依赖。
+6. **界面层仍有直接访问数据库的位置**。旧页面通过
+   `ref.read(databaseProvider)` 直接调用 `AppDatabase` 的方法（`exercise`、
+   `blood_sugar`、`meal`、`body_measurement` 各列表页，以及 AI 对话页的消息读写）。
+   新代码应走仓库接口；把这些页面迁移到仓库是下一步的工作量所在。
 
 已在本轮解决：提交时无法编译（生成的 drift 代码与表定义不同步）、BLE 心率服务
 死代码、无人引用且被未使用 import 引用的旧 AI 分析实现。

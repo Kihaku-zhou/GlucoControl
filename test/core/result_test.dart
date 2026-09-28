@@ -160,7 +160,7 @@ void main() {
         stackTrace: stack,
       );
 
-      final enriched = const Err<int>(failure).withContext('同步最近 30 天失败');
+      final enriched = Err<int>(failure).withContext('同步最近 30 天失败');
 
       final updated = enriched.failureOrNull!;
       expect(updated.message, '同步最近 30 天失败');

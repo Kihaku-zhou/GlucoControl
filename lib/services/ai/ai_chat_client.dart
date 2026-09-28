@@ -28,10 +28,10 @@ class AiEndpointConfig {
 
   /// 从用户在设置页填写的原始地址构造配置。
   ///
-  /// 识别三种常见写法：
-  /// * 完整对话地址（以 `/chat/completions` 结尾）——拆出基址与路径；
-  /// * MiniMax 的 `/v1/text/chatcompletion_v2`——同样拆出；
-  /// * 纯基址——沿用默认路径。
+  /// 用户可能填完整对话地址，也可能只填基址。这里把结尾的对话路径剪掉，
+  /// **保留基址中的版本段**（如 `/v1`），因为后续请求是 `baseUrl + chatPath`：
+  /// `https://host/v1/chat/completions` → 基址 `https://host/v1` + 路径
+  /// `/chat/completions`。
   factory AiEndpointConfig.fromUserInput({
     required String apiUrl,
     required String apiKey,
@@ -41,15 +41,13 @@ class AiEndpointConfig {
     if (url.endsWith('/')) url = url.substring(0, url.length - 1);
 
     var path = defaultChatPath;
-    for (final candidate in const <String>[
-      '/v1/chat/completions',
+    for (final suffix in const <String>[
       '/chat/completions',
-      '/v1/text/chatcompletion_v2',
       '/text/chatcompletion_v2',
     ]) {
-      if (url.endsWith(candidate)) {
-        url = url.substring(0, url.length - candidate.length);
-        path = candidate.startsWith('/v1') ? candidate.substring(3) : candidate;
+      if (url.endsWith(suffix)) {
+        url = url.substring(0, url.length - suffix.length);
+        path = suffix;
         break;
       }
     }
@@ -58,8 +56,7 @@ class AiEndpointConfig {
     final vision = lowerModel.contains('vision') ||
         lowerModel.contains('vl') ||
         lowerModel.contains('4o') ||
-        lowerModel.contains('k2.5') ||
-        lowerModel.contains('abab') && lowerModel.contains('vl');
+        lowerModel.contains('k2.5');
 
     return AiEndpointConfig(
       baseUrl: url,

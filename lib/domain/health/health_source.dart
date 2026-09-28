@@ -218,6 +218,7 @@ class HealthSample {
   Duration? get duration => endAt?.difference(startAt);
 
   @override
-  String toString() => 'HealthSample(${source.code}/$kind/${kind.code} '
+  String toString() =>
+      'HealthSample(${source.code}/${kind.code} '
       '@${startAt.toIso8601String()} id=$externalId)';
 }

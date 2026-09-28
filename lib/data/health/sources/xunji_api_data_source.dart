@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:dio/dio.dart';
 
 import '../../../core/result.dart';
@@ -143,6 +145,14 @@ class XunjiApiDataSource implements HealthDataSource {
       if (failure != null) return Err(failure);
 
       final trains = extractTrains(response.data);
+      if (trains.isEmpty && looksLikeUndecodedBytes(response.data)) {
+        // 宁可报错也不要静默丢一天：用户会以为当天没有训练记录。
+        return Err(AppFailure(
+          kind: FailureKind.parsing,
+          message: '训记 $datestr 的响应体无法解码（可能是未识别的压缩格式）',
+          code: 'xunji.undecodable_body',
+        ));
+      }
       final samples = <HealthSample>[];
       for (final train in trains) {
         final sample = parseTrain(train, originDate: day);
@@ -365,19 +375,33 @@ class XunjiApiDataSource implements HealthDataSource {
     return const <Map<String, Object?>>[];
   }
 
-  /// 距离统一换算为公里；训记的 `metrics.distance` 可能是 `5km`、`5000m` 或纯数字米。
+  /// 距离统一换算为公里。
+  ///
+  /// 键名决定口径：`distanceKm` 的数值本身就是公里；`distance` 则需要看单位——
+  /// 训记的有氧指标在文档里写作 `5km` 这类带单位的字符串，带 `km` 时按公里，
+  /// 其余（带 `m` 或没有单位）以及直接给数字时一律按米处理，与华为云侧接口及
+  /// Health Connect 的口径保持一致。同一个物理量必须得到同一结果，否则数字型
+  /// 距离会被放大 1000 倍。
   static double? _readDistanceKm(Map<String, Object?> metrics) {
-    final raw = metrics['distance'] ?? metrics['distanceKm'];
-    if (raw is num) return raw.toDouble();
+    final explicitKm = metrics['distanceKm'];
+    if (explicitKm is num) return explicitKm.toDouble();
+    if (explicitKm is String && explicitKm.trim().isNotEmpty) {
+      return _leadingNumber(explicitKm);
+    }
+
+    final raw = metrics['distance'];
+    if (raw is num) return raw.toDouble() / 1000.0;
     if (raw is! String || raw.trim().isEmpty) return null;
+
     final text = raw.trim().toLowerCase();
-    final value = double.tryParse(
-        RegExp(r'-?\d+(\.\d+)?').firstMatch(text)?.group(0) ?? '');
+    final value = _leadingNumber(text);
     if (value == null) return null;
-    if (text.endsWith('km')) return value;
-    // 无单位或单位为 m 时按米处理。
-    return value / 1000.0;
+    return text.endsWith('km') ? value : value / 1000.0;
   }
+
+  /// 取字符串开头的数字；没有数字时返回 null。
+  static double? _leadingNumber(String text) => double.tryParse(
+      RegExp(r'-?\d+(\.\d+)?').firstMatch(text)?.group(0) ?? '');
 
   /// 按候选键顺序读取字符串。
   static String? _readString(Map<String, Object?> source, List<String> keys) {
@@ -459,18 +483,59 @@ class XunjiApiDataSource implements HealthDataSource {
     }
   }
 
-  /// 兼容上游未声明 `Content-Encoding` 却返回 gzip 字节流的情况。
+  /// 兼容上游未声明 `Content-Encoding` 却返回压缩字节流的情况。
+  ///
+  /// 判定顺序很关键：`Uint8List` 也满足 `is List`，必须先处理字节流，
+  /// 否则「解压后解析 JSON」的分支永远不可达，未解压的响应会被静默当成空结果。
   static Object? _decodeMaybeGzipJson(Object? data) {
-    if (data is Map || data is List) return data;
+    if (data is Map) return data;
+
     if (data is List<int>) {
+      final bytes = data;
+      final decoded = _looksGzipped(bytes)
+          ? _gunzip(bytes)
+          : (bytes is Uint8List ? bytes : Uint8List.fromList(bytes));
+      if (decoded == null) return null;
       try {
-        return jsonDecode(utf8.decode(data));
+        return jsonDecode(utf8.decode(decoded));
       } on FormatException {
         return null;
       }
     }
+
+    if (data is String) {
+      try {
+        return jsonDecode(data);
+      } on FormatException {
+        return null;
+      }
+    }
+
+    if (data is List) return data;
     return null;
   }
+
+  /// 是否为 gzip 魔数（`0x1f 0x8b`）。
+  static bool _looksGzipped(List<int> bytes) =>
+      bytes.length >= 2 && bytes[0] == 0x1f && bytes[1] == 0x8b;
+
+  /// 解压 gzip 字节流；不是合法 gzip 时返回 null。
+  ///
+  /// [ArchiveException] 继承自 [FormatException]，因此一个 catch 就够。
+  static Uint8List? _gunzip(List<int> bytes) {
+    try {
+      return GZipDecoder().decodeBytes(bytes);
+    } on FormatException {
+      return null;
+    }
+  }
+
+  /// 响应体是否是「需要解压但我们没能解压」的字节流。
+  ///
+  /// 用于把静默丢数据变成可见错误：宁可让这一天进 [HealthFetchResult.warnings]，
+  /// 也不要让用户以为当天没有训练。
+  static bool looksLikeUndecodedBytes(Object? data) =>
+      data is List<int> && _decodeMaybeGzipJson(data) == null;
 
   /// 上游限流失败的稳定错误码。
   static const String _codeRateLimited = 'xunji.rate_limited';

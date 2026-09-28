@@ -184,7 +184,6 @@ class HealthConnectDataSource implements HealthDataSource {
     final dailyCalories = <String, int>{};
     final dailyRestingHr = <String, List<double>>{};
     final dailyHrv = <String, List<double>>{};
-    final dailyDates = <String, DateTime>{};
 
     for (final point in points) {
       switch (point.type) {
@@ -259,7 +258,8 @@ class HealthConnectDataSource implements HealthDataSource {
       samples.add(DailyActivity(
         source: HealthSourceId.healthConnect,
         externalId: 'hc:daily:$day',
-        date: dailyDates[day] ?? DateTime.parse(day),
+        // 日期键就是当地日历日，直接解析即可得到当天零点。
+        date: DateTime.parse(day),
         steps: dailySteps[day],
         activeCalories: dailyCalories[day],
         restingHeartRate: resting == null || resting.isEmpty
