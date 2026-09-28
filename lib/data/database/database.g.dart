@@ -29,7 +29,7 @@ class $BloodSugarRecordsTable extends BloodSugarRecords
       'unit', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultValue: const Constant('mg/dL'));
+      defaultValue: const Constant('mmol/L'));
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<String> type = GeneratedColumn<String>(
@@ -532,6 +532,45 @@ class $ExerciseRecordsTable extends ExerciseRecords
   late final GeneratedColumn<int> duration = GeneratedColumn<int>(
       'duration', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _distanceMeta =
+      const VerificationMeta('distance');
+  @override
+  late final GeneratedColumn<double> distance = GeneratedColumn<double>(
+      'distance', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _elevationMeta =
+      const VerificationMeta('elevation');
+  @override
+  late final GeneratedColumn<double> elevation = GeneratedColumn<double>(
+      'elevation', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _powerMeta = const VerificationMeta('power');
+  @override
+  late final GeneratedColumn<double> power = GeneratedColumn<double>(
+      'power', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _setsMeta = const VerificationMeta('sets');
+  @override
+  late final GeneratedColumn<int> sets = GeneratedColumn<int>(
+      'sets', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _weightMeta = const VerificationMeta('weight');
+  @override
+  late final GeneratedColumn<double> weight = GeneratedColumn<double>(
+      'weight', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _secondsMeta =
+      const VerificationMeta('seconds');
+  @override
+  late final GeneratedColumn<int> seconds = GeneratedColumn<int>(
+      'seconds', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _repsListMeta =
+      const VerificationMeta('repsList');
+  @override
+  late final GeneratedColumn<String> repsList = GeneratedColumn<String>(
+      'reps_list', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _caloriesMeta =
       const VerificationMeta('calories');
   @override
@@ -579,6 +618,13 @@ class $ExerciseRecordsTable extends ExerciseRecords
         type,
         name,
         duration,
+        distance,
+        elevation,
+        power,
+        sets,
+        weight,
+        seconds,
+        repsList,
         calories,
         heartRateAvg,
         heartRateMax,
@@ -617,6 +663,34 @@ class $ExerciseRecordsTable extends ExerciseRecords
           duration.isAcceptableOrUnknown(data['duration']!, _durationMeta));
     } else if (isInserting) {
       context.missing(_durationMeta);
+    }
+    if (data.containsKey('distance')) {
+      context.handle(_distanceMeta,
+          distance.isAcceptableOrUnknown(data['distance']!, _distanceMeta));
+    }
+    if (data.containsKey('elevation')) {
+      context.handle(_elevationMeta,
+          elevation.isAcceptableOrUnknown(data['elevation']!, _elevationMeta));
+    }
+    if (data.containsKey('power')) {
+      context.handle(
+          _powerMeta, power.isAcceptableOrUnknown(data['power']!, _powerMeta));
+    }
+    if (data.containsKey('sets')) {
+      context.handle(
+          _setsMeta, sets.isAcceptableOrUnknown(data['sets']!, _setsMeta));
+    }
+    if (data.containsKey('weight')) {
+      context.handle(_weightMeta,
+          weight.isAcceptableOrUnknown(data['weight']!, _weightMeta));
+    }
+    if (data.containsKey('seconds')) {
+      context.handle(_secondsMeta,
+          seconds.isAcceptableOrUnknown(data['seconds']!, _secondsMeta));
+    }
+    if (data.containsKey('reps_list')) {
+      context.handle(_repsListMeta,
+          repsList.isAcceptableOrUnknown(data['reps_list']!, _repsListMeta));
     }
     if (data.containsKey('calories')) {
       context.handle(_caloriesMeta,
@@ -673,6 +747,20 @@ class $ExerciseRecordsTable extends ExerciseRecords
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       duration: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}duration'])!,
+      distance: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}distance']),
+      elevation: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}elevation']),
+      power: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}power']),
+      sets: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sets']),
+      weight: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}weight']),
+      seconds: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}seconds']),
+      repsList: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}reps_list']),
       calories: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}calories']),
       heartRateAvg: attachedDatabase.typeMapping
@@ -701,6 +789,13 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
   final String type;
   final String name;
   final int duration;
+  final double? distance;
+  final double? elevation;
+  final double? power;
+  final int? sets;
+  final double? weight;
+  final int? seconds;
+  final String? repsList;
   final int? calories;
   final int? heartRateAvg;
   final int? heartRateMax;
@@ -713,6 +808,13 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
       required this.type,
       required this.name,
       required this.duration,
+      this.distance,
+      this.elevation,
+      this.power,
+      this.sets,
+      this.weight,
+      this.seconds,
+      this.repsList,
       this.calories,
       this.heartRateAvg,
       this.heartRateMax,
@@ -727,6 +829,27 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
     map['type'] = Variable<String>(type);
     map['name'] = Variable<String>(name);
     map['duration'] = Variable<int>(duration);
+    if (!nullToAbsent || distance != null) {
+      map['distance'] = Variable<double>(distance);
+    }
+    if (!nullToAbsent || elevation != null) {
+      map['elevation'] = Variable<double>(elevation);
+    }
+    if (!nullToAbsent || power != null) {
+      map['power'] = Variable<double>(power);
+    }
+    if (!nullToAbsent || sets != null) {
+      map['sets'] = Variable<int>(sets);
+    }
+    if (!nullToAbsent || weight != null) {
+      map['weight'] = Variable<double>(weight);
+    }
+    if (!nullToAbsent || seconds != null) {
+      map['seconds'] = Variable<int>(seconds);
+    }
+    if (!nullToAbsent || repsList != null) {
+      map['reps_list'] = Variable<String>(repsList);
+    }
     if (!nullToAbsent || calories != null) {
       map['calories'] = Variable<int>(calories);
     }
@@ -751,6 +874,23 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
       type: Value(type),
       name: Value(name),
       duration: Value(duration),
+      distance: distance == null && nullToAbsent
+          ? const Value.absent()
+          : Value(distance),
+      elevation: elevation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(elevation),
+      power:
+          power == null && nullToAbsent ? const Value.absent() : Value(power),
+      sets: sets == null && nullToAbsent ? const Value.absent() : Value(sets),
+      weight:
+          weight == null && nullToAbsent ? const Value.absent() : Value(weight),
+      seconds: seconds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seconds),
+      repsList: repsList == null && nullToAbsent
+          ? const Value.absent()
+          : Value(repsList),
       calories: calories == null && nullToAbsent
           ? const Value.absent()
           : Value(calories),
@@ -775,6 +915,13 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
       type: serializer.fromJson<String>(json['type']),
       name: serializer.fromJson<String>(json['name']),
       duration: serializer.fromJson<int>(json['duration']),
+      distance: serializer.fromJson<double?>(json['distance']),
+      elevation: serializer.fromJson<double?>(json['elevation']),
+      power: serializer.fromJson<double?>(json['power']),
+      sets: serializer.fromJson<int?>(json['sets']),
+      weight: serializer.fromJson<double?>(json['weight']),
+      seconds: serializer.fromJson<int?>(json['seconds']),
+      repsList: serializer.fromJson<String?>(json['repsList']),
       calories: serializer.fromJson<int?>(json['calories']),
       heartRateAvg: serializer.fromJson<int?>(json['heartRateAvg']),
       heartRateMax: serializer.fromJson<int?>(json['heartRateMax']),
@@ -792,6 +939,13 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
       'type': serializer.toJson<String>(type),
       'name': serializer.toJson<String>(name),
       'duration': serializer.toJson<int>(duration),
+      'distance': serializer.toJson<double?>(distance),
+      'elevation': serializer.toJson<double?>(elevation),
+      'power': serializer.toJson<double?>(power),
+      'sets': serializer.toJson<int?>(sets),
+      'weight': serializer.toJson<double?>(weight),
+      'seconds': serializer.toJson<int?>(seconds),
+      'repsList': serializer.toJson<String?>(repsList),
       'calories': serializer.toJson<int?>(calories),
       'heartRateAvg': serializer.toJson<int?>(heartRateAvg),
       'heartRateMax': serializer.toJson<int?>(heartRateMax),
@@ -807,6 +961,13 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
           String? type,
           String? name,
           int? duration,
+          Value<double?> distance = const Value.absent(),
+          Value<double?> elevation = const Value.absent(),
+          Value<double?> power = const Value.absent(),
+          Value<int?> sets = const Value.absent(),
+          Value<double?> weight = const Value.absent(),
+          Value<int?> seconds = const Value.absent(),
+          Value<String?> repsList = const Value.absent(),
           Value<int?> calories = const Value.absent(),
           Value<int?> heartRateAvg = const Value.absent(),
           Value<int?> heartRateMax = const Value.absent(),
@@ -819,6 +980,13 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
         type: type ?? this.type,
         name: name ?? this.name,
         duration: duration ?? this.duration,
+        distance: distance.present ? distance.value : this.distance,
+        elevation: elevation.present ? elevation.value : this.elevation,
+        power: power.present ? power.value : this.power,
+        sets: sets.present ? sets.value : this.sets,
+        weight: weight.present ? weight.value : this.weight,
+        seconds: seconds.present ? seconds.value : this.seconds,
+        repsList: repsList.present ? repsList.value : this.repsList,
         calories: calories.present ? calories.value : this.calories,
         heartRateAvg:
             heartRateAvg.present ? heartRateAvg.value : this.heartRateAvg,
@@ -835,6 +1003,13 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
       type: data.type.present ? data.type.value : this.type,
       name: data.name.present ? data.name.value : this.name,
       duration: data.duration.present ? data.duration.value : this.duration,
+      distance: data.distance.present ? data.distance.value : this.distance,
+      elevation: data.elevation.present ? data.elevation.value : this.elevation,
+      power: data.power.present ? data.power.value : this.power,
+      sets: data.sets.present ? data.sets.value : this.sets,
+      weight: data.weight.present ? data.weight.value : this.weight,
+      seconds: data.seconds.present ? data.seconds.value : this.seconds,
+      repsList: data.repsList.present ? data.repsList.value : this.repsList,
       calories: data.calories.present ? data.calories.value : this.calories,
       heartRateAvg: data.heartRateAvg.present
           ? data.heartRateAvg.value
@@ -856,6 +1031,13 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
           ..write('type: $type, ')
           ..write('name: $name, ')
           ..write('duration: $duration, ')
+          ..write('distance: $distance, ')
+          ..write('elevation: $elevation, ')
+          ..write('power: $power, ')
+          ..write('sets: $sets, ')
+          ..write('weight: $weight, ')
+          ..write('seconds: $seconds, ')
+          ..write('repsList: $repsList, ')
           ..write('calories: $calories, ')
           ..write('heartRateAvg: $heartRateAvg, ')
           ..write('heartRateMax: $heartRateMax, ')
@@ -868,8 +1050,25 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
   }
 
   @override
-  int get hashCode => Object.hash(id, type, name, duration, calories,
-      heartRateAvg, heartRateMax, startedAt, endedAt, note, createdAt);
+  int get hashCode => Object.hash(
+      id,
+      type,
+      name,
+      duration,
+      distance,
+      elevation,
+      power,
+      sets,
+      weight,
+      seconds,
+      repsList,
+      calories,
+      heartRateAvg,
+      heartRateMax,
+      startedAt,
+      endedAt,
+      note,
+      createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -878,6 +1077,13 @@ class ExerciseRecord extends DataClass implements Insertable<ExerciseRecord> {
           other.type == this.type &&
           other.name == this.name &&
           other.duration == this.duration &&
+          other.distance == this.distance &&
+          other.elevation == this.elevation &&
+          other.power == this.power &&
+          other.sets == this.sets &&
+          other.weight == this.weight &&
+          other.seconds == this.seconds &&
+          other.repsList == this.repsList &&
           other.calories == this.calories &&
           other.heartRateAvg == this.heartRateAvg &&
           other.heartRateMax == this.heartRateMax &&
@@ -892,6 +1098,13 @@ class ExerciseRecordsCompanion extends UpdateCompanion<ExerciseRecord> {
   final Value<String> type;
   final Value<String> name;
   final Value<int> duration;
+  final Value<double?> distance;
+  final Value<double?> elevation;
+  final Value<double?> power;
+  final Value<int?> sets;
+  final Value<double?> weight;
+  final Value<int?> seconds;
+  final Value<String?> repsList;
   final Value<int?> calories;
   final Value<int?> heartRateAvg;
   final Value<int?> heartRateMax;
@@ -904,6 +1117,13 @@ class ExerciseRecordsCompanion extends UpdateCompanion<ExerciseRecord> {
     this.type = const Value.absent(),
     this.name = const Value.absent(),
     this.duration = const Value.absent(),
+    this.distance = const Value.absent(),
+    this.elevation = const Value.absent(),
+    this.power = const Value.absent(),
+    this.sets = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.seconds = const Value.absent(),
+    this.repsList = const Value.absent(),
     this.calories = const Value.absent(),
     this.heartRateAvg = const Value.absent(),
     this.heartRateMax = const Value.absent(),
@@ -917,6 +1137,13 @@ class ExerciseRecordsCompanion extends UpdateCompanion<ExerciseRecord> {
     required String type,
     required String name,
     required int duration,
+    this.distance = const Value.absent(),
+    this.elevation = const Value.absent(),
+    this.power = const Value.absent(),
+    this.sets = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.seconds = const Value.absent(),
+    this.repsList = const Value.absent(),
     this.calories = const Value.absent(),
     this.heartRateAvg = const Value.absent(),
     this.heartRateMax = const Value.absent(),
@@ -935,6 +1162,13 @@ class ExerciseRecordsCompanion extends UpdateCompanion<ExerciseRecord> {
     Expression<String>? type,
     Expression<String>? name,
     Expression<int>? duration,
+    Expression<double>? distance,
+    Expression<double>? elevation,
+    Expression<double>? power,
+    Expression<int>? sets,
+    Expression<double>? weight,
+    Expression<int>? seconds,
+    Expression<String>? repsList,
     Expression<int>? calories,
     Expression<int>? heartRateAvg,
     Expression<int>? heartRateMax,
@@ -948,6 +1182,13 @@ class ExerciseRecordsCompanion extends UpdateCompanion<ExerciseRecord> {
       if (type != null) 'type': type,
       if (name != null) 'name': name,
       if (duration != null) 'duration': duration,
+      if (distance != null) 'distance': distance,
+      if (elevation != null) 'elevation': elevation,
+      if (power != null) 'power': power,
+      if (sets != null) 'sets': sets,
+      if (weight != null) 'weight': weight,
+      if (seconds != null) 'seconds': seconds,
+      if (repsList != null) 'reps_list': repsList,
       if (calories != null) 'calories': calories,
       if (heartRateAvg != null) 'heart_rate_avg': heartRateAvg,
       if (heartRateMax != null) 'heart_rate_max': heartRateMax,
@@ -963,6 +1204,13 @@ class ExerciseRecordsCompanion extends UpdateCompanion<ExerciseRecord> {
       Value<String>? type,
       Value<String>? name,
       Value<int>? duration,
+      Value<double?>? distance,
+      Value<double?>? elevation,
+      Value<double?>? power,
+      Value<int?>? sets,
+      Value<double?>? weight,
+      Value<int?>? seconds,
+      Value<String?>? repsList,
       Value<int?>? calories,
       Value<int?>? heartRateAvg,
       Value<int?>? heartRateMax,
@@ -975,6 +1223,13 @@ class ExerciseRecordsCompanion extends UpdateCompanion<ExerciseRecord> {
       type: type ?? this.type,
       name: name ?? this.name,
       duration: duration ?? this.duration,
+      distance: distance ?? this.distance,
+      elevation: elevation ?? this.elevation,
+      power: power ?? this.power,
+      sets: sets ?? this.sets,
+      weight: weight ?? this.weight,
+      seconds: seconds ?? this.seconds,
+      repsList: repsList ?? this.repsList,
       calories: calories ?? this.calories,
       heartRateAvg: heartRateAvg ?? this.heartRateAvg,
       heartRateMax: heartRateMax ?? this.heartRateMax,
@@ -999,6 +1254,27 @@ class ExerciseRecordsCompanion extends UpdateCompanion<ExerciseRecord> {
     }
     if (duration.present) {
       map['duration'] = Variable<int>(duration.value);
+    }
+    if (distance.present) {
+      map['distance'] = Variable<double>(distance.value);
+    }
+    if (elevation.present) {
+      map['elevation'] = Variable<double>(elevation.value);
+    }
+    if (power.present) {
+      map['power'] = Variable<double>(power.value);
+    }
+    if (sets.present) {
+      map['sets'] = Variable<int>(sets.value);
+    }
+    if (weight.present) {
+      map['weight'] = Variable<double>(weight.value);
+    }
+    if (seconds.present) {
+      map['seconds'] = Variable<int>(seconds.value);
+    }
+    if (repsList.present) {
+      map['reps_list'] = Variable<String>(repsList.value);
     }
     if (calories.present) {
       map['calories'] = Variable<int>(calories.value);
@@ -1031,6 +1307,13 @@ class ExerciseRecordsCompanion extends UpdateCompanion<ExerciseRecord> {
           ..write('type: $type, ')
           ..write('name: $name, ')
           ..write('duration: $duration, ')
+          ..write('distance: $distance, ')
+          ..write('elevation: $elevation, ')
+          ..write('power: $power, ')
+          ..write('sets: $sets, ')
+          ..write('weight: $weight, ')
+          ..write('seconds: $seconds, ')
+          ..write('repsList: $repsList, ')
           ..write('calories: $calories, ')
           ..write('heartRateAvg: $heartRateAvg, ')
           ..write('heartRateMax: $heartRateMax, ')
@@ -1581,11 +1864,11 @@ class $MealRecordsTable extends MealRecords
   late final GeneratedColumn<DateTime> recordedAt = GeneratedColumn<DateTime>(
       'recorded_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _imagePathMeta =
-      const VerificationMeta('imagePath');
+  static const VerificationMeta _imagePathsMeta =
+      const VerificationMeta('imagePaths');
   @override
-  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
-      'image_path', aliasedName, true,
+  late final GeneratedColumn<String> imagePaths = GeneratedColumn<String>(
+      'image_paths', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
@@ -1600,7 +1883,7 @@ class $MealRecordsTable extends MealRecords
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, type, recordedAt, imagePath, note, createdAt];
+      [id, type, recordedAt, imagePaths, note, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1628,9 +1911,11 @@ class $MealRecordsTable extends MealRecords
     } else if (isInserting) {
       context.missing(_recordedAtMeta);
     }
-    if (data.containsKey('image_path')) {
-      context.handle(_imagePathMeta,
-          imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta));
+    if (data.containsKey('image_paths')) {
+      context.handle(
+          _imagePathsMeta,
+          imagePaths.isAcceptableOrUnknown(
+              data['image_paths']!, _imagePathsMeta));
     }
     if (data.containsKey('note')) {
       context.handle(
@@ -1657,8 +1942,8 @@ class $MealRecordsTable extends MealRecords
           .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
       recordedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}recorded_at'])!,
-      imagePath: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}image_path']),
+      imagePaths: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_paths']),
       note: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}note']),
       createdAt: attachedDatabase.typeMapping
@@ -1676,14 +1961,14 @@ class MealRecord extends DataClass implements Insertable<MealRecord> {
   final int id;
   final String type;
   final DateTime recordedAt;
-  final String? imagePath;
+  final String? imagePaths;
   final String? note;
   final DateTime createdAt;
   const MealRecord(
       {required this.id,
       required this.type,
       required this.recordedAt,
-      this.imagePath,
+      this.imagePaths,
       this.note,
       required this.createdAt});
   @override
@@ -1692,8 +1977,8 @@ class MealRecord extends DataClass implements Insertable<MealRecord> {
     map['id'] = Variable<int>(id);
     map['type'] = Variable<String>(type);
     map['recorded_at'] = Variable<DateTime>(recordedAt);
-    if (!nullToAbsent || imagePath != null) {
-      map['image_path'] = Variable<String>(imagePath);
+    if (!nullToAbsent || imagePaths != null) {
+      map['image_paths'] = Variable<String>(imagePaths);
     }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
@@ -1707,9 +1992,9 @@ class MealRecord extends DataClass implements Insertable<MealRecord> {
       id: Value(id),
       type: Value(type),
       recordedAt: Value(recordedAt),
-      imagePath: imagePath == null && nullToAbsent
+      imagePaths: imagePaths == null && nullToAbsent
           ? const Value.absent()
-          : Value(imagePath),
+          : Value(imagePaths),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       createdAt: Value(createdAt),
     );
@@ -1722,7 +2007,7 @@ class MealRecord extends DataClass implements Insertable<MealRecord> {
       id: serializer.fromJson<int>(json['id']),
       type: serializer.fromJson<String>(json['type']),
       recordedAt: serializer.fromJson<DateTime>(json['recordedAt']),
-      imagePath: serializer.fromJson<String?>(json['imagePath']),
+      imagePaths: serializer.fromJson<String?>(json['imagePaths']),
       note: serializer.fromJson<String?>(json['note']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -1734,7 +2019,7 @@ class MealRecord extends DataClass implements Insertable<MealRecord> {
       'id': serializer.toJson<int>(id),
       'type': serializer.toJson<String>(type),
       'recordedAt': serializer.toJson<DateTime>(recordedAt),
-      'imagePath': serializer.toJson<String?>(imagePath),
+      'imagePaths': serializer.toJson<String?>(imagePaths),
       'note': serializer.toJson<String?>(note),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
@@ -1744,14 +2029,14 @@ class MealRecord extends DataClass implements Insertable<MealRecord> {
           {int? id,
           String? type,
           DateTime? recordedAt,
-          Value<String?> imagePath = const Value.absent(),
+          Value<String?> imagePaths = const Value.absent(),
           Value<String?> note = const Value.absent(),
           DateTime? createdAt}) =>
       MealRecord(
         id: id ?? this.id,
         type: type ?? this.type,
         recordedAt: recordedAt ?? this.recordedAt,
-        imagePath: imagePath.present ? imagePath.value : this.imagePath,
+        imagePaths: imagePaths.present ? imagePaths.value : this.imagePaths,
         note: note.present ? note.value : this.note,
         createdAt: createdAt ?? this.createdAt,
       );
@@ -1761,7 +2046,8 @@ class MealRecord extends DataClass implements Insertable<MealRecord> {
       type: data.type.present ? data.type.value : this.type,
       recordedAt:
           data.recordedAt.present ? data.recordedAt.value : this.recordedAt,
-      imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
+      imagePaths:
+          data.imagePaths.present ? data.imagePaths.value : this.imagePaths,
       note: data.note.present ? data.note.value : this.note,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -1773,7 +2059,7 @@ class MealRecord extends DataClass implements Insertable<MealRecord> {
           ..write('id: $id, ')
           ..write('type: $type, ')
           ..write('recordedAt: $recordedAt, ')
-          ..write('imagePath: $imagePath, ')
+          ..write('imagePaths: $imagePaths, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -1782,7 +2068,7 @@ class MealRecord extends DataClass implements Insertable<MealRecord> {
 
   @override
   int get hashCode =>
-      Object.hash(id, type, recordedAt, imagePath, note, createdAt);
+      Object.hash(id, type, recordedAt, imagePaths, note, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1790,7 +2076,7 @@ class MealRecord extends DataClass implements Insertable<MealRecord> {
           other.id == this.id &&
           other.type == this.type &&
           other.recordedAt == this.recordedAt &&
-          other.imagePath == this.imagePath &&
+          other.imagePaths == this.imagePaths &&
           other.note == this.note &&
           other.createdAt == this.createdAt);
 }
@@ -1799,14 +2085,14 @@ class MealRecordsCompanion extends UpdateCompanion<MealRecord> {
   final Value<int> id;
   final Value<String> type;
   final Value<DateTime> recordedAt;
-  final Value<String?> imagePath;
+  final Value<String?> imagePaths;
   final Value<String?> note;
   final Value<DateTime> createdAt;
   const MealRecordsCompanion({
     this.id = const Value.absent(),
     this.type = const Value.absent(),
     this.recordedAt = const Value.absent(),
-    this.imagePath = const Value.absent(),
+    this.imagePaths = const Value.absent(),
     this.note = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
@@ -1814,7 +2100,7 @@ class MealRecordsCompanion extends UpdateCompanion<MealRecord> {
     this.id = const Value.absent(),
     required String type,
     required DateTime recordedAt,
-    this.imagePath = const Value.absent(),
+    this.imagePaths = const Value.absent(),
     this.note = const Value.absent(),
     required DateTime createdAt,
   })  : type = Value(type),
@@ -1824,7 +2110,7 @@ class MealRecordsCompanion extends UpdateCompanion<MealRecord> {
     Expression<int>? id,
     Expression<String>? type,
     Expression<DateTime>? recordedAt,
-    Expression<String>? imagePath,
+    Expression<String>? imagePaths,
     Expression<String>? note,
     Expression<DateTime>? createdAt,
   }) {
@@ -1832,7 +2118,7 @@ class MealRecordsCompanion extends UpdateCompanion<MealRecord> {
       if (id != null) 'id': id,
       if (type != null) 'type': type,
       if (recordedAt != null) 'recorded_at': recordedAt,
-      if (imagePath != null) 'image_path': imagePath,
+      if (imagePaths != null) 'image_paths': imagePaths,
       if (note != null) 'note': note,
       if (createdAt != null) 'created_at': createdAt,
     });
@@ -1842,14 +2128,14 @@ class MealRecordsCompanion extends UpdateCompanion<MealRecord> {
       {Value<int>? id,
       Value<String>? type,
       Value<DateTime>? recordedAt,
-      Value<String?>? imagePath,
+      Value<String?>? imagePaths,
       Value<String?>? note,
       Value<DateTime>? createdAt}) {
     return MealRecordsCompanion(
       id: id ?? this.id,
       type: type ?? this.type,
       recordedAt: recordedAt ?? this.recordedAt,
-      imagePath: imagePath ?? this.imagePath,
+      imagePaths: imagePaths ?? this.imagePaths,
       note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -1867,8 +2153,8 @@ class MealRecordsCompanion extends UpdateCompanion<MealRecord> {
     if (recordedAt.present) {
       map['recorded_at'] = Variable<DateTime>(recordedAt.value);
     }
-    if (imagePath.present) {
-      map['image_path'] = Variable<String>(imagePath.value);
+    if (imagePaths.present) {
+      map['image_paths'] = Variable<String>(imagePaths.value);
     }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
@@ -1885,7 +2171,7 @@ class MealRecordsCompanion extends UpdateCompanion<MealRecord> {
           ..write('id: $id, ')
           ..write('type: $type, ')
           ..write('recordedAt: $recordedAt, ')
-          ..write('imagePath: $imagePath, ')
+          ..write('imagePaths: $imagePaths, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -2788,6 +3074,12 @@ class $TrainingPlanExercisesTable extends TrainingPlanExercises
   late final GeneratedColumn<int> targetReps = GeneratedColumn<int>(
       'target_reps', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _targetRepsListMeta =
+      const VerificationMeta('targetRepsList');
+  @override
+  late final GeneratedColumn<String> targetRepsList = GeneratedColumn<String>(
+      'target_reps_list', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _targetWeightMeta =
       const VerificationMeta('targetWeight');
   @override
@@ -2824,6 +3116,7 @@ class $TrainingPlanExercisesTable extends TrainingPlanExercises
         movement,
         targetSets,
         targetReps,
+        targetRepsList,
         targetWeight,
         restSeconds,
         trainingType,
@@ -2877,6 +3170,12 @@ class $TrainingPlanExercisesTable extends TrainingPlanExercises
     } else if (isInserting) {
       context.missing(_targetRepsMeta);
     }
+    if (data.containsKey('target_reps_list')) {
+      context.handle(
+          _targetRepsListMeta,
+          targetRepsList.isAcceptableOrUnknown(
+              data['target_reps_list']!, _targetRepsListMeta));
+    }
     if (data.containsKey('target_weight')) {
       context.handle(
           _targetWeightMeta,
@@ -2922,6 +3221,8 @@ class $TrainingPlanExercisesTable extends TrainingPlanExercises
           .read(DriftSqlType.int, data['${effectivePrefix}target_sets'])!,
       targetReps: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}target_reps'])!,
+      targetRepsList: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}target_reps_list']),
       targetWeight: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}target_weight']),
       restSeconds: attachedDatabase.typeMapping
@@ -2947,6 +3248,7 @@ class TrainingPlanExercise extends DataClass
   final String movement;
   final int targetSets;
   final int targetReps;
+  final String? targetRepsList;
   final double? targetWeight;
   final int? restSeconds;
   final String trainingType;
@@ -2958,6 +3260,7 @@ class TrainingPlanExercise extends DataClass
       required this.movement,
       required this.targetSets,
       required this.targetReps,
+      this.targetRepsList,
       this.targetWeight,
       this.restSeconds,
       required this.trainingType,
@@ -2971,6 +3274,9 @@ class TrainingPlanExercise extends DataClass
     map['movement'] = Variable<String>(movement);
     map['target_sets'] = Variable<int>(targetSets);
     map['target_reps'] = Variable<int>(targetReps);
+    if (!nullToAbsent || targetRepsList != null) {
+      map['target_reps_list'] = Variable<String>(targetRepsList);
+    }
     if (!nullToAbsent || targetWeight != null) {
       map['target_weight'] = Variable<double>(targetWeight);
     }
@@ -2990,6 +3296,9 @@ class TrainingPlanExercise extends DataClass
       movement: Value(movement),
       targetSets: Value(targetSets),
       targetReps: Value(targetReps),
+      targetRepsList: targetRepsList == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetRepsList),
       targetWeight: targetWeight == null && nullToAbsent
           ? const Value.absent()
           : Value(targetWeight),
@@ -3011,6 +3320,7 @@ class TrainingPlanExercise extends DataClass
       movement: serializer.fromJson<String>(json['movement']),
       targetSets: serializer.fromJson<int>(json['targetSets']),
       targetReps: serializer.fromJson<int>(json['targetReps']),
+      targetRepsList: serializer.fromJson<String?>(json['targetRepsList']),
       targetWeight: serializer.fromJson<double?>(json['targetWeight']),
       restSeconds: serializer.fromJson<int?>(json['restSeconds']),
       trainingType: serializer.fromJson<String>(json['trainingType']),
@@ -3027,6 +3337,7 @@ class TrainingPlanExercise extends DataClass
       'movement': serializer.toJson<String>(movement),
       'targetSets': serializer.toJson<int>(targetSets),
       'targetReps': serializer.toJson<int>(targetReps),
+      'targetRepsList': serializer.toJson<String?>(targetRepsList),
       'targetWeight': serializer.toJson<double?>(targetWeight),
       'restSeconds': serializer.toJson<int?>(restSeconds),
       'trainingType': serializer.toJson<String>(trainingType),
@@ -3041,6 +3352,7 @@ class TrainingPlanExercise extends DataClass
           String? movement,
           int? targetSets,
           int? targetReps,
+          Value<String?> targetRepsList = const Value.absent(),
           Value<double?> targetWeight = const Value.absent(),
           Value<int?> restSeconds = const Value.absent(),
           String? trainingType,
@@ -3052,6 +3364,8 @@ class TrainingPlanExercise extends DataClass
         movement: movement ?? this.movement,
         targetSets: targetSets ?? this.targetSets,
         targetReps: targetReps ?? this.targetReps,
+        targetRepsList:
+            targetRepsList.present ? targetRepsList.value : this.targetRepsList,
         targetWeight:
             targetWeight.present ? targetWeight.value : this.targetWeight,
         restSeconds: restSeconds.present ? restSeconds.value : this.restSeconds,
@@ -3068,6 +3382,9 @@ class TrainingPlanExercise extends DataClass
           data.targetSets.present ? data.targetSets.value : this.targetSets,
       targetReps:
           data.targetReps.present ? data.targetReps.value : this.targetReps,
+      targetRepsList: data.targetRepsList.present
+          ? data.targetRepsList.value
+          : this.targetRepsList,
       targetWeight: data.targetWeight.present
           ? data.targetWeight.value
           : this.targetWeight,
@@ -3090,6 +3407,7 @@ class TrainingPlanExercise extends DataClass
           ..write('movement: $movement, ')
           ..write('targetSets: $targetSets, ')
           ..write('targetReps: $targetReps, ')
+          ..write('targetRepsList: $targetRepsList, ')
           ..write('targetWeight: $targetWeight, ')
           ..write('restSeconds: $restSeconds, ')
           ..write('trainingType: $trainingType, ')
@@ -3099,8 +3417,18 @@ class TrainingPlanExercise extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, planId, device, movement, targetSets,
-      targetReps, targetWeight, restSeconds, trainingType, orderIndex);
+  int get hashCode => Object.hash(
+      id,
+      planId,
+      device,
+      movement,
+      targetSets,
+      targetReps,
+      targetRepsList,
+      targetWeight,
+      restSeconds,
+      trainingType,
+      orderIndex);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3111,6 +3439,7 @@ class TrainingPlanExercise extends DataClass
           other.movement == this.movement &&
           other.targetSets == this.targetSets &&
           other.targetReps == this.targetReps &&
+          other.targetRepsList == this.targetRepsList &&
           other.targetWeight == this.targetWeight &&
           other.restSeconds == this.restSeconds &&
           other.trainingType == this.trainingType &&
@@ -3125,6 +3454,7 @@ class TrainingPlanExercisesCompanion
   final Value<String> movement;
   final Value<int> targetSets;
   final Value<int> targetReps;
+  final Value<String?> targetRepsList;
   final Value<double?> targetWeight;
   final Value<int?> restSeconds;
   final Value<String> trainingType;
@@ -3136,6 +3466,7 @@ class TrainingPlanExercisesCompanion
     this.movement = const Value.absent(),
     this.targetSets = const Value.absent(),
     this.targetReps = const Value.absent(),
+    this.targetRepsList = const Value.absent(),
     this.targetWeight = const Value.absent(),
     this.restSeconds = const Value.absent(),
     this.trainingType = const Value.absent(),
@@ -3148,6 +3479,7 @@ class TrainingPlanExercisesCompanion
     required String movement,
     required int targetSets,
     required int targetReps,
+    this.targetRepsList = const Value.absent(),
     this.targetWeight = const Value.absent(),
     this.restSeconds = const Value.absent(),
     this.trainingType = const Value.absent(),
@@ -3164,6 +3496,7 @@ class TrainingPlanExercisesCompanion
     Expression<String>? movement,
     Expression<int>? targetSets,
     Expression<int>? targetReps,
+    Expression<String>? targetRepsList,
     Expression<double>? targetWeight,
     Expression<int>? restSeconds,
     Expression<String>? trainingType,
@@ -3176,6 +3509,7 @@ class TrainingPlanExercisesCompanion
       if (movement != null) 'movement': movement,
       if (targetSets != null) 'target_sets': targetSets,
       if (targetReps != null) 'target_reps': targetReps,
+      if (targetRepsList != null) 'target_reps_list': targetRepsList,
       if (targetWeight != null) 'target_weight': targetWeight,
       if (restSeconds != null) 'rest_seconds': restSeconds,
       if (trainingType != null) 'training_type': trainingType,
@@ -3190,6 +3524,7 @@ class TrainingPlanExercisesCompanion
       Value<String>? movement,
       Value<int>? targetSets,
       Value<int>? targetReps,
+      Value<String?>? targetRepsList,
       Value<double?>? targetWeight,
       Value<int?>? restSeconds,
       Value<String>? trainingType,
@@ -3201,6 +3536,7 @@ class TrainingPlanExercisesCompanion
       movement: movement ?? this.movement,
       targetSets: targetSets ?? this.targetSets,
       targetReps: targetReps ?? this.targetReps,
+      targetRepsList: targetRepsList ?? this.targetRepsList,
       targetWeight: targetWeight ?? this.targetWeight,
       restSeconds: restSeconds ?? this.restSeconds,
       trainingType: trainingType ?? this.trainingType,
@@ -3229,6 +3565,9 @@ class TrainingPlanExercisesCompanion
     if (targetReps.present) {
       map['target_reps'] = Variable<int>(targetReps.value);
     }
+    if (targetRepsList.present) {
+      map['target_reps_list'] = Variable<String>(targetRepsList.value);
+    }
     if (targetWeight.present) {
       map['target_weight'] = Variable<double>(targetWeight.value);
     }
@@ -3253,6 +3592,7 @@ class TrainingPlanExercisesCompanion
           ..write('movement: $movement, ')
           ..write('targetSets: $targetSets, ')
           ..write('targetReps: $targetReps, ')
+          ..write('targetRepsList: $targetRepsList, ')
           ..write('targetWeight: $targetWeight, ')
           ..write('restSeconds: $restSeconds, ')
           ..write('trainingType: $trainingType, ')
@@ -3359,6 +3699,12 @@ class $BodyMeasurementsTable extends BodyMeasurements
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
       'note', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _imagePathMeta =
+      const VerificationMeta('imagePath');
+  @override
+  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
+      'image_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _measuredAtMeta =
       const VerificationMeta('measuredAt');
   @override
@@ -3389,6 +3735,7 @@ class $BodyMeasurementsTable extends BodyMeasurements
         bmi,
         waistHipRatio,
         note,
+        imagePath,
         measuredAt,
         createdAt
       ];
@@ -3471,6 +3818,10 @@ class $BodyMeasurementsTable extends BodyMeasurements
       context.handle(
           _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
     }
+    if (data.containsKey('image_path')) {
+      context.handle(_imagePathMeta,
+          imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta));
+    }
     if (data.containsKey('measured_at')) {
       context.handle(
           _measuredAtMeta,
@@ -3526,6 +3877,8 @@ class $BodyMeasurementsTable extends BodyMeasurements
           .read(DriftSqlType.double, data['${effectivePrefix}waist_hip_ratio']),
       note: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      imagePath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_path']),
       measuredAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}measured_at'])!,
       createdAt: attachedDatabase.typeMapping
@@ -3556,6 +3909,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
   final double? bmi;
   final double? waistHipRatio;
   final String? note;
+  final String? imagePath;
   final DateTime measuredAt;
   final DateTime createdAt;
   const BodyMeasurement(
@@ -3575,6 +3929,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
       this.bmi,
       this.waistHipRatio,
       this.note,
+      this.imagePath,
       required this.measuredAt,
       required this.createdAt});
   @override
@@ -3626,6 +3981,9 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
+    if (!nullToAbsent || imagePath != null) {
+      map['image_path'] = Variable<String>(imagePath);
+    }
     map['measured_at'] = Variable<DateTime>(measuredAt);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
@@ -3667,6 +4025,9 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
           ? const Value.absent()
           : Value(waistHipRatio),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      imagePath: imagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imagePath),
       measuredAt: Value(measuredAt),
       createdAt: Value(createdAt),
     );
@@ -3692,6 +4053,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
       bmi: serializer.fromJson<double?>(json['bmi']),
       waistHipRatio: serializer.fromJson<double?>(json['waistHipRatio']),
       note: serializer.fromJson<String?>(json['note']),
+      imagePath: serializer.fromJson<String?>(json['imagePath']),
       measuredAt: serializer.fromJson<DateTime>(json['measuredAt']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -3716,6 +4078,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
       'bmi': serializer.toJson<double?>(bmi),
       'waistHipRatio': serializer.toJson<double?>(waistHipRatio),
       'note': serializer.toJson<String?>(note),
+      'imagePath': serializer.toJson<String?>(imagePath),
       'measuredAt': serializer.toJson<DateTime>(measuredAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
@@ -3738,6 +4101,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
           Value<double?> bmi = const Value.absent(),
           Value<double?> waistHipRatio = const Value.absent(),
           Value<String?> note = const Value.absent(),
+          Value<String?> imagePath = const Value.absent(),
           DateTime? measuredAt,
           DateTime? createdAt}) =>
       BodyMeasurement(
@@ -3758,6 +4122,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
         waistHipRatio:
             waistHipRatio.present ? waistHipRatio.value : this.waistHipRatio,
         note: note.present ? note.value : this.note,
+        imagePath: imagePath.present ? imagePath.value : this.imagePath,
         measuredAt: measuredAt ?? this.measuredAt,
         createdAt: createdAt ?? this.createdAt,
       );
@@ -3783,6 +4148,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
           ? data.waistHipRatio.value
           : this.waistHipRatio,
       note: data.note.present ? data.note.value : this.note,
+      imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
       measuredAt:
           data.measuredAt.present ? data.measuredAt.value : this.measuredAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -3808,6 +4174,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
           ..write('bmi: $bmi, ')
           ..write('waistHipRatio: $waistHipRatio, ')
           ..write('note: $note, ')
+          ..write('imagePath: $imagePath, ')
           ..write('measuredAt: $measuredAt, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -3832,6 +4199,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
       bmi,
       waistHipRatio,
       note,
+      imagePath,
       measuredAt,
       createdAt);
   @override
@@ -3854,6 +4222,7 @@ class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
           other.bmi == this.bmi &&
           other.waistHipRatio == this.waistHipRatio &&
           other.note == this.note &&
+          other.imagePath == this.imagePath &&
           other.measuredAt == this.measuredAt &&
           other.createdAt == this.createdAt);
 }
@@ -3875,6 +4244,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
   final Value<double?> bmi;
   final Value<double?> waistHipRatio;
   final Value<String?> note;
+  final Value<String?> imagePath;
   final Value<DateTime> measuredAt;
   final Value<DateTime> createdAt;
   const BodyMeasurementsCompanion({
@@ -3894,6 +4264,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
     this.bmi = const Value.absent(),
     this.waistHipRatio = const Value.absent(),
     this.note = const Value.absent(),
+    this.imagePath = const Value.absent(),
     this.measuredAt = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
@@ -3914,6 +4285,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
     this.bmi = const Value.absent(),
     this.waistHipRatio = const Value.absent(),
     this.note = const Value.absent(),
+    this.imagePath = const Value.absent(),
     required DateTime measuredAt,
     required DateTime createdAt,
   })  : measuredAt = Value(measuredAt),
@@ -3935,6 +4307,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
     Expression<double>? bmi,
     Expression<double>? waistHipRatio,
     Expression<String>? note,
+    Expression<String>? imagePath,
     Expression<DateTime>? measuredAt,
     Expression<DateTime>? createdAt,
   }) {
@@ -3955,6 +4328,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
       if (bmi != null) 'bmi': bmi,
       if (waistHipRatio != null) 'waist_hip_ratio': waistHipRatio,
       if (note != null) 'note': note,
+      if (imagePath != null) 'image_path': imagePath,
       if (measuredAt != null) 'measured_at': measuredAt,
       if (createdAt != null) 'created_at': createdAt,
     });
@@ -3977,6 +4351,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
       Value<double?>? bmi,
       Value<double?>? waistHipRatio,
       Value<String?>? note,
+      Value<String?>? imagePath,
       Value<DateTime>? measuredAt,
       Value<DateTime>? createdAt}) {
     return BodyMeasurementsCompanion(
@@ -3996,6 +4371,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
       bmi: bmi ?? this.bmi,
       waistHipRatio: waistHipRatio ?? this.waistHipRatio,
       note: note ?? this.note,
+      imagePath: imagePath ?? this.imagePath,
       measuredAt: measuredAt ?? this.measuredAt,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -4052,6 +4428,9 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
+    if (imagePath.present) {
+      map['image_path'] = Variable<String>(imagePath.value);
+    }
     if (measuredAt.present) {
       map['measured_at'] = Variable<DateTime>(measuredAt.value);
     }
@@ -4080,6 +4459,7 @@ class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
           ..write('bmi: $bmi, ')
           ..write('waistHipRatio: $waistHipRatio, ')
           ..write('note: $note, ')
+          ..write('imagePath: $imagePath, ')
           ..write('measuredAt: $measuredAt, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -4940,6 +5320,13 @@ typedef $$ExerciseRecordsTableCreateCompanionBuilder = ExerciseRecordsCompanion
   required String type,
   required String name,
   required int duration,
+  Value<double?> distance,
+  Value<double?> elevation,
+  Value<double?> power,
+  Value<int?> sets,
+  Value<double?> weight,
+  Value<int?> seconds,
+  Value<String?> repsList,
   Value<int?> calories,
   Value<int?> heartRateAvg,
   Value<int?> heartRateMax,
@@ -4954,6 +5341,13 @@ typedef $$ExerciseRecordsTableUpdateCompanionBuilder = ExerciseRecordsCompanion
   Value<String> type,
   Value<String> name,
   Value<int> duration,
+  Value<double?> distance,
+  Value<double?> elevation,
+  Value<double?> power,
+  Value<int?> sets,
+  Value<double?> weight,
+  Value<int?> seconds,
+  Value<String?> repsList,
   Value<int?> calories,
   Value<int?> heartRateAvg,
   Value<int?> heartRateMax,
@@ -5006,6 +5400,27 @@ class $$ExerciseRecordsTableFilterComposer
 
   ColumnFilters<int> get duration => $composableBuilder(
       column: $table.duration, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get distance => $composableBuilder(
+      column: $table.distance, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get elevation => $composableBuilder(
+      column: $table.elevation, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get power => $composableBuilder(
+      column: $table.power, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sets => $composableBuilder(
+      column: $table.sets, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get weight => $composableBuilder(
+      column: $table.weight, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seconds => $composableBuilder(
+      column: $table.seconds, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get repsList => $composableBuilder(
+      column: $table.repsList, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get calories => $composableBuilder(
       column: $table.calories, builder: (column) => ColumnFilters(column));
@@ -5071,6 +5486,27 @@ class $$ExerciseRecordsTableOrderingComposer
   ColumnOrderings<int> get duration => $composableBuilder(
       column: $table.duration, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<double> get distance => $composableBuilder(
+      column: $table.distance, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get elevation => $composableBuilder(
+      column: $table.elevation, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get power => $composableBuilder(
+      column: $table.power, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sets => $composableBuilder(
+      column: $table.sets, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get weight => $composableBuilder(
+      column: $table.weight, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seconds => $composableBuilder(
+      column: $table.seconds, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get repsList => $composableBuilder(
+      column: $table.repsList, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get calories => $composableBuilder(
       column: $table.calories, builder: (column) => ColumnOrderings(column));
 
@@ -5115,6 +5551,27 @@ class $$ExerciseRecordsTableAnnotationComposer
 
   GeneratedColumn<int> get duration =>
       $composableBuilder(column: $table.duration, builder: (column) => column);
+
+  GeneratedColumn<double> get distance =>
+      $composableBuilder(column: $table.distance, builder: (column) => column);
+
+  GeneratedColumn<double> get elevation =>
+      $composableBuilder(column: $table.elevation, builder: (column) => column);
+
+  GeneratedColumn<double> get power =>
+      $composableBuilder(column: $table.power, builder: (column) => column);
+
+  GeneratedColumn<int> get sets =>
+      $composableBuilder(column: $table.sets, builder: (column) => column);
+
+  GeneratedColumn<double> get weight =>
+      $composableBuilder(column: $table.weight, builder: (column) => column);
+
+  GeneratedColumn<int> get seconds =>
+      $composableBuilder(column: $table.seconds, builder: (column) => column);
+
+  GeneratedColumn<String> get repsList =>
+      $composableBuilder(column: $table.repsList, builder: (column) => column);
 
   GeneratedColumn<int> get calories =>
       $composableBuilder(column: $table.calories, builder: (column) => column);
@@ -5188,6 +5645,13 @@ class $$ExerciseRecordsTableTableManager extends RootTableManager<
             Value<String> type = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<int> duration = const Value.absent(),
+            Value<double?> distance = const Value.absent(),
+            Value<double?> elevation = const Value.absent(),
+            Value<double?> power = const Value.absent(),
+            Value<int?> sets = const Value.absent(),
+            Value<double?> weight = const Value.absent(),
+            Value<int?> seconds = const Value.absent(),
+            Value<String?> repsList = const Value.absent(),
             Value<int?> calories = const Value.absent(),
             Value<int?> heartRateAvg = const Value.absent(),
             Value<int?> heartRateMax = const Value.absent(),
@@ -5201,6 +5665,13 @@ class $$ExerciseRecordsTableTableManager extends RootTableManager<
             type: type,
             name: name,
             duration: duration,
+            distance: distance,
+            elevation: elevation,
+            power: power,
+            sets: sets,
+            weight: weight,
+            seconds: seconds,
+            repsList: repsList,
             calories: calories,
             heartRateAvg: heartRateAvg,
             heartRateMax: heartRateMax,
@@ -5214,6 +5685,13 @@ class $$ExerciseRecordsTableTableManager extends RootTableManager<
             required String type,
             required String name,
             required int duration,
+            Value<double?> distance = const Value.absent(),
+            Value<double?> elevation = const Value.absent(),
+            Value<double?> power = const Value.absent(),
+            Value<int?> sets = const Value.absent(),
+            Value<double?> weight = const Value.absent(),
+            Value<int?> seconds = const Value.absent(),
+            Value<String?> repsList = const Value.absent(),
             Value<int?> calories = const Value.absent(),
             Value<int?> heartRateAvg = const Value.absent(),
             Value<int?> heartRateMax = const Value.absent(),
@@ -5227,6 +5705,13 @@ class $$ExerciseRecordsTableTableManager extends RootTableManager<
             type: type,
             name: name,
             duration: duration,
+            distance: distance,
+            elevation: elevation,
+            power: power,
+            sets: sets,
+            weight: weight,
+            seconds: seconds,
+            repsList: repsList,
             calories: calories,
             heartRateAvg: heartRateAvg,
             heartRateMax: heartRateMax,
@@ -5639,7 +6124,7 @@ typedef $$MealRecordsTableCreateCompanionBuilder = MealRecordsCompanion
   Value<int> id,
   required String type,
   required DateTime recordedAt,
-  Value<String?> imagePath,
+  Value<String?> imagePaths,
   Value<String?> note,
   required DateTime createdAt,
 });
@@ -5648,7 +6133,7 @@ typedef $$MealRecordsTableUpdateCompanionBuilder = MealRecordsCompanion
   Value<int> id,
   Value<String> type,
   Value<DateTime> recordedAt,
-  Value<String?> imagePath,
+  Value<String?> imagePaths,
   Value<String?> note,
   Value<DateTime> createdAt,
 });
@@ -5691,8 +6176,8 @@ class $$MealRecordsTableFilterComposer
   ColumnFilters<DateTime> get recordedAt => $composableBuilder(
       column: $table.recordedAt, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get imagePath => $composableBuilder(
-      column: $table.imagePath, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get imagePaths => $composableBuilder(
+      column: $table.imagePaths, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get note => $composableBuilder(
       column: $table.note, builder: (column) => ColumnFilters(column));
@@ -5740,8 +6225,8 @@ class $$MealRecordsTableOrderingComposer
   ColumnOrderings<DateTime> get recordedAt => $composableBuilder(
       column: $table.recordedAt, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get imagePath => $composableBuilder(
-      column: $table.imagePath, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get imagePaths => $composableBuilder(
+      column: $table.imagePaths, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get note => $composableBuilder(
       column: $table.note, builder: (column) => ColumnOrderings(column));
@@ -5768,8 +6253,8 @@ class $$MealRecordsTableAnnotationComposer
   GeneratedColumn<DateTime> get recordedAt => $composableBuilder(
       column: $table.recordedAt, builder: (column) => column);
 
-  GeneratedColumn<String> get imagePath =>
-      $composableBuilder(column: $table.imagePath, builder: (column) => column);
+  GeneratedColumn<String> get imagePaths => $composableBuilder(
+      column: $table.imagePaths, builder: (column) => column);
 
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
@@ -5825,7 +6310,7 @@ class $$MealRecordsTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<String> type = const Value.absent(),
             Value<DateTime> recordedAt = const Value.absent(),
-            Value<String?> imagePath = const Value.absent(),
+            Value<String?> imagePaths = const Value.absent(),
             Value<String?> note = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
@@ -5833,7 +6318,7 @@ class $$MealRecordsTableTableManager extends RootTableManager<
             id: id,
             type: type,
             recordedAt: recordedAt,
-            imagePath: imagePath,
+            imagePaths: imagePaths,
             note: note,
             createdAt: createdAt,
           ),
@@ -5841,7 +6326,7 @@ class $$MealRecordsTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             required String type,
             required DateTime recordedAt,
-            Value<String?> imagePath = const Value.absent(),
+            Value<String?> imagePaths = const Value.absent(),
             Value<String?> note = const Value.absent(),
             required DateTime createdAt,
           }) =>
@@ -5849,7 +6334,7 @@ class $$MealRecordsTableTableManager extends RootTableManager<
             id: id,
             type: type,
             recordedAt: recordedAt,
-            imagePath: imagePath,
+            imagePaths: imagePaths,
             note: note,
             createdAt: createdAt,
           ),
@@ -6579,6 +7064,7 @@ typedef $$TrainingPlanExercisesTableCreateCompanionBuilder
   required String movement,
   required int targetSets,
   required int targetReps,
+  Value<String?> targetRepsList,
   Value<double?> targetWeight,
   Value<int?> restSeconds,
   Value<String> trainingType,
@@ -6592,6 +7078,7 @@ typedef $$TrainingPlanExercisesTableUpdateCompanionBuilder
   Value<String> movement,
   Value<int> targetSets,
   Value<int> targetReps,
+  Value<String?> targetRepsList,
   Value<double?> targetWeight,
   Value<int?> restSeconds,
   Value<String> trainingType,
@@ -6642,6 +7129,10 @@ class $$TrainingPlanExercisesTableFilterComposer
 
   ColumnFilters<int> get targetReps => $composableBuilder(
       column: $table.targetReps, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetRepsList => $composableBuilder(
+      column: $table.targetRepsList,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get targetWeight => $composableBuilder(
       column: $table.targetWeight, builder: (column) => ColumnFilters(column));
@@ -6699,6 +7190,10 @@ class $$TrainingPlanExercisesTableOrderingComposer
 
   ColumnOrderings<int> get targetReps => $composableBuilder(
       column: $table.targetReps, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetRepsList => $composableBuilder(
+      column: $table.targetRepsList,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get targetWeight => $composableBuilder(
       column: $table.targetWeight,
@@ -6758,6 +7253,9 @@ class $$TrainingPlanExercisesTableAnnotationComposer
 
   GeneratedColumn<int> get targetReps => $composableBuilder(
       column: $table.targetReps, builder: (column) => column);
+
+  GeneratedColumn<String> get targetRepsList => $composableBuilder(
+      column: $table.targetRepsList, builder: (column) => column);
 
   GeneratedColumn<double> get targetWeight => $composableBuilder(
       column: $table.targetWeight, builder: (column) => column);
@@ -6825,6 +7323,7 @@ class $$TrainingPlanExercisesTableTableManager extends RootTableManager<
             Value<String> movement = const Value.absent(),
             Value<int> targetSets = const Value.absent(),
             Value<int> targetReps = const Value.absent(),
+            Value<String?> targetRepsList = const Value.absent(),
             Value<double?> targetWeight = const Value.absent(),
             Value<int?> restSeconds = const Value.absent(),
             Value<String> trainingType = const Value.absent(),
@@ -6837,6 +7336,7 @@ class $$TrainingPlanExercisesTableTableManager extends RootTableManager<
             movement: movement,
             targetSets: targetSets,
             targetReps: targetReps,
+            targetRepsList: targetRepsList,
             targetWeight: targetWeight,
             restSeconds: restSeconds,
             trainingType: trainingType,
@@ -6849,6 +7349,7 @@ class $$TrainingPlanExercisesTableTableManager extends RootTableManager<
             required String movement,
             required int targetSets,
             required int targetReps,
+            Value<String?> targetRepsList = const Value.absent(),
             Value<double?> targetWeight = const Value.absent(),
             Value<int?> restSeconds = const Value.absent(),
             Value<String> trainingType = const Value.absent(),
@@ -6861,6 +7362,7 @@ class $$TrainingPlanExercisesTableTableManager extends RootTableManager<
             movement: movement,
             targetSets: targetSets,
             targetReps: targetReps,
+            targetRepsList: targetRepsList,
             targetWeight: targetWeight,
             restSeconds: restSeconds,
             trainingType: trainingType,
@@ -6942,6 +7444,7 @@ typedef $$BodyMeasurementsTableCreateCompanionBuilder
   Value<double?> bmi,
   Value<double?> waistHipRatio,
   Value<String?> note,
+  Value<String?> imagePath,
   required DateTime measuredAt,
   required DateTime createdAt,
 });
@@ -6963,6 +7466,7 @@ typedef $$BodyMeasurementsTableUpdateCompanionBuilder
   Value<double?> bmi,
   Value<double?> waistHipRatio,
   Value<String?> note,
+  Value<String?> imagePath,
   Value<DateTime> measuredAt,
   Value<DateTime> createdAt,
 });
@@ -7023,6 +7527,9 @@ class $$BodyMeasurementsTableFilterComposer
 
   ColumnFilters<String> get note => $composableBuilder(
       column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imagePath => $composableBuilder(
+      column: $table.imagePath, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get measuredAt => $composableBuilder(
       column: $table.measuredAt, builder: (column) => ColumnFilters(column));
@@ -7089,6 +7596,9 @@ class $$BodyMeasurementsTableOrderingComposer
   ColumnOrderings<String> get note => $composableBuilder(
       column: $table.note, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get imagePath => $composableBuilder(
+      column: $table.imagePath, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get measuredAt => $composableBuilder(
       column: $table.measuredAt, builder: (column) => ColumnOrderings(column));
 
@@ -7153,6 +7663,9 @@ class $$BodyMeasurementsTableAnnotationComposer
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
 
+  GeneratedColumn<String> get imagePath =>
+      $composableBuilder(column: $table.imagePath, builder: (column) => column);
+
   GeneratedColumn<DateTime> get measuredAt => $composableBuilder(
       column: $table.measuredAt, builder: (column) => column);
 
@@ -7203,6 +7716,7 @@ class $$BodyMeasurementsTableTableManager extends RootTableManager<
             Value<double?> bmi = const Value.absent(),
             Value<double?> waistHipRatio = const Value.absent(),
             Value<String?> note = const Value.absent(),
+            Value<String?> imagePath = const Value.absent(),
             Value<DateTime> measuredAt = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
@@ -7223,6 +7737,7 @@ class $$BodyMeasurementsTableTableManager extends RootTableManager<
             bmi: bmi,
             waistHipRatio: waistHipRatio,
             note: note,
+            imagePath: imagePath,
             measuredAt: measuredAt,
             createdAt: createdAt,
           ),
@@ -7243,6 +7758,7 @@ class $$BodyMeasurementsTableTableManager extends RootTableManager<
             Value<double?> bmi = const Value.absent(),
             Value<double?> waistHipRatio = const Value.absent(),
             Value<String?> note = const Value.absent(),
+            Value<String?> imagePath = const Value.absent(),
             required DateTime measuredAt,
             required DateTime createdAt,
           }) =>
@@ -7263,6 +7779,7 @@ class $$BodyMeasurementsTableTableManager extends RootTableManager<
             bmi: bmi,
             waistHipRatio: waistHipRatio,
             note: note,
+            imagePath: imagePath,
             measuredAt: measuredAt,
             createdAt: createdAt,
           ),
